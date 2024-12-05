@@ -1,5 +1,6 @@
 package com.edunexuscourseservice.domain.course.controller;
 
+import com.edunexuscourseservice.domain.course.config.ApplicationConfig;
 import com.edunexuscourseservice.domain.course.controller.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
@@ -61,8 +62,9 @@ public class CourseController {
 
     // 모든 강의 목록 조회
     @GetMapping
-    public ResponseEntity<List<CourseResponse>> getAllCourses(@RequestParam String courseTitle, Pageable pageable) {
-        List<Course> courses = courseService.getAllCourses(new CourseSearch(courseTitle), pageable);
+    public ResponseEntity<List<CourseResponse>> getAllCoursesByTitle(@RequestParam String courseTitle, Pageable pageable) {
+        CourseSearch courseSearch = new CourseSearch(courseTitle);
+        List<Course> courses = courseService.getAllCourses(courseSearch, ApplicationConfig.getTitleSearchStrategy(), pageable);
         List<CourseResponse> responses = courses.stream()
                 .map(CourseResponse::from)
                 .collect(Collectors.toList());

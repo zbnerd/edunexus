@@ -2,12 +2,11 @@ package com.edunexuscourseservice.domain.course.repository;
 
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.edunexuscourseservice.domain.course.entity.condition.strategy.SearchStrategy;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -25,19 +24,12 @@ public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
     }
 
     @Override
-    public List<Course> findAll(CourseSearch courseSearch, Pageable pageable) {
+    public List<Course> findAll(CourseSearch search, SearchStrategy searchStrategy, Pageable pageable) {
         return queryFactory
                 .selectFrom(course)
-                .where(courseNameEq(courseSearch.getCourseTitle()))
+                .where(searchStrategy.getSearchCondition(search))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-    }
-
-    private BooleanExpression courseNameEq(String courseTitle) {
-        if (!StringUtils.hasText(courseTitle)) {
-            return null;
-        }
-        return course.title.toLowerCase().like("%" + courseTitle.toLowerCase() + "%");
     }
 }

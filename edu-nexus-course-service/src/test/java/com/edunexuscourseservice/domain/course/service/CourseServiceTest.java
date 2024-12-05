@@ -1,8 +1,10 @@
 package com.edunexuscourseservice.domain.course.service;
 
+import com.edunexuscourseservice.domain.course.config.ApplicationConfig;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
+import com.edunexuscourseservice.domain.course.entity.condition.strategy.SearchStrategy;
 import com.edunexuscourseservice.domain.course.repository.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -100,17 +101,18 @@ public class CourseServiceTest {
         List<Course> courses = Arrays.asList(new Course(), new Course());
         CourseSearch courseSearch = new CourseSearch();
         PageRequest page = PageRequest.of(0, 20);
+        SearchStrategy strategy = ApplicationConfig.getTitleSearchStrategy();
 
         // when
-        when(courseRepository.findAll(courseSearch, page)).thenReturn(courses);
+        when(courseRepository.findAll(courseSearch, strategy, page)).thenReturn(courses);
 
 
         // then
-        List<Course> result = courseService.getAllCourses(courseSearch, page);
+        List<Course> result = courseService.getAllCourses(courseSearch, strategy, page);
 
         assertNotNull(result);
         assertEquals(courses.size(), result.size());
-        verify(courseRepository).findAll(courseSearch, page);
+        verify(courseRepository).findAll(courseSearch, strategy, page);
     }
 
     @Test
@@ -119,16 +121,17 @@ public class CourseServiceTest {
         List<Course> courses = Arrays.asList(new Course(), new Course());
         CourseSearch courseSearch = new CourseSearch("test_title");
         PageRequest page = PageRequest.of(0, 20);
+        SearchStrategy strategy = ApplicationConfig.getTitleSearchStrategy();
 
         // when
-        when(courseRepository.findAll(courseSearch, page)).thenReturn(courses);
+        when(courseRepository.findAll(courseSearch, strategy, page)).thenReturn(courses);
 
         // then
-        List<Course> result = courseService.getAllCourses(courseSearch, page);
+        List<Course> result = courseService.getAllCourses(courseSearch, strategy, page);
 
         assertNotNull(result);
         assertEquals(courses.size(), result.size());
-        verify(courseRepository).findAll(courseSearch, page);
+        verify(courseRepository).findAll(courseSearch, strategy, page);
     }
 
     private void setId(Object target, Long id) throws Exception {
