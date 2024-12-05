@@ -1,9 +1,12 @@
 package com.edunexuscourseservice.domain.course.service;
 
 import com.edunexuscourseservice.domain.course.entity.Course;
+import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.domain.course.repository.CourseRepository;
+import com.edunexuscourseservice.domain.course.repository.CourseRepositoryCustomImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +41,9 @@ public class CourseService {
 
     /* 페이징 적용 필요. */
 
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    public List<Course> getAllCourses(CourseSearch courseSearch, Pageable pageable) {
+        return courseRepository.findAll(courseSearch, pageable);
     }
+
+
 }

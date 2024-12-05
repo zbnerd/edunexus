@@ -3,10 +3,12 @@ package com.edunexuscourseservice.domain.course.controller;
 import com.edunexuscourseservice.domain.course.controller.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
+import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.domain.course.service.CourseService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,8 +61,8 @@ public class CourseController {
 
     // 모든 강의 목록 조회
     @GetMapping
-    public ResponseEntity<List<CourseResponse>> getAllCourses() {
-        List<Course> courses = courseService.getAllCourses();
+    public ResponseEntity<List<CourseResponse>> getAllCourses(@RequestParam String courseTitle, Pageable pageable) {
+        List<Course> courses = courseService.getAllCourses(new CourseSearch(courseTitle), pageable);
         List<CourseResponse> responses = courses.stream()
                 .map(CourseResponse::from)
                 .collect(Collectors.toList());
