@@ -1,12 +1,11 @@
 package com.edunexususerservice.domain.user.controller;
 
-import com.edunexususerservice.domain.exception.NotFoundException;
+import com.edunexususerservice.domain.user.exception.NotFoundException;
 import com.edunexususerservice.domain.user.dto.PasswordChangeDto;
 import com.edunexususerservice.domain.user.dto.UserDto;
 import com.edunexususerservice.domain.user.entity.User;
 import com.edunexususerservice.domain.user.entity.UserLoginHistory;
 import com.edunexususerservice.domain.user.service.UserService;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

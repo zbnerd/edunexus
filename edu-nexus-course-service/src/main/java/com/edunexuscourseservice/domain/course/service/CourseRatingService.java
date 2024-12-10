@@ -52,4 +52,6 @@ public class CourseRatingService {
     public List<CourseRating> getAllRatingsByCourseId(Long courseId) {
         return courseRatingRepository.findByCourseId(courseId);
     }
+
+
 }

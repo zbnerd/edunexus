@@ -1,7 +1,7 @@
 package com.edunexususerservice.domain.user.service;
 
-import com.edunexususerservice.domain.exception.InvalidPasswordException;
-import com.edunexususerservice.domain.exception.NotFoundException;
+import com.edunexususerservice.domain.user.exception.InvalidPasswordException;
+import com.edunexususerservice.domain.user.exception.NotFoundException;
 import com.edunexususerservice.domain.user.entity.User;
 import com.edunexususerservice.domain.user.repository.UserLoginTokenRedisRepository;
 import com.edunexususerservice.domain.user.repository.UserRepository;

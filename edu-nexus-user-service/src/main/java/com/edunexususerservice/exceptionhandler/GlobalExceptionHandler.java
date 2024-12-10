@@ -1,8 +1,8 @@
 package com.edunexususerservice.exceptionhandler;
 
-import com.edunexususerservice.domain.exception.DuplicateUserException;
-import com.edunexususerservice.domain.exception.InvalidPasswordException;
-import com.edunexususerservice.domain.exception.NotFoundException;
+import com.edunexususerservice.domain.user.exception.DuplicateUserException;
+import com.edunexususerservice.domain.user.exception.InvalidPasswordException;
+import com.edunexususerservice.domain.user.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,7 +1,7 @@
 package com.edunexususerservice.domain.user.service;
 
-import com.edunexususerservice.domain.exception.DuplicateUserException;
-import com.edunexususerservice.domain.exception.InvalidPasswordException;
+import com.edunexususerservice.domain.user.exception.DuplicateUserException;
+import com.edunexususerservice.domain.user.exception.InvalidPasswordException;
 import com.edunexususerservice.domain.user.dto.PasswordChangeDto;
 import com.edunexususerservice.domain.user.dto.UserDto;
 import com.edunexususerservice.domain.user.entity.User;

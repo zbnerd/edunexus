@@ -1,4 +1,4 @@
-package com.edunexususerservice.domain.exception;
+package com.edunexususerservice.domain.user.exception;
 
 public class DuplicateUserException extends RuntimeException {
     public DuplicateUserException() {
