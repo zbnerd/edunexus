@@ -3,6 +3,8 @@ package com.edunexususerservice.domain.user.service;
 import com.edunexususerservice.domain.exception.InvalidPasswordException;
 import com.edunexususerservice.domain.user.dto.UserDto;
 import com.edunexususerservice.domain.user.entity.User;
+import com.edunexususerservice.domain.user.repository.UserLoginTokenRedisRepository;
+import com.edunexususerservice.domain.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -27,13 +29,19 @@ class JWTServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private UserLoginTokenRedisRepository userLoginTokenRedisRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private JWTService jwtService;
     private final String secretKey = "gP1hx!82&fD4z@V9X%YqL#m6kP*o$w3B5E7Jr^N+T2a8ZyC-WxQ#vK@LdFt&R!rt";
 
     @BeforeEach
     void setUp() {
-        jwtService = new JWTService(passwordEncoder);
+        jwtService = new JWTService(passwordEncoder, userLoginTokenRedisRepository, userRepository);
     }
 
     @Test

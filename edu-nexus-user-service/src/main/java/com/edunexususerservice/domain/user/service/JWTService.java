@@ -1,7 +1,11 @@
 package com.edunexususerservice.domain.user.service;
 
 import com.edunexususerservice.domain.exception.InvalidPasswordException;
+import com.edunexususerservice.domain.exception.NotFoundException;
 import com.edunexususerservice.domain.user.entity.User;
+import com.edunexususerservice.domain.user.repository.UserLoginTokenRedisRepository;
+import com.edunexususerservice.domain.user.repository.UserRepository;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,9 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.sql.Date;
 
 @Service
@@ -19,25 +24,35 @@ import java.sql.Date;
 @Slf4j
 public class JWTService {
 
-    private final PasswordEncoder passwordEncoder;
-
     @Value("${jwt.secret}")
     private String secretKey;
+
+    private final PasswordEncoder passwordEncoder;
+    private final UserLoginTokenRedisRepository redisRepository;
+    private final UserRepository userRepository;
 
     public String login(User existingUser, String requestPassword) {
         if (!passwordEncoder.matches(requestPassword, existingUser.getPasswordHash())) {
             throw new InvalidPasswordException("Invalid credentials");
         }
 
-
+        String cachedToken = redisRepository.findLoginToken(existingUser.getId());
+        if (StringUtils.hasText(cachedToken)) {
+            log.info("cachedToken: {}", cachedToken);
+            return cachedToken;
+        }
 
         long currentTimeMillis = System.currentTimeMillis();
-        return Jwts.builder()
+
+        String jwtToken = Jwts.builder()
                 .setSubject(existingUser.getEmail())
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + 3600000)) // Token expires in 1 hour
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .signWith(jwtSigningKey())
                 .compact();
+
+        redisRepository.saveLoginToken(existingUser.getId(), jwtToken, 3600);
+        return jwtToken;
     }
 
     public boolean validateToken(String token) {
@@ -52,21 +67,35 @@ public class JWTService {
 
     public String refreshToken(String token) {
         Claims claims = parseJwtClaims(token);
+        String userEmail = claims.getSubject();
+
+        User foundUser = userRepository.findByEmail(userEmail).orElseThrow(() -> new NotFoundException("User Not Found"));
+        Long userId = foundUser.getId();
+
+        redisRepository.deleteLoginToken(userId);
+
         long currentTimeMillis = System.currentTimeMillis();
-        return Jwts.builder()
-                .setSubject(claims.getSubject())
+        String jwtToken = Jwts.builder()
+                .setSubject(userEmail)
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + 3600000)) // Token expires in 1 hour
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .signWith(jwtSigningKey())
                 .compact();
+
+        redisRepository.saveLoginToken(userId, jwtToken, 3600);
+
+        return jwtToken;
     }
 
     public Claims parseJwtClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8))) // 서명 키 설정
+                .setSigningKey(jwtSigningKey()) // 서명 키 설정
                 .build()
                 .parseClaimsJws(token) // JWT 파싱
                 .getBody(); // Claims 객체 반환
     }
 
+    private Key jwtSigningKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
 }
