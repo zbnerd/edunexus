@@ -13,3 +13,19 @@ services:
       - ./db/mysql/data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
     platform: linux/x86_64
+
+  edu-nexus-redis:
+    image: redis:7.0
+    container_name: edu-nexus-redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - ./db/redis/data:/data
+    command: ["redis-server", "--appendonly", "yes"] # Enable data persistence
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    platform: linux/x86_64
