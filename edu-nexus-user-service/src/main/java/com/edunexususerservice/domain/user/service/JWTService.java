@@ -29,6 +29,8 @@ public class JWTService {
             throw new InvalidPasswordException("Invalid credentials");
         }
 
+
+
         long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder()
                 .setSubject(existingUser.getEmail())

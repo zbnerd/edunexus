@@ -29,9 +29,6 @@ GET http://localhost:8080/users/1866277254078795776
         client.assert(response.status === 200, "Response status is not 200");
     }); %}
 
-### Get User Login Histories
-GET http://localhost:8080/users/1866277254078795776/login-histories
-
 ### Change Password
 POST http://localhost:8080/users/1866277254078795776/password-change
 Content-Type: application/json

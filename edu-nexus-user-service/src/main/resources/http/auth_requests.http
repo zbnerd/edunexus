@@ -19,6 +19,9 @@ Content-Type: application/json
 
 > {% client.global.set("authToken", response.body.token); %}
 
+### Get User Login Histories
+GET http://localhost:8080/users/1866282988690608128/login-histories
+
 ### Verify Token
 POST http://localhost:8080/auth/verify-token
 Content-Type: application/json
