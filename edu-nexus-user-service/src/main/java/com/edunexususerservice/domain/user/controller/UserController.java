@@ -1,4 +1,4 @@
-package com.edunexususerservice.domain.controller;
+package com.edunexususerservice.domain.user.controller;
 
 import com.edunexususerservice.domain.exception.NotFoundException;
 import com.edunexususerservice.domain.user.dto.PasswordChangeDto;

@@ -1,4 +1,4 @@
-package com.edunexususerservice.domain.controller.request;
+package com.edunexususerservice.domain.user.controller.request;
 
 import lombok.Data;
 

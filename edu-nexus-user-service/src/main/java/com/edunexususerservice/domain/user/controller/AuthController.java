@@ -1,7 +1,7 @@
-package com.edunexususerservice.domain.controller;
+package com.edunexususerservice.domain.user.controller;
 
-import com.edunexususerservice.domain.controller.request.LoginRequest;
-import com.edunexususerservice.domain.controller.request.TokenRequest;
+import com.edunexususerservice.domain.user.controller.request.LoginRequest;
+import com.edunexususerservice.domain.user.controller.request.TokenRequest;
 import com.edunexususerservice.domain.user.entity.User;
 import com.edunexususerservice.domain.user.service.JWTService;
 import com.edunexususerservice.domain.user.service.UserService;
