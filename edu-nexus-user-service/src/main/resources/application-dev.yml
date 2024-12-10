@@ -23,7 +23,12 @@ spring:
     init:
       data-locations: classpath:sql/data.sql
       schema-locations: classpath:sql/schema-mysql.sql
-      mode: always
+      mode: never
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 eureka:
   client:
