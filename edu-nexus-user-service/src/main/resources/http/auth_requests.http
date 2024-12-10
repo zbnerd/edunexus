@@ -1,0 +1,36 @@
+### Create User 1
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "testUser3",
+  "email": "edu-nexus3@example.com",
+  "password": "nexus"
+}
+
+### Generate Token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "edu-nexus3@example.com",
+  "password": "nexus"
+}
+
+> {% client.global.set("authToken", response.body.token); %}
+
+### Verify Token
+POST http://localhost:8080/auth/verify-token
+Content-Type: application/json
+
+{
+  "token": "{{authToken}}"
+}
+
+### Refresh Token
+POST http://localhost:8080/auth/refresh-token
+Content-Type: application/json
+
+{
+  "token": "{{authToken}}"
+}
