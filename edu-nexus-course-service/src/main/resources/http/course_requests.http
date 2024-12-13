@@ -1,5 +1,5 @@
 ### Create Course
-POST http://localhost:8001/courses
+POST http://localhost:8080/courses
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### Update Course
-PUT http://localhost:8001/courses/101
+PUT http://localhost:8080/courses/101
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ### Get Course by ID
-GET http://localhost:8001/courses/101
+GET http://localhost:8080/courses/101
 
 ### Get All Courses
-GET http://localhost:8001/courses?courseTitle=
+GET http://localhost:8080/courses?courseTitle=

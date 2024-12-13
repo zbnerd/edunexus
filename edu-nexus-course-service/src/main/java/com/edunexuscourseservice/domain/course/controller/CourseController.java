@@ -1,12 +1,17 @@
 package com.edunexuscourseservice.domain.course.controller;
 
 import com.edunexuscourseservice.domain.course.config.ApplicationConfig;
+import com.edunexuscourseservice.domain.course.controller.response.CourseInfoResponse;
+import com.edunexuscourseservice.domain.course.controller.response.CourseRatingAverageResponse;
+import com.edunexuscourseservice.domain.course.controller.response.CourseRatingResponse;
 import com.edunexuscourseservice.domain.course.controller.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexuscourseservice.domain.course.service.CourseRatingService;
 import com.edunexuscourseservice.domain.course.service.CourseService;
+import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseRatingService courseRatingService;
 
     // 강의 생성
     @PostMapping
@@ -54,19 +60,23 @@ public class CourseController {
 
     // 특정 강의 정보 조회
     @GetMapping("/{courseId}")
-    public ResponseEntity<CourseResponse> getCourse(@PathVariable Long courseId) {
+    public ResponseEntity<CourseInfoResponse> getCourse(@PathVariable Long courseId) {
         Course course = courseService.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
-        return ResponseEntity.ok(CourseResponse.from(course));
+
+        Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
+
+        return ResponseEntity.ok(CourseInfoResponse.from(course, RoundUtils.roundToNDecimals(courseRatingAvg, 2)));
     }
 
     // 모든 강의 목록 조회
     @GetMapping
-    public ResponseEntity<List<CourseResponse>> getAllCoursesByTitle(@RequestParam String courseTitle, Pageable pageable) {
+    public ResponseEntity<List<CourseInfoResponse>> getAllCoursesByTitle(@RequestParam String courseTitle, Pageable pageable) {
         CourseSearch courseSearch = new CourseSearch(courseTitle);
         List<Course> courses = courseService.getAllCourses(courseSearch, ApplicationConfig.getTitleSearchStrategy(), pageable);
-        List<CourseResponse> responses = courses.stream()
-                .map(CourseResponse::from)
+        List<CourseInfoResponse> responses = courses.stream()
+                .map(course -> CourseInfoResponse.from(course,
+                        RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(course.getId()), 2)))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }

@@ -35,4 +35,4 @@ DELETE http://localhost:8080/courses/101/ratings/402
 GET http://localhost:8080/courses/101/ratings
 
 ### Get Average Ratings for a Course
-GET http://localhost:8080/courses/110/ratings/average
+GET http://localhost:8080/courses/102/ratings/average
