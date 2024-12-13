@@ -2,7 +2,9 @@ package com.edunexuscourseservice.domain.course.util;
 
 public enum RedisKey {
     COURSE_RATING_TOTAL("edu-nexus-course", "course_ratings", "total"),
-    COURSE_RATING_COUNT("edu-nexus-course", "course_ratings", "count");
+    COURSE_RATING_COUNT("edu-nexus-course", "course_ratings", "count"),
+    COURSE("edu-nexus-course", "course", "entity"),
+    ;
 
     private final String database;
     private final String table;

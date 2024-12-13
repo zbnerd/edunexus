@@ -62,3 +62,6 @@ management:
 logging:
   pattern:
     level: "%5p [%X{traceId:-},%X{spanId:-}]"
+
+server:
+  port: 8002

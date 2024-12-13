@@ -20,7 +20,7 @@ public class RedisInit {
     @PostConstruct
     public void init() {
 
-        Set<String> keys = redisTemplate.keys("edu-nexus-course:*");
+        Set<String> keys = redisTemplate.keys("*");
         if (keys != null) {
             redisTemplate.delete(keys);
         }

@@ -31,7 +31,7 @@ public class CourseRatingService {
         courseRating.setCourse(course);
         CourseRating savedCourseRating = courseRatingRepository.save(courseRating);
 
-        courseRatingRedisRepository.saveReviewRating(courseId, courseRating.getRating());
+        courseRatingRedisRepository.cacheReviewRating(courseId, courseRating.getRating());
 
         return savedCourseRating;
     }

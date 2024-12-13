@@ -5,6 +5,7 @@ import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
 import com.edunexuscourseservice.domain.course.entity.condition.strategy.SearchStrategy;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 

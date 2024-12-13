@@ -15,7 +15,7 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public void saveReviewRating(Long courseId, int rating) {
+    public void cacheReviewRating(Long courseId, int rating) {
 
         String totalKey = generateRedisKeyRatingTotal(courseId);
         String countKey = generateRedisKeyRatingCount(courseId);
