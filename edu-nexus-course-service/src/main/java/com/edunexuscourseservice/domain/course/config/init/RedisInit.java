@@ -27,21 +27,25 @@ public class RedisInit {
     @PostConstruct
     public void init() {
 
-        log.info("[Redis Init] Deleting all existing Redis key");
         Set<String> keys = redisTemplate.keys("edu-nexus-course:*");
         if (keys != null) {
             redisTemplate.delete(keys);
         }
 
-        log.info("[Redis Init] Loading all courses");
         List<Course> courseList = courseRepository.findAll();
+        log.info("course List count {}", courseList.size());
 
         for (Course course : courseList) {
-            log.info("[Redis Init] Loading all course ratings for courseId: {}", course.getId());
-            List<CourseRating> courseRatingList = courseRatingRepository.findByCourseId(course.getId());
-            for (CourseRating courseRating : courseRatingList) {
-                courseRatingRedisRepository.saveReviewRating(course.getId(), courseRating.getRating());
-            }
+            List<CourseRating> ratingList = courseRatingRepository.findByCourseId(course.getId());
+            List<Integer> ratings = ratingList.stream()
+                    .map(CourseRating::getRating)
+                    .toList();
+
+            int totalRating = ratings.stream()
+                    .mapToInt(Integer::intValue)
+                    .sum();
+
+            courseRatingRedisRepository.initializeRating(course.getId(), totalRating, ratingList.size());
         }
     }
 }

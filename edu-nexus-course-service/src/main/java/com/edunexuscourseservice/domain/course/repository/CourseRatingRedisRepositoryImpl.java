@@ -16,18 +16,15 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
 
     @Override
     public void saveReviewRating(Long courseId, int rating) {
-        log.info("Saving review rating for course id {}", courseId);
 
         String totalKey = generateRedisKeyRatingTotal(courseId);
         String countKey = generateRedisKeyRatingCount(courseId);
 
         if (redisTemplate.opsForValue().get(totalKey) == null) {
-            log.info("initializing review rating total for course id {}", courseId);
             redisTemplate.opsForValue().set(totalKey, "0");
         }
 
         if (redisTemplate.opsForValue().get(countKey) == null) {
-            log.info("initializing review rating count for course id {}", courseId);
             redisTemplate.opsForValue().set(countKey, "0");
         }
 
@@ -38,7 +35,6 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
     @Override
     public void updateReviewRating(Long courseId, int originalRating, int updatedRating) {
 
-        log.info("Updating review rating for course id {}", courseId);
 
         String totalKey = generateRedisKeyRatingTotal(courseId);
 
@@ -49,7 +45,6 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
 
     @Override
     public void deleteReviewRating(Long courseId, int originalRating) {
-        log.info("Deleting review rating for course id {}", courseId);
 
         String totalKey = generateRedisKeyRatingTotal(courseId);
         String countKey = generateRedisKeyRatingCount(courseId);
@@ -60,7 +55,6 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
 
     @Override
     public double getAverageReviewRating(Long courseId) {
-        log.info("Getting average review rating for course id {}", courseId);
         String total = String.valueOf(redisTemplate.opsForValue().get(generateRedisKeyRatingTotal(courseId)));
         String count = String.valueOf(redisTemplate.opsForValue().get(generateRedisKeyRatingCount(courseId)));
 
@@ -73,6 +67,15 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
         }
 
         return Integer.parseInt(total) / 1.0 / Integer.parseInt(count);
+    }
+
+    @Override
+    public void initializeRating(Long courseId, int total, int count) {
+        String totalKey = generateRedisKeyRatingTotal(courseId);
+        String countKey = generateRedisKeyRatingCount(courseId);
+
+        redisTemplate.opsForValue().set(totalKey, String.valueOf(total));
+        redisTemplate.opsForValue().set(countKey, String.valueOf(count));
     }
 
     private String generateRedisKeyRatingTotal(Long courseId) {
