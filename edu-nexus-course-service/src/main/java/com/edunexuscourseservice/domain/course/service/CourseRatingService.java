@@ -71,4 +71,21 @@ public class CourseRatingService {
         return courseRatingRedisRepository.getAverageReviewRating(courseId);
     }
 
+    public void initCourseRatings() {
+        List<Course> courseList = courseRepository.findAll();
+
+        for (Course course : courseList) {
+            List<CourseRating> ratingList = courseRatingRepository.findByCourseId(course.getId());
+            List<Integer> ratings = ratingList.stream()
+                    .map(CourseRating::getRating)
+                    .toList();
+
+            int totalRating = ratings.stream()
+                    .mapToInt(Integer::intValue)
+                    .sum();
+
+            courseRatingRedisRepository.initializeRating(course.getId(), totalRating, ratingList.size());
+        }
+    }
+
 }
