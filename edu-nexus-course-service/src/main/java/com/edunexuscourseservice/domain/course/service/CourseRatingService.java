@@ -2,8 +2,8 @@ package com.edunexuscourseservice.domain.course.service;
 
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.CourseRating;
-import com.edunexuscourseservice.domain.course.entity.CourseSession;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexuscourseservice.domain.course.repository.CourseRatingRedisRepository;
 import com.edunexuscourseservice.domain.course.repository.CourseRatingRepository;
 import com.edunexuscourseservice.domain.course.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,7 @@ public class CourseRatingService {
 
     private final CourseRatingRepository courseRatingRepository;
     private final CourseRepository courseRepository;
+    private final CourseRatingRedisRepository courseRatingRedisRepository;
 
     @Transactional
     public CourseRating addRatingToCourse(Long courseId, CourseRating courseRating) {
@@ -28,7 +29,11 @@ public class CourseRatingService {
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
         courseRating.setCourse(course);
-        return courseRatingRepository.save(courseRating);
+        CourseRating savedCourseRating = courseRatingRepository.save(courseRating);
+
+        courseRatingRedisRepository.saveReviewRating(courseId, courseRating.getRating());
+
+        return savedCourseRating;
     }
 
     @Transactional
@@ -36,7 +41,12 @@ public class CourseRatingService {
         CourseRating courseRating = getRating(ratingId)
                 .orElseThrow(() -> new NotFoundException("CourseRating not found with id = " + ratingId));
 
+        int oldCourseRating = courseRating.getRating();
+
         courseRating.updateCourseRating(newCourseRating);
+        int newCourseRatings = courseRating.getRating();
+
+        courseRatingRedisRepository.updateReviewRating(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings);
         return courseRating;
     }
 
@@ -46,6 +56,10 @@ public class CourseRatingService {
 
     @Transactional
     public void deleteRating(Long ratingId) {
+        CourseRating courseRating = getRating(ratingId)
+                .orElseThrow(() -> new NotFoundException("CourseRating not found with id = " + ratingId));
+
+        courseRatingRedisRepository.deleteReviewRating(courseRating.getCourse().getId(), courseRating.getRating());
         courseRatingRepository.deleteById(ratingId);
     }
 
@@ -53,5 +67,8 @@ public class CourseRatingService {
         return courseRatingRepository.findByCourseId(courseId);
     }
 
+    public Double getAverageRatingByCourseId(Long courseId) {
+        return courseRatingRedisRepository.getAverageReviewRating(courseId);
+    }
 
 }

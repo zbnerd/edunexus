@@ -1,9 +1,11 @@
 package com.edunexuscourseservice.domain.course.controller;
 
+import com.edunexuscourseservice.domain.course.controller.response.CourseRatingAverageResponse;
 import com.edunexuscourseservice.domain.course.controller.response.CourseRatingResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import com.edunexuscourseservice.domain.course.entity.CourseRating;
 import com.edunexuscourseservice.domain.course.service.CourseRatingService;
+import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +61,18 @@ public class CourseRatingController {
                 .map(CourseRatingResponse::from)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
+    }
+
+    // 특정 강의의 평점 평균 조회
+    @GetMapping("/average")
+    public ResponseEntity<CourseRatingAverageResponse> getAverageRating(@PathVariable Long courseId) {
+        Double averageRating = RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(courseId), 2);
+        CourseRatingAverageResponse response = CourseRatingAverageResponse.builder()
+                .averageRating(averageRating)
+                .courseId(courseId)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @Getter

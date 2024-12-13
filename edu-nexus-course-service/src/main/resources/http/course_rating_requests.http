@@ -1,25 +1,38 @@
-### Add Rating to Course
-POST http://localhost:8080/courses/201/ratings
-Content-Type: application/json
-
-{
-  "rating": 5,
-  "comment": "Excellent course!",
-  "userId": 1
-}
-
-### Update Rating
-PUT http://localhost:8080/courses/201/ratings/401
+### Add Rating to Course1
+POST http://localhost:8080/courses/101/ratings
 Content-Type: application/json
 
 {
   "rating": 4,
+  "comment": "Excellent course!",
+  "userId": 3
+}
+
+### Add Rating to Course2
+POST http://localhost:8080/courses/102/ratings
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "good course!",
+  "userId": 4
+}
+
+### Update Rating
+PUT http://localhost:8080/courses/101/ratings/402
+Content-Type: application/json
+
+{
+  "rating": 2,
   "comment": "Very good course, but a bit hard.",
   "userId": 1
 }
 
 ### Delete Rating
-DELETE http://localhost:8080/courses/201/ratings/401
+DELETE http://localhost:8080/courses/101/ratings/402
 
 ### Get All Ratings for a Course
-GET http://localhost:8080/courses/201/ratings
+GET http://localhost:8080/courses/101/ratings
+
+### Get Average Ratings for a Course
+GET http://localhost:8080/courses/101/ratings/average
