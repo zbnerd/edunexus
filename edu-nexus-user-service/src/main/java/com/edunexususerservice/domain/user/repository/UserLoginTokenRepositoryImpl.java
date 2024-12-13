@@ -3,7 +3,6 @@ package com.edunexususerservice.domain.user.repository;
 import com.edunexususerservice.domain.user.util.RedisKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
