@@ -16,14 +16,13 @@ spring:
   jpa:
     defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         use_sql_comments: true
-
   sql:
     init:
       data-locations: classpath:sql/data.sql
@@ -62,6 +61,10 @@ management:
 logging:
   pattern:
     level: "%5p [%X{traceId:-},%X{spanId:-}]"
+  level:
+    org:
+      hibernate: off
+
 
 server:
   port: 8002

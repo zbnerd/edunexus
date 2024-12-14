@@ -1,5 +1,6 @@
 package com.edunexuscourseservice.domain.course.service;
 
+import com.edunexuscourseservice.domain.course.aop.annotation.LogExecutionTime;
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.CourseRating;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
@@ -63,14 +64,17 @@ public class CourseRatingService {
         courseRatingRepository.deleteById(ratingId);
     }
 
+//    @LogExecutionTime
     public List<CourseRating> getAllRatingsByCourseId(Long courseId) {
         return courseRatingRepository.findByCourseId(courseId);
     }
 
+//    @LogExecutionTime
     public Double getAverageRatingByCourseId(Long courseId) {
         return courseRatingRedisRepository.getAverageReviewRating(courseId);
     }
 
+//    @LogExecutionTime
     public void initCourseRatings() {
         List<Course> courseList = courseRepository.findAll();
 

@@ -1,5 +1,6 @@
 package com.edunexuscourseservice.domain.course.config.init;
 
+import com.edunexuscourseservice.domain.course.aop.annotation.LogExecutionTime;
 import com.edunexuscourseservice.domain.course.service.CourseRatingService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

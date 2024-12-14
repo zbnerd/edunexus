@@ -75,6 +75,18 @@ public class CourseRatingController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/average/db")
+    public ResponseEntity<CourseRatingAverageResponse> getAverageRatingFromDb(@PathVariable Long courseId) {
+        List<CourseRating> courseRatingList = courseRatingService.getAllRatingsByCourseId(courseId);
+        Double averageRating = RoundUtils.roundToNDecimals(courseRatingList.stream().mapToInt(CourseRating::getRating).average().getAsDouble(), 2);
+        CourseRatingAverageResponse response = CourseRatingAverageResponse.builder()
+                .averageRating(averageRating)
+                .courseId(courseId)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
     @Getter
     @Builder
     static class CourseRatingCreateRequest {
