@@ -1,1 +1,7 @@
 rootProject.name = 'edu-nexus'
+include 'edu-nexus-course-service'
+include 'edu-nexus-discovery'
+include 'edu-nexus-enrollment-service'
+include 'edu-nexus-file-manage-service'
+include 'edu-nexus-grpc-common'
+include 'edu-nexus-user-service'
