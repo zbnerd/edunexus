@@ -3,12 +3,10 @@ package com.edunexuscourseservice.domain.course.repository;
 import com.edunexuscourseservice.domain.course.entity.Course;
 import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.domain.course.entity.condition.context.CourseSearchConditionContext;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -35,10 +33,5 @@ public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-    }
-
-    private BooleanExpression courseTitleLike(String courseTitle) {
-        if (StringUtils.hasText(courseTitle)) return course.title.like("%" + courseTitle + "%");
-        return null;
     }
 }
