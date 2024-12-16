@@ -1,13 +1,10 @@
 package com.edunexuscourseservice.domain.course.controller;
 
-import com.edunexuscourseservice.domain.course.config.ApplicationConfig;
 import com.edunexuscourseservice.domain.course.controller.response.CourseInfoResponse;
-import com.edunexuscourseservice.domain.course.controller.response.CourseRatingAverageResponse;
-import com.edunexuscourseservice.domain.course.controller.response.CourseRatingResponse;
 import com.edunexuscourseservice.domain.course.controller.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
+import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.domain.course.service.CourseRatingService;
 import com.edunexuscourseservice.domain.course.service.CourseService;
@@ -71,9 +68,13 @@ public class CourseController {
 
     // 모든 강의 목록 조회
     @GetMapping
-    public ResponseEntity<List<CourseInfoResponse>> getAllCoursesByTitle(@RequestParam String courseTitle, Pageable pageable) {
-        CourseSearch courseSearch = new CourseSearch(courseTitle);
-        List<Course> courses = courseService.getAllCourses(courseSearch, ApplicationConfig.getTitleSearchStrategy(), pageable);
+    public ResponseEntity<List<CourseInfoResponse>> getAllCoursesByTitle(
+            @RequestParam String courseTitle,
+            @RequestParam String courseDescription,
+            Pageable pageable
+    ) {
+        CourseSearchCondition condition = new CourseSearchCondition(courseTitle, courseDescription);
+        List<Course> courses = courseService.getAllCourses(condition, pageable);
         List<CourseInfoResponse> responses = courses.stream()
                 .map(course -> CourseInfoResponse.from(course,
                         RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(course.getId()), 2)))

@@ -1,13 +1,14 @@
 package com.edunexuscourseservice.domain.course.repository;
 
 import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
-import com.edunexuscourseservice.domain.course.entity.condition.strategy.SearchStrategy;
+import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCondition;
+import com.edunexuscourseservice.domain.course.entity.condition.context.CourseSearchConditionContext;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -18,19 +19,26 @@ public class CourseRepositoryCustomImpl implements CourseRepositoryCustom {
 
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
+    private final CourseSearchConditionContext conditionContext;
 
-    public CourseRepositoryCustomImpl(EntityManager em) {
+    public CourseRepositoryCustomImpl(EntityManager em, CourseSearchConditionContext conditionContext) {
         this.em = em;
         this.queryFactory = new JPAQueryFactory(em);
+        this.conditionContext = conditionContext;
     }
 
     @Override
-    public List<Course> findAll(CourseSearch search, SearchStrategy searchStrategy, Pageable pageable) {
+    public List<Course> findAll(CourseSearchCondition condition, Pageable pageable) {
         return queryFactory
                 .selectFrom(course)
-                .where(searchStrategy.getSearchCondition(search))
+                .where(conditionContext.buildExpression(condition))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
+
+    private BooleanExpression courseTitleLike(String courseTitle) {
+        if (StringUtils.hasText(courseTitle)) return course.title.like("%" + courseTitle + "%");
+        return null;
     }
 }

@@ -2,8 +2,7 @@ package com.edunexuscourseservice.domain.course.service;
 
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.condition.CourseSearch;
-import com.edunexuscourseservice.domain.course.entity.condition.strategy.SearchStrategy;
+import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.domain.course.entity.redis.RCourse;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.domain.course.repository.CourseRedisRepository;
@@ -76,9 +75,8 @@ public class CourseService {
 
     }
 
-    public List<Course> getAllCourses(CourseSearch courseSearch, SearchStrategy searchStrategy, Pageable pageable) {
-        return courseRepository.findAll(courseSearch, searchStrategy, pageable);
+    public List<Course> getAllCourses(CourseSearchCondition condition, Pageable pageable) {
+        return courseRepository.findAll(condition, pageable);
     }
-
 
 }
