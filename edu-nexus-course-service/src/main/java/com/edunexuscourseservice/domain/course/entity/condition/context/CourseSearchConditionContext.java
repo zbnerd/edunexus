@@ -4,15 +4,14 @@ import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCond
 import com.edunexuscourseservice.domain.course.entity.condition.strategy.CourseSearchStrategy;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class CourseSearchConditionContext {
-    private final List<CourseSearchStrategy> strategies = new ArrayList<>();
+    private final List<CourseSearchStrategy> strategies;
 
-    public void addStrategy(CourseSearchStrategy strategy) {
-        strategies.add(strategy);
+    public CourseSearchConditionContext(List<CourseSearchStrategy> strategies) {
+        this.strategies = strategies;
     }
 
     public BooleanExpression buildExpression(CourseSearchCondition condition) {

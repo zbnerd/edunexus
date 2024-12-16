@@ -1,20 +1,24 @@
 package com.edunexuscourseservice.domain.course.config;
 
 import com.edunexuscourseservice.domain.course.entity.condition.context.CourseSearchConditionContext;
-import com.edunexuscourseservice.domain.course.entity.condition.strategy.CourseDescriptionSearchStrategy;
-import com.edunexuscourseservice.domain.course.entity.condition.strategy.CourseTitleSearchStrategy;
+import com.edunexuscourseservice.domain.course.entity.condition.strategy.CourseSearchStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class CourseSearchStrategyConfig {
 
+    private final List<CourseSearchStrategy> strategies;
+
+    public CourseSearchStrategyConfig(List<CourseSearchStrategy> strategies) {
+        this.strategies = strategies;
+    }
+
     @Bean
     public CourseSearchConditionContext courseSearchConditionContext() {
-        CourseSearchConditionContext context = new CourseSearchConditionContext();
-        context.addStrategy(new CourseTitleSearchStrategy());
-        context.addStrategy(new CourseDescriptionSearchStrategy());
-        return context;
+        return new CourseSearchConditionContext(strategies);
     }
 
 }

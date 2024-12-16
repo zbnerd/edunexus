@@ -68,12 +68,10 @@ public class CourseController {
 
     // 모든 강의 목록 조회
     @GetMapping
-    public ResponseEntity<List<CourseInfoResponse>> getAllCoursesByTitle(
-            @RequestParam(required = false) String courseTitle,
-            @RequestParam(required = false) String courseDescription,
+    public ResponseEntity<List<CourseInfoResponse>> getAllCourses(
+            @ModelAttribute CourseSearchCondition condition,
             Pageable pageable
     ) {
-        CourseSearchCondition condition = new CourseSearchCondition(courseTitle, courseDescription);
         List<Course> courses = courseService.getAllCourses(condition, pageable);
         List<CourseInfoResponse> responses = courses.stream()
                 .map(course -> CourseInfoResponse.from(course,
