@@ -69,8 +69,8 @@ public class CourseController {
     // 모든 강의 목록 조회
     @GetMapping
     public ResponseEntity<List<CourseInfoResponse>> getAllCoursesByTitle(
-            @RequestParam String courseTitle,
-            @RequestParam String courseDescription,
+            @RequestParam(required = false) String courseTitle,
+            @RequestParam(required = false) String courseDescription,
             Pageable pageable
     ) {
         CourseSearchCondition condition = new CourseSearchCondition(courseTitle, courseDescription);
