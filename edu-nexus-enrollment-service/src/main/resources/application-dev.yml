@@ -63,4 +63,4 @@ grpc:
     port: 9002
 
 server:
-  port: 8003
+  port: 8002

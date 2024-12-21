@@ -1,14 +1,10 @@
 spring:
   application:
-    name: edu-nexus-file-manage-service
+    name: edu-nexus-playback-service
 
-  servlet:
-    multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
 
   datasource:
-    url: jdbc:mysql://localhost:3306/edu_nexus_files
+    url: jdbc:mysql://localhost:3306/edu_nexus_playback
     driverClassName: com.mysql.cj.jdbc.Driver
     username: edu
     password: nexus
@@ -37,30 +33,9 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
 
-file:
-  upload-dir: ./uploads
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-    propagation:
-      consume: b3
-      produce: b3_multi
-  zipkin:
-    tracing:
-      endpoint: "http://localhost:9411/api/v2/spans"
-  endpoints:
-    web:
-      exposure:
-        include:
-          - info
-          - health
-          - loggers
-          - mappings
-          - metrics
-          - shutdown
-          - prometheus
+grpc:
+  server:
+    port: 9005
 
 server:
-  port: 8003
+  port: 8005
