@@ -1,8 +1,13 @@
 package com.edunexusgraphql.model;
 
+import com.edunexusenrollmentservice.domain.service.EnrollmentServiceOuterClass;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Data
 @NoArgsConstructor
@@ -16,4 +21,16 @@ public class PlanSubscription {
     private String startDate;
     private String endDate;
     private String status;
+
+    public static PlanSubscription fromProto(EnrollmentServiceOuterClass.Subscription proto) {
+        PlanSubscription subscription = new PlanSubscription();
+        subscription.setId(proto.getSubscriptionId());
+        subscription.setUserId(proto.getUserId());
+        subscription.setPaymentId(proto.getPaymentId());
+        subscription.setStatus(proto.getStatus());
+        subscription.setStartDate(LocalDateTime.ofInstant(Instant.ofEpochSecond(proto.getStartDate()), ZoneId.systemDefault()).toString());
+        subscription.setEndDate(LocalDateTime.ofInstant(Instant.ofEpochSecond(proto.getEndDate()), ZoneId.systemDefault()).toString());
+        return subscription;
+    }
+
 }

@@ -2,7 +2,7 @@ package com.edunexusgraphql.controller;
 
 import com.edunexusgraphql.model.EventLog;
 import com.edunexusgraphql.model.PlaybackRecord;
-import com.edunexusgraphql.service.dummy.DummyPlaybackService;
+import com.edunexusgraphql.service.PlaybackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class PlaybackController {
 
-    private final DummyPlaybackService playbackService;
+    private final PlaybackService playbackService;
 
     @MutationMapping
     public PlaybackRecord startRecord(

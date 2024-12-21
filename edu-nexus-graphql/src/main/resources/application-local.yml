@@ -20,3 +20,22 @@ eureka:
 
 server:
   port: 8006
+
+grpc:
+  client:
+    edu-nexus-playback-service:
+      address: 'discovery:///edu-nexus-playback-service'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext
+    edu-nexus-payment-service:
+      address: 'discovery:///edu-nexus-enrollment-service'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext
+    edu-nexus-enrollment-service:
+      address: 'discovery:///edu-nexus-enrollment-service'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext
+

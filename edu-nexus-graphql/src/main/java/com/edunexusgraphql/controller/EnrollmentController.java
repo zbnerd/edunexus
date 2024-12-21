@@ -3,9 +3,8 @@ package com.edunexusgraphql.controller;
 import com.edunexusgraphql.model.Enrollment;
 import com.edunexusgraphql.model.Payment;
 import com.edunexusgraphql.model.PlanSubscription;
-import com.edunexusgraphql.service.dummy.DummyEnrollmentService;
+import com.edunexusgraphql.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -17,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnrollmentController {
 
-    private final DummyEnrollmentService enrollmentService;
+    private final EnrollmentService enrollmentService;
 
     @QueryMapping
     public Boolean checkCourseAccess(
@@ -45,7 +44,7 @@ public class EnrollmentController {
     public Payment purchaseCourse(
             @Argument Long userId,
             @Argument Long courseId,
-            @Argument Float amount,
+            @Argument Double amount,
             @Argument String paymentMethod
     ) {
         return enrollmentService.purchaseCourse(userId, courseId, amount, paymentMethod);
