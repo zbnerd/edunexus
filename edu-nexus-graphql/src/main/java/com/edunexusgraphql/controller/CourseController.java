@@ -19,8 +19,12 @@ public class CourseController {
     private final CourseService courseService;
 
     @QueryMapping
-    public List<Course> listCourses() {
-        return courseService.findAllCourses();
+    public List<Course> listCourses(
+            @Argument String title,
+            @Argument String description,
+            @Argument Integer page
+    ) {
+        return courseService.findAllCourses(title, description, page);
     }
 
     @QueryMapping

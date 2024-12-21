@@ -71,8 +71,11 @@ public class CourseService {
     }
 
 
-    public List<Course> findAllCourses() {
-        Course[] courses = restTemplate.getForObject(BASE_URL, Course[].class);
+    public List<Course> findAllCourses(String title, String description, Integer page) {
+
+        String url = BASE_URL + "?title=" + title + "&description=" + description + "&page=" + page;
+
+        Course[] courses = restTemplate.getForObject(url, Course[].class);
         if (courses == null) {
             return Collections.emptyList();
         }

@@ -3,7 +3,7 @@ type Query {
     getUser(userId: ID!): User
 
     # 모든 강의를 조회합니다.
-    listCourses: [Course]
+    listCourses(title: String!, description: String!, page: Int!): [Course]
 
     # 특정 강의 정보를 course ID를 통해 조회합니다.
     getCourse(courseId: ID!): Course
