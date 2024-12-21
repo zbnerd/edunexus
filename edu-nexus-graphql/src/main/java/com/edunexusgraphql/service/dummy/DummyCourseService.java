@@ -15,9 +15,9 @@ public class DummyCourseService {
     private final List<Course> courses = new ArrayList<>();
     private final List<CourseSession> sessions = new ArrayList<>();
     private final List<CourseRating> ratings = new ArrayList<>();
-    private final AtomicLong courseCounter = new AtomicLong(100);
-    private final AtomicLong sessionCounter = new AtomicLong(100);
-    private final AtomicLong ratingCounter = new AtomicLong(100);
+    private final AtomicLong courseCounter = new AtomicLong(99);
+    private final AtomicLong sessionCounter = new AtomicLong(99);
+    private final AtomicLong ratingCounter = new AtomicLong(99);
 
     public DummyCourseService() {
         initData();
@@ -27,6 +27,7 @@ public class DummyCourseService {
         // Adding dummy courses
         courses.add(new Course(courseCounter.incrementAndGet(), "Introduction to GraphQL", "Learn the basics of GraphQL", 101L, new ArrayList<>(), new ArrayList<>()));
         courses.add(new Course(courseCounter.incrementAndGet(), "Advanced GraphQL", "Deep dive into GraphQL", 102L, new ArrayList<>(), new ArrayList<>()));
+        courses.add(new Course(200L, "Advanced GraphQL", "Deep dive into GraphQL", 102L, new ArrayList<>(), new ArrayList<>()));
 
         // Adding dummy sessions
         sessions.add(new CourseSession(sessionCounter.incrementAndGet(), 100L, "Session 1: Basics", new ArrayList<>()));
