@@ -2,9 +2,12 @@ package com.edunexuscourseservice.domain.course.controller.response;
 
 import com.edunexuscourseservice.domain.course.entity.Course;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class CourseInfoResponse {
+
+    @Setter
     private Long id;
     private String title;
     private String description;

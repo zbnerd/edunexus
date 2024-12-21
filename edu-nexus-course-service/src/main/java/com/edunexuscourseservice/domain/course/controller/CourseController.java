@@ -1,6 +1,8 @@
 package com.edunexuscourseservice.domain.course.controller;
 
 import com.edunexuscourseservice.domain.course.controller.response.CourseInfoResponse;
+import com.edunexuscourseservice.domain.course.controller.response.CourseRatingAverageResponse;
+import com.edunexuscourseservice.domain.course.controller.response.CourseRatingResponse;
 import com.edunexuscourseservice.domain.course.controller.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.domain.course.entity.Course;
@@ -63,7 +65,18 @@ public class CourseController {
 
         Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
 
+
         return ResponseEntity.ok(CourseInfoResponse.from(course, RoundUtils.roundToNDecimals(courseRatingAvg, 2)));
+    }
+
+    // 특정 강의 평균 평점 조회
+    @GetMapping("/{courseId}/course-rating-average")
+    public ResponseEntity<CourseRatingAverageResponse> getCourseRatingAverage(
+            @PathVariable Long courseId
+    ) {
+        Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
+
+        return ResponseEntity.ok(CourseRatingAverageResponse.from(courseId, courseRatingAvg));
     }
 
     // 모든 강의 목록 조회

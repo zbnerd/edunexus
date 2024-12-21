@@ -16,5 +16,5 @@ public class Course {
     private Long instructorId;
     private List<CourseSession> courseSessions;  // Connections to course sessions
     private List<CourseRating> ratings;          // Connections to course ratings
-
+    private Float courseRatingAvg;
 }

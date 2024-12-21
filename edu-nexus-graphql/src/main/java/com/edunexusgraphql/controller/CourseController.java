@@ -1,12 +1,10 @@
 package com.edunexusgraphql.controller;
 
-import com.edunexusgraphql.exception.CourseNotFoundException;
 import com.edunexusgraphql.model.Course;
 import com.edunexusgraphql.model.CourseRating;
 import com.edunexusgraphql.model.CourseSession;
-import com.edunexusgraphql.service.dummy.DummyCourseService;
+import com.edunexusgraphql.service.CourseService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -18,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final DummyCourseService courseService;
+    private final CourseService courseService;
 
     @QueryMapping
     public List<Course> listCourses() {
@@ -26,7 +24,7 @@ public class CourseController {
     }
 
     @QueryMapping
-    public Course getCourse(@Argument Long userId, @Argument Long courseId) {
+    public Course getCourse(@Argument Long courseId) {
         return courseService.findCourseById(courseId).orElseThrow(() -> new RuntimeException("Course not found" + courseId));
     }
 

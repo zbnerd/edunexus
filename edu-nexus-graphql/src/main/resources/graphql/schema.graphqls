@@ -6,7 +6,7 @@ type Query {
     listCourses: [Course]
 
     # 특정 강의 정보를 course ID를 통해 조회합니다.
-    getCourse(userId: ID!, courseId: ID!): Course
+    getCourse(courseId: ID!): Course
 
     # 특정 강의의 모든 세션을 조회합니다.
     listCourseSessions(courseId: ID!): [CourseSession]
@@ -98,6 +98,7 @@ type Course {
     instructor: User            # 강사 정보
     courseSessions: [CourseSession]    # 강의에 속한 모든 세션
     ratings: [CourseRating]     # 강의에 대한 사용자 평가
+    courseRatingAvg: Float
 }
 
 # 강의 세션 정보를 나타내는 타입입니다.
@@ -118,6 +119,12 @@ type CourseRating {
     user: User                  # 사용자 정보
     rating: Int!                # 평점
     comment: String             # 평가 코멘트
+}
+
+type CourseRatingAverage {
+    courseId: ID!               # 강의 ID
+    course: Course              # 강의 정보
+    averageRating: Float
 }
 
 # 강의 세션 파일 정보를 나타내는 타입입니다.

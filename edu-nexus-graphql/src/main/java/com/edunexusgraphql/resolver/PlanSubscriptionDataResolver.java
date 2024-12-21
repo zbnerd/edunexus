@@ -4,7 +4,7 @@ import com.edunexusgraphql.model.Payment;
 import com.edunexusgraphql.model.PlanSubscription;
 import com.edunexusgraphql.model.User;
 import com.edunexusgraphql.service.EnrollmentService;
-import com.edunexusgraphql.service.dummy.DummyUserService;
+import com.edunexusgraphql.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class PlanSubscriptionDataResolver {
 
-    private final DummyUserService userService;
+    private final UserService userService;
     private final EnrollmentService enrollmentService;
 
     @SchemaMapping(typeName = "PlanSubscription", field = "user")
