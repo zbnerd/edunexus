@@ -8,6 +8,7 @@ import com.edunexusplaybackservice.domain.repository.EventLogRepository;
 import com.edunexusplaybackservice.domain.repository.PlaybackRecordRepository;
 import com.fastcampus.nextplaybackservice.domain.service.PlaybackServiceGrpc;
 import com.fastcampus.nextplaybackservice.domain.service.PlaybackServiceOuterClass;
+import handler.GrpcResponseHandler;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -38,8 +39,7 @@ public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase
                 .setRecord(record.toProto())
                 .build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
@@ -48,13 +48,15 @@ public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase
 
         if (playbackRecordOptional.isPresent()) {
             PlaybackRecord record = playbackRecordOptional.get();
+
             record.setEndTime(LocalDateTime.now());
             playbackRecordRepository.save(record);
+
             PlaybackServiceOuterClass.EndRecordResponse response = PlaybackServiceOuterClass.EndRecordResponse.newBuilder()
                     .setRecord(record.toProto())
                     .build();
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
+
+            GrpcResponseHandler.sendResponse(response, responseObserver);
         } else {
             responseObserver.onError(new Throwable("Record not found"));
         }
@@ -68,8 +70,8 @@ public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase
 
         if (playbackRecordOptional.isPresent()) {
             PlaybackRecord record = playbackRecordOptional.get();
-            EventLog event = new EventLog();
 
+            EventLog event = new EventLog();
             event.setEventLogInfo(
                     EventLogDto.builder()
                             .playbackRecord(record)
@@ -78,15 +80,12 @@ public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase
                             .timestamp(LocalDateTime.now())
                             .build()
             );
-
             event = eventLogRepository.save(event);
 
             PlaybackServiceOuterClass.LogEventResponse response = PlaybackServiceOuterClass.LogEventResponse.newBuilder()
                     .setEvent(event.toProto())
                     .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
+            GrpcResponseHandler.sendResponse(response, responseObserver);
         } else {
             responseObserver.onError(new Throwable("Record not found"));
         }

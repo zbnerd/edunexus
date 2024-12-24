@@ -7,7 +7,7 @@ import com.edunexusenrollmentservice.domain.entity.Subscription;
 import com.edunexusenrollmentservice.domain.service.EnrollmentService;
 import com.edunexusenrollmentservice.domain.service.EnrollmentServiceGrpc;
 import com.edunexusenrollmentservice.domain.service.EnrollmentServiceOuterClass;
-import com.edunexusenrollmentservice.domain.template.GrpcErrorHandlingTemplate;
+import handler.GrpcResponseHandler;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,28 +30,24 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
             EnrollmentServiceOuterClass.CourseRegistrationRequest request,
             StreamObserver<EnrollmentServiceOuterClass.CourseRegistrationResponse> responseObserver
     ) {
-        GrpcErrorHandlingTemplate template = new GrpcErrorHandlingTemplate("registerCourse error : ");
 
-        template.execute(responseObserver, () -> {
-            Enrollment enrollment = enrollmentService.registerCourse(
-                    EnrollmentDto.builder()
-                            .userId(request.getUserId())
-                            .courseId(request.getCourseId())
-                            .paymentId(request.getPaymentId())
-                            .build()
-            );
+        Enrollment enrollment = enrollmentService.registerCourse(
+                EnrollmentDto.builder()
+                        .userId(request.getUserId())
+                        .courseId(request.getCourseId())
+                        .paymentId(request.getPaymentId())
+                        .build()
+        );
 
-            EnrollmentServiceOuterClass.CourseRegistrationResponse response =
-                    EnrollmentServiceOuterClass
-                            .CourseRegistrationResponse
-                            .newBuilder()
-                            .setUserId(enrollment.getUserId())
-                            .setCourseId(enrollment.getCourseId())
-                            .build();
+        EnrollmentServiceOuterClass.CourseRegistrationResponse response =
+                EnrollmentServiceOuterClass
+                        .CourseRegistrationResponse
+                        .newBuilder()
+                        .setUserId(enrollment.getUserId())
+                        .setCourseId(enrollment.getCourseId())
+                        .build();
 
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        });
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
@@ -59,30 +55,26 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
             EnrollmentServiceOuterClass.SubscriptionRequest request,
             StreamObserver<EnrollmentServiceOuterClass.SubscriptionResponse> responseObserver
     ) {
-        GrpcErrorHandlingTemplate template = new GrpcErrorHandlingTemplate("manageSubscription error : ");
 
-        template.execute(responseObserver, () -> {
-            LocalDateTime startDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getStartDate()), ZoneId.systemDefault());
-            LocalDateTime endDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getEndDate()), ZoneId.systemDefault());
+        LocalDateTime startDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getStartDate()), ZoneId.systemDefault());
+        LocalDateTime endDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getEndDate()), ZoneId.systemDefault());
 
-            Subscription subscription = enrollmentService.manageSubscription(
-                    SubscriptionDto.builder()
-                            .userId(request.getUserId())
-                            .startDate(startDate)
-                            .endDate(endDate)
-                            .paymentId(request.getPaymentId())
-                            .build()
-            );
+        Subscription subscription = enrollmentService.manageSubscription(
+                SubscriptionDto.builder()
+                        .userId(request.getUserId())
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .paymentId(request.getPaymentId())
+                        .build()
+        );
 
-            EnrollmentServiceOuterClass.SubscriptionResponse response =
-                    EnrollmentServiceOuterClass.SubscriptionResponse
-                            .newBuilder()
-                            .setSubscription(subscription.toProto())
-                            .build();
+        EnrollmentServiceOuterClass.SubscriptionResponse response =
+                EnrollmentServiceOuterClass.SubscriptionResponse
+                        .newBuilder()
+                        .setSubscription(subscription.toProto())
+                        .build();
 
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        });
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
@@ -93,28 +85,25 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
         LocalDateTime startDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getStartDate()), ZoneId.systemDefault());
         LocalDateTime endDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(request.getEndDate()), ZoneId.systemDefault());
 
-        GrpcErrorHandlingTemplate template = new GrpcErrorHandlingTemplate("renewSubscription error : ");
 
-        template.execute(responseObserver, () -> {
-            Subscription subscription = enrollmentService.renewSubscription(
-                    request.getSubscriptionId(),
-                    startDate,
-                    endDate
-            );
+        Subscription subscription = enrollmentService.renewSubscription(
+                request.getSubscriptionId(),
+                startDate,
+                endDate
+        );
 
-            EnrollmentServiceOuterClass.SubscriptionResponse response =
-                    EnrollmentServiceOuterClass.SubscriptionResponse
-                            .newBuilder()
-                            .setSubscription(subscription.toProto())
-                            .build();
+        EnrollmentServiceOuterClass.SubscriptionResponse response =
+                EnrollmentServiceOuterClass.SubscriptionResponse
+                        .newBuilder()
+                        .setSubscription(subscription.toProto())
+                        .build();
 
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        });
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
-    public void checkCourseAccess(EnrollmentServiceOuterClass.CourseAccessRequest request, StreamObserver<EnrollmentServiceOuterClass.CourseAccessResponse> responseObserver) {
+    public void checkCourseAccess(EnrollmentServiceOuterClass.CourseAccessRequest request,
+                                  StreamObserver<EnrollmentServiceOuterClass.CourseAccessResponse> responseObserver) {
         boolean hasAccess = enrollmentService.checkCourseAccess(request.getUserId(), request.getCourseId());
         EnrollmentServiceOuterClass.CourseAccessResponse response =
                 EnrollmentServiceOuterClass.CourseAccessResponse
@@ -122,12 +111,12 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
                         .setHasAccess(hasAccess)
                         .build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
-    public void checkSubscriptionAccess(EnrollmentServiceOuterClass.SubscriptionAccessRequest request, StreamObserver<EnrollmentServiceOuterClass.SubscriptionAccessResponse> responseObserver) {
+    public void checkSubscriptionAccess(EnrollmentServiceOuterClass.SubscriptionAccessRequest request,
+                                        StreamObserver<EnrollmentServiceOuterClass.SubscriptionAccessResponse> responseObserver) {
         boolean hasAccess = enrollmentService.checkSubscriptionAccess(request.getUserId(), LocalDateTime.now());
         EnrollmentServiceOuterClass.SubscriptionAccessResponse response =
                 EnrollmentServiceOuterClass.SubscriptionAccessResponse
@@ -135,12 +124,12 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
                         .setHasAccess(hasAccess)
                         .build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
-    public void getUserEnrollments(EnrollmentServiceOuterClass.UserEnrollmentsRequest request, StreamObserver<EnrollmentServiceOuterClass.UserEnrollmentsResponse> responseObserver) {
+    public void getUserEnrollments(EnrollmentServiceOuterClass.UserEnrollmentsRequest request,
+                                   StreamObserver<EnrollmentServiceOuterClass.UserEnrollmentsResponse> responseObserver) {
         List<Enrollment> enrollments = enrollmentService.getUserEnrollments(request.getUserId());
         EnrollmentServiceOuterClass.UserEnrollmentsResponse.Builder responseBuilder =
                 EnrollmentServiceOuterClass.UserEnrollmentsResponse.newBuilder();
@@ -149,12 +138,12 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
             responseBuilder.addEnrollments(enrollment.toProto());
         }
 
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+        GrpcResponseHandler.sendResponse(responseBuilder.build(), responseObserver);
     }
 
     @Override
-    public void getUserPlanSubscriptions(EnrollmentServiceOuterClass.UserSubscriptionsRequest request, StreamObserver<EnrollmentServiceOuterClass.UserSubscriptionsResponse> responseObserver) {
+    public void getUserPlanSubscriptions(EnrollmentServiceOuterClass.UserSubscriptionsRequest request,
+                                         StreamObserver<EnrollmentServiceOuterClass.UserSubscriptionsResponse> responseObserver) {
         List<Subscription> subscriptions = enrollmentService.getUserPlanSubscriptions(request.getUserId());
         EnrollmentServiceOuterClass.UserSubscriptionsResponse.Builder responseBuilder =
                 EnrollmentServiceOuterClass.UserSubscriptionsResponse.newBuilder();
@@ -163,7 +152,6 @@ public class EnrollmentGrpcService extends EnrollmentServiceGrpc.EnrollmentServi
             responseBuilder.addSubscriptions(subscription.toProto());
         }
 
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+        GrpcResponseHandler.sendResponse(responseBuilder.build(), responseObserver);
     }
 }

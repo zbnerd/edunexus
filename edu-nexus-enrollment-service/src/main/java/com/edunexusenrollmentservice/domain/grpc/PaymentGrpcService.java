@@ -6,7 +6,7 @@ import com.edunexusenrollmentservice.domain.entity.PaymentType;
 import com.edunexusenrollmentservice.domain.service.EnrollmentServiceOuterClass;
 import com.edunexusenrollmentservice.domain.service.FakePaymentServiceGrpc;
 import com.edunexusenrollmentservice.domain.service.PaymentService;
-import com.edunexusenrollmentservice.domain.template.GrpcErrorHandlingTemplate;
+import handler.GrpcResponseHandler;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -25,21 +25,15 @@ public class PaymentGrpcService extends FakePaymentServiceGrpc.FakePaymentServic
             EnrollmentServiceOuterClass.PaymentRequest request,
             StreamObserver<EnrollmentServiceOuterClass.PaymentResponse> responseObserver
     ) {
+        Payment payment = paymentService.createPayment(
+                PaymentDto.builder()
+                        .userId(request.getUserId())
+                        .paymentType(PaymentType.valueOf(request.getType()))
+                        .amount(BigDecimal.valueOf(request.getAmount()))
+                        .build()
+        );
 
-        GrpcErrorHandlingTemplate template = new GrpcErrorHandlingTemplate("payment error");
-
-        template.execute(responseObserver, () -> {
-            Payment payment = paymentService.createPayment(
-                    PaymentDto.builder()
-                            .userId(request.getUserId())
-                            .paymentType(PaymentType.valueOf(request.getType()))
-                            .amount(BigDecimal.valueOf(request.getAmount()))
-                            .build()
-            );
-
-            responseObserver.onNext(payment.toProto());
-            responseObserver.onCompleted();
-        });
+        GrpcResponseHandler.sendResponse(payment.toProto(), responseObserver);
     }
 
     @Override
@@ -51,8 +45,8 @@ public class PaymentGrpcService extends FakePaymentServiceGrpc.FakePaymentServic
         EnrollmentServiceOuterClass.UserPaymentsResponse response = EnrollmentServiceOuterClass.UserPaymentsResponse.newBuilder()
                 .addAllPayments(payments.stream().map(Payment::toProto).toList())
                 .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 
     @Override
@@ -64,7 +58,7 @@ public class PaymentGrpcService extends FakePaymentServiceGrpc.FakePaymentServic
         EnrollmentServiceOuterClass.PaymentsByIdResponse response = EnrollmentServiceOuterClass.PaymentsByIdResponse.newBuilder()
                 .setPayment(payment.toProto())
                 .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+
+        GrpcResponseHandler.sendResponse(response, responseObserver);
     }
 }
