@@ -32,9 +32,10 @@ public class CourseService {
 
     @Transactional
     public Course updateCourse(Long courseId, Course newCourse) {
-        Course course = getCourseById(courseId)
-                .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+        Course course = courseOptional.orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
+        courseRedisRepository.deleteById(courseId);
         course.updateCourse(newCourse);
 
         return course;

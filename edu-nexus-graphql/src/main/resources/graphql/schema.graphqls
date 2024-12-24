@@ -50,7 +50,7 @@ type Mutation {
     endRecord(userId: ID!, recordId: ID!): PlaybackRecord
 
     # 이벤트를 로깅합니다.
-    logEvent(recordId: ID!, userId: ID!, eventType: String!, timestamp: String!): EventLog
+    logEvent(recordId: ID!, eventType: String!): EventLog
 
     # 새 결제 정보를 생성합니다.
     purchaseCourse(userId: ID!, courseId: ID!, amount: Float!, paymentMethod: String!): Payment

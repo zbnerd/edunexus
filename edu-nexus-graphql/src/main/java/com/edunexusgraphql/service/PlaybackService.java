@@ -43,9 +43,10 @@ public class PlaybackService {
         return PlaybackRecord.fromProto(response.getRecord());
     }
 
-    public EventLog logEvent(EventLog eventLog) {
+    public EventLog logEvent(Long recordId, String eventType) {
         PlaybackServiceOuterClass.LogEventRequest request = PlaybackServiceOuterClass.LogEventRequest.newBuilder()
-                .setEvent(EventLog.toProto(eventLog))
+                .setRecordId(recordId)
+                .setEventType(eventType)
                 .build();
         PlaybackServiceOuterClass.LogEventResponse response = playbackServiceBlockingStub.logEvent(request);
 

@@ -46,9 +46,9 @@ public class CourseController {
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long courseId,
                                                        @RequestBody CourseUpdateRequest request) {
-        CourseInfoDto courseInfoDto = request.toCourseInfoDto();
         Course course = courseService.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
+        CourseInfoDto courseInfoDto = request.toCourseInfoDto(course.getInstructorId());
 
         Course newCourse = new Course();
         newCourse.setCourseInfo(courseInfoDto);
@@ -114,11 +114,11 @@ public class CourseController {
         private String description;
         private Long instructorId;
 
-        public CourseInfoDto toCourseInfoDto() {
+        public CourseInfoDto toCourseInfoDto(Long instructorId) {
             return CourseInfoDto.builder()
                     .title(this.title)
                     .description(this.description)
-                    .instructorId(this.instructorId)
+                    .instructorId(instructorId)
                     .build();
         }
     }

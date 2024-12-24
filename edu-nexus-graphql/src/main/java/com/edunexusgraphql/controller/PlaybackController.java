@@ -33,11 +33,8 @@ public class PlaybackController {
     @MutationMapping
     public EventLog logEvent(
             @Argument Long recordId,
-            @Argument Long userId,
-            @Argument String eventType,
-            @Argument String timestamp
+            @Argument String eventType
     ) {
-        EventLog eventLog = new EventLog(null, recordId, userId, eventType, timestamp);
-        return playbackService.logEvent(eventLog);
+        return playbackService.logEvent(recordId, eventType);
     }
 }

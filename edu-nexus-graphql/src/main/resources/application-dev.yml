@@ -11,6 +11,7 @@ spring:
       inspection:
         enabled: true
 
+
 eureka:
   client:
     service-url:
