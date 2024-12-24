@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @GrpcService
@@ -29,6 +30,7 @@ public class PaymentGrpcService extends FakePaymentServiceGrpc.FakePaymentServic
                 PaymentDto.builder()
                         .userId(request.getUserId())
                         .paymentType(PaymentType.valueOf(request.getType()))
+                        .paymentMethod(request.getPaymentMethod())
                         .amount(BigDecimal.valueOf(request.getAmount()))
                         .build()
         );

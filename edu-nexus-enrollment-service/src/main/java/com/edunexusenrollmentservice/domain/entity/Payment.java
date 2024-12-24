@@ -40,6 +40,7 @@ public class Payment {
         this.amount = paymentDto.getAmount();
         this.paymentMethod = paymentDto.getPaymentMethod();
         this.paymentType = paymentDto.getPaymentType();
+        this.paymentDate = LocalDateTime.now();
     }
 
     public EnrollmentServiceOuterClass.PaymentResponse toProto() {
