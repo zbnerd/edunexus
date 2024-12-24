@@ -8,12 +8,14 @@ import com.edunexuscourseservice.domain.course.repository.CourseRatingRedisRepos
 import com.edunexuscourseservice.domain.course.repository.CourseRatingRepository;
 import com.edunexuscourseservice.domain.course.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,6 +30,7 @@ public class CourseRatingService {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
+
 
         courseRating.setCourse(course);
         CourseRating savedCourseRating = courseRatingRepository.save(courseRating);

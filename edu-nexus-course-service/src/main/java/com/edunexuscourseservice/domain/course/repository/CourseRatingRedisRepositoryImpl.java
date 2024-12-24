@@ -21,11 +21,11 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
         String countKey = generateRedisKeyRatingCount(courseId);
 
         if (redisTemplate.opsForValue().get(totalKey) == null) {
-            redisTemplate.opsForValue().set(totalKey, "0");
+            redisTemplate.opsForValue().set(totalKey, 0);
         }
 
         if (redisTemplate.opsForValue().get(countKey) == null) {
-            redisTemplate.opsForValue().set(countKey, "0");
+            redisTemplate.opsForValue().set(countKey, 0);
         }
 
         redisTemplate.opsForValue().increment(totalKey, rating);
@@ -74,8 +74,8 @@ public class CourseRatingRedisRepositoryImpl implements CourseRatingRedisReposit
         String totalKey = generateRedisKeyRatingTotal(courseId);
         String countKey = generateRedisKeyRatingCount(courseId);
 
-        redisTemplate.opsForValue().set(totalKey, String.valueOf(total));
-        redisTemplate.opsForValue().set(countKey, String.valueOf(count));
+        redisTemplate.opsForValue().set(totalKey, total);
+        redisTemplate.opsForValue().set(countKey, count);
     }
 
     private String generateRedisKeyRatingTotal(Long courseId) {

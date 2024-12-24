@@ -4,9 +4,11 @@ import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Entity
+@ToString
 @Table(name = "COURSE_RATINGS")
 public class CourseRating extends BaseEntity {
 
