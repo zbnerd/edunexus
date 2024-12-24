@@ -13,7 +13,7 @@ import java.time.ZoneId;
 @Table(name = "event_logs")
 public class EventLog {
     @Id
-    @Column(name = "event_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,7 +24,8 @@ public class EventLog {
     private Long userId;
 
     @Column(name = "event_type", nullable = false)
-    private String eventType;
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
 
     @Column(name = "timestamp", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime timestamp;
@@ -50,7 +51,7 @@ public class EventLog {
             builder.setUserId(this.userId);
         }
         if (this.eventType != null) {
-            builder.setEventType(this.eventType);
+            builder.setEventType(this.eventType.name());
         }
         if (this.timestamp != null) {
             builder.setTimestamp(this.timestamp.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());

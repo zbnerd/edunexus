@@ -28,7 +28,7 @@ public class PlaybackRecord {
     private LocalDateTime startTime;
 
     @Setter
-    @Column(name = "end_time", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "end_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime endTime;
 
     public void setPlaybackRecordInfo(PlaybackRecordDto playbackRecordDto) {
