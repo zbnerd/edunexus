@@ -28,7 +28,7 @@ public class CourseController {
     }
 
     @QueryMapping
-    public Course getCourse(@Argument Long courseId) {
+    public Course getCourse(@Argument Long userId, @Argument Long courseId) {
         return courseService.findCourseById(courseId).orElseThrow(() -> new RuntimeException("Course not found" + courseId));
     }
 
