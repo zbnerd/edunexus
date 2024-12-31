@@ -1,17 +1,16 @@
 package com.edunexuscourseservice.domain.course.service;
 
-import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
+import com.edunexuscourseservice.application.service.CourseRatingService;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
-import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.CourseRating;
-import com.edunexuscourseservice.domain.course.repository.CourseRatingRepository;
-import com.edunexuscourseservice.domain.course.repository.CourseRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
+import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRepository;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
@@ -31,6 +30,9 @@ public class CourseRatingServiceTest {
 
     @Mock
     private CourseRatingRepository courseRatingRepository;
+
+    @Mock
+    private CourseRatingRedisRepository courseRatingRedisRepository;
 
     @InjectMocks
     private CourseRatingService courseRatingService;

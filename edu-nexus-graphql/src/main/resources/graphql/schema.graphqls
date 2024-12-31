@@ -44,7 +44,7 @@ type Mutation {
     addCourseSession(courseId: ID!, title: String!): CourseSession @authenticate @authorize(role: "user", permission: "update_course")
 
     # 강의에 대한 평가를 추가합니다.
-    rateCourse(userId: ID!, courseId: ID!, rating: Int!, comment: String): CourseRating @authorize(role: "admin", permission: "update_course")
+    rateCourse(userId: ID!, courseId: ID!, rating: Int!, comment: String): CourseRating
 
     # 재생 기록을 생성합니다.
     startRecord(userId: ID!, fileId: ID!): PlaybackRecord @authenticate @authorize(role: "user", permission: "update_record")

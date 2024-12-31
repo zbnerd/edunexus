@@ -1,9 +1,10 @@
 package com.edunexuscourseservice.domain.course.service;
 
-import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.CourseSession;
-import com.edunexuscourseservice.domain.course.repository.CourseRepository;
-import com.edunexuscourseservice.domain.course.repository.CourseSessionRepository;
+import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
+import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseSessionRepository;
+import com.edunexuscourseservice.application.service.CourseSessionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1,9 +1,10 @@
 package com.edunexuscourseservice.domain.course.service;
 
+import com.edunexuscourseservice.application.service.CourseService;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
-import com.edunexuscourseservice.domain.course.entity.Course;
-import com.edunexuscourseservice.domain.course.entity.condition.CourseSearchCondition;
-import com.edunexuscourseservice.domain.course.repository.CourseRepository;
+import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
+import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -97,7 +98,7 @@ public class CourseServiceTest {
     void testGetAllCourses() {
         // given
         List<Course> courses = Arrays.asList(new Course(), new Course());
-        CourseSearchCondition condition = new CourseSearchCondition("Java","");
+        CourseSearchCondition condition = new CourseSearchCondition();
 
         PageRequest page = PageRequest.of(0, 20);
 

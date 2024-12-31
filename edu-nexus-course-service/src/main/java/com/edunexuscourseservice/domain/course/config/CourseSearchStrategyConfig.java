@@ -1,7 +1,7 @@
 package com.edunexuscourseservice.domain.course.config;
 
-import com.edunexuscourseservice.domain.course.entity.condition.context.CourseSearchConditionContext;
-import com.edunexuscourseservice.domain.course.entity.condition.strategy.CourseSearchStrategy;
+import com.edunexuscourseservice.adapter.out.persistence.entity.condition.context.CourseSearchConditionContext;
+import com.edunexuscourseservice.adapter.out.persistence.entity.condition.strategy.CourseSearchStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

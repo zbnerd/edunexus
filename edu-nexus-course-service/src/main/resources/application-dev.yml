@@ -2,6 +2,16 @@ spring:
   application:
     name: edu-nexus-course-service
 
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: -1
+
   datasource:
     url: jdbc:mysql://localhost:3306/edu_nexus_course
     driverClassName: com.mysql.cj.jdbc.Driver
