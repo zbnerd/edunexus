@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.domain.course.config.init;
+package com.edunexuscourseservice.config.init;
 
 import com.edunexuscourseservice.application.service.CourseRatingService;
 import jakarta.annotation.PostConstruct;

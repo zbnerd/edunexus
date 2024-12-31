@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.domain.course.config;
+package com.edunexuscourseservice.config;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;

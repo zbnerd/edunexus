@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.domain.course.config;
+package com.edunexuscourseservice.config;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.context.CourseSearchConditionContext;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.strategy.CourseSearchStrategy;

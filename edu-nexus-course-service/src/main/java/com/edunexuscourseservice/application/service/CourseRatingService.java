@@ -33,11 +33,12 @@ public class CourseRatingService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
-
         courseRating.setCourse(course);
 
+        CourseRating savedCourseRating = courseRatingRepository.save(courseRating);
+
         courseRatingProducerService.sendRatingAddedEvent(courseId, courseRating.getRating());
-        return courseRatingRepository.save(courseRating);
+        return savedCourseRating;
     }
 
     @Transactional
@@ -50,7 +51,7 @@ public class CourseRatingService {
         courseRating.updateCourseRating(newCourseRating);
         int newCourseRatings = courseRating.getRating();
 
-        courseRatingRedisRepository.updateReviewRating(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings);
+        courseRatingProducerService.sendRatingUpdatedEvent(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings);
         return courseRating;
     }
 
@@ -63,7 +64,7 @@ public class CourseRatingService {
         CourseRating courseRating = getRating(ratingId)
                 .orElseThrow(() -> new NotFoundException("CourseRating not found with id = " + ratingId));
 
-        courseRatingRedisRepository.deleteReviewRating(courseRating.getCourse().getId(), courseRating.getRating());
+        courseRatingProducerService.sendRatingDeletedEvent(courseRating.getCourse().getId(), courseRating.getRating());
         courseRatingRepository.deleteById(ratingId);
     }
 
