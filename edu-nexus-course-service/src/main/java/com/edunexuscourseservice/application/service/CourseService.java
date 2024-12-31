@@ -35,7 +35,11 @@ public class CourseService {
         Optional<Course> courseOptional = courseRepository.findById(courseId);
         Course course = courseOptional.orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
-        courseRedisRepository.deleteById(courseId);
+        Optional<RCourse> rCourseOptional = courseRedisRepository.findById(courseId);
+        if (rCourseOptional.isPresent()) {
+            courseRedisRepository.deleteById(courseId);
+        }
+
         course.updateCourse(newCourse);
 
         return course;
