@@ -5,7 +5,7 @@ test_topic_02 2 0
 __consumer_offsets 43 0
 __consumer_offsets 13 0
 test_topic_03 0 0
-__consumer_offsets 19 15
+__consumer_offsets 19 16
 __consumer_offsets 7 0
 __consumer_offsets 25 0
 test-topic 0 1

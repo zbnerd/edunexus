@@ -44,7 +44,7 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(60))  // 캐시 만료 시간 10분 설정
+                .entryTtl(Duration.ofMinutes(60))  // 캐시 만료 시간 60분 설정
                 .disableCachingNullValues();
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory))
                 .cacheDefaults(config)
