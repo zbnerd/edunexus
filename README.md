@@ -58,6 +58,8 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 <br />
 
 ## 🤔 기술적 이슈와 해결 과정
+- 윈도우 10 유령포트 점유문제
+  - [윈도우10 유령포트 점유문제](https://velog.io/@mps86/%EC%9C%88%EB%8F%84%EC%9A%B0-10-%EC%9C%A0%EB%A0%B9%ED%8F%AC%ED%8A%B8-%EC%A0%90%EC%9C%A0-%EB%AC%B8%EC%A0%9C)
 - DP 기법을 이용한 평점 평균 계산 로직 with Redis
   - [EduNexus DP 기법을 이용한 평점 평균 계산 로직](https://velog.io/@mps86/EduNexus-DP-%EA%B8%B0%EB%B2%95%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-Course-%ED%8F%89%EA%B7%A0-%ED%8F%89%EC%A0%90-%EA%B3%84%EC%82%B0-%EB%A1%9C%EC%A7%81)
 - 평점 평균 계산 로직의 문제점
