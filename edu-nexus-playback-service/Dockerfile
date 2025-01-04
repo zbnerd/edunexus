@@ -10,6 +10,8 @@ COPY ../gradle gradle/
 COPY ../build.gradle .
 COPY ../settings.gradle .
 
+RUN chmod +x gradlew
+
 # Gradle 캐시를 활용하여 의존성 설치
 RUN ./gradlew build -x test --stacktrace --no-daemon || return 0
 
