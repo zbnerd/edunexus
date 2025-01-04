@@ -37,6 +37,3 @@ out/
 .vscode/
 /infrastructure/db/mysql/
 /infrastructure/.data
-/infrastructure/.data/kafka1
-/infrastructure/.data/kafka2
-/infrastructure/.data/kafka3
