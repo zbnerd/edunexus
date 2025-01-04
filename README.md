@@ -24,7 +24,7 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 <br />
 
 ## ⚙ 기술 스택
-> skills 폴더에 있는 아이콘을 이용할 수 있습니다.
+
 ### Back-end
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Java.png?raw=true" width="80">
