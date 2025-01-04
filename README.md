@@ -40,7 +40,7 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 ### Infra
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Docker.png?raw=true" width="80">
-<img src="https://github.com/zbnerd/edunexus/blob/master/docs/skill/k8s.drawio.png?raw=true" width="80">
+  <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/AWSEC2.png?raw=true" width="80">
 </div>
 
 ### Tools
@@ -64,6 +64,8 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
   - [EduNexus DP 기법을 이용한 평점 평균 계산 로직](https://velog.io/@mps86/EduNexus-DP-%EA%B8%B0%EB%B2%95%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-Course-%ED%8F%89%EA%B7%A0-%ED%8F%89%EC%A0%90-%EA%B3%84%EC%82%B0-%EB%A1%9C%EC%A7%81)
 - 평점 평균 계산 로직의 문제점
   - [평점 평균 계산 로직의 문제점](https://velog.io/@mps86/CourseRating-%ED%98%84-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%98-%EB%AC%B8%EC%A0%9C%EC%A0%90)
+- Kafka 기반 보상 트랜잭션을 통한 평점평균 시스템 Redis-DB 데이터 무결성 보장
+  - [Kafka 기반 보상 트랜잭션을 통한 평점평균 시스템 Redis-DB 데이터 무결성 보장](https://velog.io/@mps86/Kafka-%EA%B8%B0%EB%B0%98-%EB%B3%B4%EC%83%81-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98%EC%9D%84-%ED%86%B5%ED%95%9C-%ED%8F%89%EC%A0%90%ED%8F%89%EA%B7%A0-%EC%8B%9C%EC%8A%A4%ED%85%9C-Redis-DB-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%AC%B4%EA%B2%B0%EC%84%B1-%EB%B3%B4%EC%9E%A5)
 <br />
 
 ## 💁‍♂️ 프로젝트 팀원
