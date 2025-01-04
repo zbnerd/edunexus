@@ -40,7 +40,6 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 ### Infra
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Docker.png?raw=true" width="80">
-<img src="https://github.com/zbnerd/edunexus/blob/master/docs/skill/k8s.drawio.png?raw=true" width="80">
 </div>
 
 ### Tools
