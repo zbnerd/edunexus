@@ -1,25 +1,22 @@
 0
-23
-test_topic_03 0 0
-course-rating-delete 0 0
-__consumer_offsets 0 0
-__consumer_offsets 30 0
-__consumer_offsets 18 0
-test_topic_03 2 0
-__consumer_offsets 21 0
-__consumer_offsets 6 0
-__consumer_offsets 48 0
-__consumer_offsets 33 0
-course-rating-add 0 2
-__consumer_offsets 24 0
-course-rating-add 1 1
-test_topic_02 1 0
-__consumer_offsets 3 0
-__consumer_offsets 27 0
-__consumer_offsets 42 0
-__consumer_offsets 39 0
-__consumer_offsets 15 0
-__consumer_offsets 12 0
-__consumer_offsets 36 0
-__consumer_offsets 45 0
-__consumer_offsets 9 0
+20
+course-rating-redis-add-response 1 12
+__consumer_offsets 43 0
+__consumer_offsets 13 0
+__consumer_offsets 19 67
+__consumer_offsets 7 0
+__consumer_offsets 25 0
+__consumer_offsets 37 0
+__consumer_offsets 22 0
+course-rating-update 1 0
+__consumer_offsets 49 0
+__consumer_offsets 46 0
+__consumer_offsets 40 0
+__consumer_offsets 28 0
+__consumer_offsets 4 0
+__consumer_offsets 31 0
+course-rating-delete 1 0
+__consumer_offsets 1 0
+__consumer_offsets 16 0
+__consumer_offsets 10 0
+__consumer_offsets 34 0

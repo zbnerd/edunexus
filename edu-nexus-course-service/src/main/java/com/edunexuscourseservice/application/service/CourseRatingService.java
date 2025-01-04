@@ -2,7 +2,6 @@ package com.edunexuscourseservice.application.service;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
-//import com.edunexuscourseservice.adapter.out.persistence.repository.redis.CourseRatingRedisRepository;
 import com.edunexuscourseservice.application.service.kafka.CourseRatingProducerService;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
@@ -34,10 +33,9 @@ public class CourseRatingService {
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
         courseRating.setCourse(course);
-
         CourseRating savedCourseRating = courseRatingRepository.save(courseRating);
 
-        courseRatingProducerService.sendRatingAddedEvent(courseId, courseRating.getRating());
+        courseRatingProducerService.sendRatingAddedEvent(courseId, courseRating.getRating(), savedCourseRating.getId());
         return savedCourseRating;
     }
 
@@ -51,7 +49,7 @@ public class CourseRatingService {
         courseRating.updateCourseRating(newCourseRating);
         int newCourseRatings = courseRating.getRating();
 
-        courseRatingProducerService.sendRatingUpdatedEvent(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings);
+        courseRatingProducerService.sendRatingUpdatedEvent(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings, courseRating.getComment());
         return courseRating;
     }
 

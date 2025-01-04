@@ -9,4 +9,5 @@ public class CourseRatingUpdateEvent {
     private Long courseId;
     private int oldRating;
     private int newRating;
+    private String comment;
 }

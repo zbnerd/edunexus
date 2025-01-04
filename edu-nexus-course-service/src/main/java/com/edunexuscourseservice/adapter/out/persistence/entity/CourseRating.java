@@ -20,9 +20,11 @@ public class CourseRating extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Setter
     @Column(nullable = false)
     private int rating;
 
+    @Setter
     @Column
     private String comment;
 

@@ -8,4 +8,5 @@ import lombok.Data;
 public class CourseRatingAddEvent {
     private Long courseId;
     private int rating;
+    private Long courseRatingId;
 }
