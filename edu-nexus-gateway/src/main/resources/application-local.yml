@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: edu-nexus-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth_route
+          uri: lb://edu-nexus-user-service
+          predicates:
+            - Path=/auth/**
+            - Method=POST, GET
+        - id: file_route
+          uri: lb://edu-nexus-file-manage-service
+          predicates:
+            - Path=/files/**
+            - Method=POST, GET
+          filters:
+            - RewritePath=/files/(?<segment>.*),/%\{segment}
+        - id: graphql_route
+          uri: lb://edu-nexus-graphql
+          predicates:
+            - Path=/graphql
+            - Method=POST, GET
+      global-cors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:9000"
+            allowedMethods:
+              - POST
+              - GET
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8000/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+
+    rest-template-timeout:
+      connect-timeout: 5000
+      connect-request-timeout: 8000
+      socket-timeout: 10000
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.ipc.netty: DEBUG
+    reactor.netty: DEBUG
+    io.github.resilience4j: DEBUG

@@ -5,7 +5,7 @@ __consumer_offsets 21 0
 __consumer_offsets 27 0
 __consumer_offsets 9 0
 __consumer_offsets 33 0
-course-rating-add 1 0
+course-rating-add 1 1
 __consumer_offsets 36 0
 __consumer_offsets 42 0
 __consumer_offsets 3 0
@@ -14,7 +14,7 @@ __consumer_offsets 15 0
 __consumer_offsets 24 0
 __consumer_offsets 48 0
 test_topic_03 2 0
-course-rating-add 0 0
+course-rating-add 0 2
 test_topic_02 1 0
 __consumer_offsets 6 0
 __consumer_offsets 0 0

@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: edu-nexus-attendance-service
+
+

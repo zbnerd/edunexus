@@ -88,6 +88,14 @@ public class JWTService {
     }
 
     public Claims parseJwtClaims(String token) {
+
+        String claims = Jwts.parserBuilder()
+                .setSigningKey(jwtSigningKey()) // 서명 키 설정
+                .build()
+                .parseClaimsJws(token) // JWT 파싱
+                .getBody().toString();
+        log.info("token: {}, claims = {}", token, claims);
+
         return Jwts.parserBuilder()
                 .setSigningKey(jwtSigningKey()) // 서명 키 설정
                 .build()

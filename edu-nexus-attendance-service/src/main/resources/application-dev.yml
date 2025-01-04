@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: edu-nexus-attendance-service
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: -1
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/edu_nexus_course
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: edu
+    password: nexus
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: true

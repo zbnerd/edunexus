@@ -9,7 +9,7 @@ __consumer_offsets 47 0
 __consumer_offsets 38 0
 __consumer_offsets 17 0
 test_topic_03 2 0
-course-rating-add 0 0
+course-rating-add 0 2
 __consumer_offsets 11 0
 __consumer_offsets 2 0
 __consumer_offsets 14 0
