@@ -8,7 +8,7 @@ spring:
       max-request-size: 50MB
 
   datasource:
-    url: jdbc:mysql://localhost:3306/edu_nexus_files
+    url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_files
     driverClassName: com.mysql.cj.jdbc.Driver
     username: edu
     password: nexus
@@ -33,7 +33,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8000/eureka/
+      defaultZone: http://edu-nexus-discovery:8000/eureka/
     registerWithEureka: true
     fetchRegistry: true
 

@@ -4,7 +4,7 @@ spring:
 
 
   datasource:
-    url: jdbc:mysql://localhost:3306/edu_nexus_playback
+    url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_playback
     driverClassName: com.mysql.cj.jdbc.Driver
     username: edu
     password: nexus
@@ -29,7 +29,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8000/eureka/
+      defaultZone: http://edu-nexus-discovery:8000/eureka/
     registerWithEureka: true
     fetchRegistry: true
 

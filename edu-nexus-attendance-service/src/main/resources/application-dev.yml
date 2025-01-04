@@ -13,7 +13,7 @@ spring:
       acks: -1
 
   datasource:
-    url: jdbc:mysql://localhost:3306/edu_nexus_course
+    url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_course
     driverClassName: com.mysql.cj.jdbc.Driver
     username: edu
     password: nexus

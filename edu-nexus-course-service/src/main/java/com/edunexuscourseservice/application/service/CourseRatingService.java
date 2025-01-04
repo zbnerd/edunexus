@@ -66,17 +66,17 @@ public class CourseRatingService {
         courseRatingRepository.deleteById(ratingId);
     }
 
-//    @LogExecutionTime
+    //    @LogExecutionTime
     public List<CourseRating> getAllRatingsByCourseId(Long courseId) {
         return courseRatingRepository.findByCourseId(courseId);
     }
 
-//    @LogExecutionTime
+    //    @LogExecutionTime
     public Double getAverageRatingByCourseId(Long courseId) {
         return courseRatingRedisRepository.getAverageReviewRating(courseId);
     }
 
-//    @LogExecutionTime
+    //    @LogExecutionTime
     public void initCourseRatings() {
         List<Course> courseList = courseRepository.findAll();
 

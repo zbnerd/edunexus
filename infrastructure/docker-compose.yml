@@ -13,6 +13,8 @@ services:
       - ./db/mysql/data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
     platform: linux/x86_64
+    networks:
+      - edu-nexus-network
 
   edu-nexus-redis:
     image: redis:7.0
@@ -29,6 +31,8 @@ services:
       timeout: 5s
       retries: 3
     platform: linux/x86_64
+    networks:
+      - edu-nexus-network
 
   zookeeper:
     image: 'bitnami/zookeeper:3.7.2'
@@ -61,6 +65,8 @@ services:
       - zookeeper
     volumes:
       - ./.data/kafka1:/bitnami/kafka/data
+    networks:
+      - edu-nexus-network
 
   kafka2:
     image: 'bitnami/kafka:3.6.0'
@@ -80,6 +86,8 @@ services:
       - zookeeper
     volumes:
       - ./.data/kafka2:/bitnami/kafka/data
+    networks:
+      - edu-nexus-network
 
   kafka3:
     image: 'bitnami/kafka:3.6.0'
@@ -99,6 +107,8 @@ services:
       - zookeeper
     volumes:
       - ./.data/kafka3:/bitnami/kafka/data
+    networks:
+      - edu-nexus-network
 
   kafka-ui:
     image: 'provectuslabs/kafka-ui:v0.7.1'
@@ -113,4 +123,83 @@ services:
       - kafka1
       - kafka2
       - kafka3
+    networks:
+      - edu-nexus-network
 
+  edu-nexus-discovery:
+    image: edu-nexus-discovery:latest
+    container_name: edu-nexus-discovery
+    ports:
+      - "8000:8000"
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-graphql:
+    image: edu-nexus-graphql:latest
+    container_name: edu-nexus-graphql
+    ports:
+      - "8006:8006"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-course-service:
+    image: edu-nexus-course-service:latest
+    container_name: edu-nexus-course-service
+    ports:
+      - "8001:8001"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-enrollment-service:
+    image: edu-nexus-enrollment-service:latest
+    container_name: edu-nexus-enrollment-service
+    ports:
+      - "8002:8002"
+      - "9002:9002"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-file-manage-service:
+    image: edu-nexus-file-manage-service:latest
+    container_name: edu-nexus-file-manage-service
+    ports:
+      - "8003:8003"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-playback-service:
+    image: edu-nexus-playback-service:latest
+    container_name: edu-nexus-playback-service
+    ports:
+      - "8005:8005"
+      - "9005:9005"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+  edu-nexus-user-service:
+    image: edu-nexus-user-service:latest
+    container_name: edu-nexus-user-service
+    ports:
+      - "8004:8004"
+    depends_on:
+      - edu-nexus-discovery
+    networks:
+      - edu-nexus-network
+
+
+networks:
+  back-tier:  # Prometheus 스택 내부 네트워크
+    driver: bridge
+  front-tier:  # Grafana와 외부 간의 네트워크
+  edu-nexus-network:
+    driver: bridge

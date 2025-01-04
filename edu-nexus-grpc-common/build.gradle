@@ -46,7 +46,7 @@ protobuf {
 			if (project.hasProperty('protoc_platform')) {
 				artifact = "com.google.protobuf:protoc:${protobufVersion}:${protoc_platform}"
 			} else {
-				artifact = "com.google.protobuf:protoc:${protobufVersion}:windows-x86_64"
+				artifact = "com.google.protobuf:protoc:${protobufVersion}:linux-x86_64"
 			}
 		}
 		plugins {
@@ -54,7 +54,7 @@ protobuf {
 				if (project.hasProperty('protoc_platform')) {
 					artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}:${protoc_platform}"
 				} else {
-					artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}:windows-x86_64"
+					artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}:linux-x86_64"
 				}
 			}
 		}

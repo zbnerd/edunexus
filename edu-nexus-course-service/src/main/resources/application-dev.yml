@@ -3,7 +3,7 @@ spring:
     name: edu-nexus-course-service
 
   kafka:
-    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    bootstrap-servers: kafka1:9092,kafka2:9093,kafka3:9094
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -13,14 +13,14 @@ spring:
       acks: -1
 
   datasource:
-    url: jdbc:mysql://localhost:3306/edu_nexus_course
+    url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_course
     driverClassName: com.mysql.cj.jdbc.Driver
     username: edu
     password: nexus
 
   data:
     redis:
-      host: localhost
+      host: edu-nexus-redis
       port: 6379
 
   jpa:
@@ -42,7 +42,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8000/eureka
+      defaultZone: http://edu-nexus-discovery:8000/eureka
     registerWithEureka: true
     fetchRegistry: true
 
