@@ -2,6 +2,7 @@ package com.edunexuscourseservice.adapter.out.persistence.repository;
 
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.domain.course.util.RedisKey;
+import com.edunexuscourseservice.port.out.CourseRatingRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

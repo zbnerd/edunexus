@@ -4,7 +4,7 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseSessionRepository;
-import com.edunexuscourseservice.application.service.CourseSessionService;
+import com.edunexuscourseservice.port.in.CourseSessionUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +31,7 @@ public class CourseSessionServiceTest {
     private CourseSessionRepository courseSessionRepository;
 
     @InjectMocks
-    private CourseSessionService courseSessionService;
+    private CourseSessionUseCase courseSessionUseCase;
 
     @Test
     void testAddSessionToCourse() throws Exception {
@@ -48,7 +48,7 @@ public class CourseSessionServiceTest {
         when(courseSessionRepository.save(any(CourseSession.class))).thenReturn(courseSession);
 
         // then
-        CourseSession result = courseSessionService.addSessionToCourse(course.getId(), courseSession);
+        CourseSession result = courseSessionUseCase.addSessionToCourse(course.getId(), courseSession);
         assertNotNull(result);
         verify(courseSessionRepository).save(courseSession);
         assertEquals(1L, result.getId());
@@ -66,7 +66,7 @@ public class CourseSessionServiceTest {
 
         when(courseSessionRepository.findById(1L)).thenReturn(Optional.of(courseSession));
 
-        CourseSession result = courseSessionService.updateSession(1L, updateCourseSession);
+        CourseSession result = courseSessionUseCase.updateSession(1L, updateCourseSession);
 
         assertNotNull(result);
         assertEquals("session2", result.getTitle());
@@ -78,7 +78,7 @@ public class CourseSessionServiceTest {
 
         when(courseSessionRepository.findById(1L)).thenReturn(Optional.of(courseSession));
 
-        Optional<CourseSession> result = courseSessionService.getSession(1L);
+        Optional<CourseSession> result = courseSessionUseCase.getSession(1L);
         assertTrue(result.isPresent());
         assertEquals(courseSession, result.get());
         verify(courseSessionRepository).findById(1L);
@@ -91,7 +91,7 @@ public class CourseSessionServiceTest {
 
         when(courseSessionRepository.findByCourseId(1L)).thenReturn(sessions);
 
-        List<CourseSession> result = courseSessionService.getAllSessionsByCourseId(1L);
+        List<CourseSession> result = courseSessionUseCase.getAllSessionsByCourseId(1L);
         assertNotNull(result);
         assertEquals(sessions.size(), result.size());
         verify(courseSessionRepository).findByCourseId(1L);

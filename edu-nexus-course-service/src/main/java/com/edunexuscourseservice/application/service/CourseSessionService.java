@@ -5,6 +5,7 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseSessionRepository;
+import com.edunexuscourseservice.port.in.CourseSessionUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CourseSessionService {
+public class CourseSessionService implements CourseSessionUseCase {
 
     private final CourseSessionRepository courseSessionRepository;
     private final CourseRepository courseRepository;

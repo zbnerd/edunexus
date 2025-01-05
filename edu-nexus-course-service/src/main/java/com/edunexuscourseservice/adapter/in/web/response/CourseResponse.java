@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.adapter.in.web;
+package com.edunexuscourseservice.adapter.in.web.response;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import lombok.Getter;

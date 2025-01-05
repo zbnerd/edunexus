@@ -4,7 +4,7 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
 import com.edunexuscourseservice.application.service.kafka.CourseRatingProducerService;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
+import com.edunexuscourseservice.port.out.CourseRatingRedisRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CourseRatingService {
+public class CourseRatingUseCase implements com.edunexuscourseservice.port.in.CourseRatingUseCase {
 
     private final CourseRatingRepository courseRatingRepository;
     private final CourseRepository courseRepository;

@@ -1,12 +1,15 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
+import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
+import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.application.service.CourseRatingService;
-import com.edunexuscourseservice.application.service.CourseService;
+import com.edunexuscourseservice.application.service.CourseRatingUseCase;
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
+import com.edunexuscourseservice.port.in.CourseUseCase;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +25,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseService courseService;
-    private final CourseRatingService courseRatingService;
+    private final CourseUseCase courseUseCase;
+    private final CourseRatingUseCase courseRatingUseCase;
 
     // 강의 생성
     @PostMapping
@@ -32,7 +35,7 @@ public class CourseController {
         Course course = new Course();
         course.setCourseInfo(courseInfoDto);
 
-        Course savedCourse = courseService.saveCourse(course);
+        Course savedCourse = courseUseCase.saveCourse(course);
         CourseResponse response = CourseResponse.from(savedCourse);
 
         return ResponseEntity.created(URI.create("/courses/" + savedCourse.getId())).body(response);
@@ -42,13 +45,13 @@ public class CourseController {
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long courseId,
                                                        @RequestBody CourseUpdateRequest request) {
-        Course course = courseService.getCourseById(courseId)
+        Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
         CourseInfoDto courseInfoDto = request.toCourseInfoDto(course.getInstructorId());
 
         Course newCourse = new Course();
         newCourse.setCourseInfo(courseInfoDto);
-        Course updatedCourse = courseService.updateCourse(course.getId(), newCourse);
+        Course updatedCourse = courseUseCase.updateCourse(course.getId(), newCourse);
 
         return ResponseEntity.ok(CourseResponse.from(updatedCourse));
     }
@@ -56,10 +59,10 @@ public class CourseController {
     // 특정 강의 정보 조회
     @GetMapping("/{courseId}")
     public ResponseEntity<CourseInfoResponse> getCourse(@PathVariable Long courseId) {
-        Course course = courseService.getCourseById(courseId)
+        Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
-        Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
+        Double courseRatingAvg = courseRatingUseCase.getAverageRatingByCourseId(courseId);
 
 
         return ResponseEntity.ok(CourseInfoResponse.from(course, RoundUtils.roundToNDecimals(courseRatingAvg, 2)));
@@ -70,7 +73,7 @@ public class CourseController {
     public ResponseEntity<CourseRatingAverageResponse> getCourseRatingAverage(
             @PathVariable Long courseId
     ) {
-        Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
+        Double courseRatingAvg = courseRatingUseCase.getAverageRatingByCourseId(courseId);
 
         return ResponseEntity.ok(CourseRatingAverageResponse.from(courseId, courseRatingAvg));
     }
@@ -81,10 +84,10 @@ public class CourseController {
             @ModelAttribute CourseSearchCondition condition,
             Pageable pageable
     ) {
-        List<Course> courses = courseService.getAllCourses(condition, pageable);
+        List<Course> courses = courseUseCase.getAllCourses(condition, pageable);
         List<CourseInfoResponse> responses = courses.stream()
                 .map(course -> CourseInfoResponse.from(course,
-                        RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(course.getId()), 2)))
+                        RoundUtils.roundToNDecimals(courseRatingUseCase.getAverageRatingByCourseId(course.getId()), 2)))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }

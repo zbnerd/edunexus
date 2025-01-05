@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.adapter.out.persistence.repository;
+package com.edunexuscourseservice.port.out;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;

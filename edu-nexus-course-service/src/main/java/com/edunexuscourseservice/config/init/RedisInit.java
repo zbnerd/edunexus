@@ -1,6 +1,6 @@
 package com.edunexuscourseservice.config.init;
 
-import com.edunexuscourseservice.application.service.CourseRatingService;
+import com.edunexuscourseservice.application.service.CourseRatingUseCase;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import java.util.Set;
 public class RedisInit {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final CourseRatingService courseRatingService;
+    private final CourseRatingUseCase courseRatingUseCase;
 
     @PostConstruct
     public void init() {
@@ -25,7 +25,7 @@ public class RedisInit {
             redisTemplate.delete(keys);
         }
 
-        courseRatingService.initCourseRatings();
+        courseRatingUseCase.initCourseRatings();
 
     }
 }

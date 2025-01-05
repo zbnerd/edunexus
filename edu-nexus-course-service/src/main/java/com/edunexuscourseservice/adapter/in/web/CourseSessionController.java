@@ -1,8 +1,9 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexuscourseservice.adapter.in.web.response.CourseSessionResponse;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.application.service.CourseSessionService;
+import com.edunexuscourseservice.port.in.CourseSessionUseCase;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseSessionController {
 
-    private final CourseSessionService courseSessionService;
+    private final CourseSessionUseCase courseSessionUseCase;
 
     // 강의 세션 추가
     @PostMapping
     public ResponseEntity<CourseSessionResponse> addSession(@PathVariable Long courseId,
                                                             @RequestBody CourseSessionCreateRequest request) {
-        CourseSession courseSession = courseSessionService.addSessionToCourse(courseId, request.toEntity());
+        CourseSession courseSession = courseSessionUseCase.addSessionToCourse(courseId, request.toEntity());
         CourseSessionResponse response = CourseSessionResponse.from(courseSession);
 
         return ResponseEntity.created(URI.create("/courses/" + courseId + "/sessions/" + courseSession.getId()))
@@ -37,7 +38,7 @@ public class CourseSessionController {
             @PathVariable Long sessionId,
             @RequestBody CourseSessionUpdateRequest request
     ) {
-        CourseSession updatedSession = courseSessionService.updateSession(sessionId, request.toEntity());
+        CourseSession updatedSession = courseSessionUseCase.updateSession(sessionId, request.toEntity());
         return ResponseEntity.ok(CourseSessionResponse.from(updatedSession));
     }
 
@@ -46,7 +47,7 @@ public class CourseSessionController {
     public ResponseEntity<CourseSessionResponse> getSession(
             @PathVariable Long sessionId
     ) {
-        CourseSession courseSession = courseSessionService.getSession(sessionId)
+        CourseSession courseSession = courseSessionUseCase.getSession(sessionId)
                 .orElseThrow(() -> new NotFoundException("Session not found with id = " + sessionId));
         return ResponseEntity.ok(CourseSessionResponse.from(courseSession));
     }
@@ -54,7 +55,7 @@ public class CourseSessionController {
     // 특정 강의의 모든 세션 목록 조회
     @GetMapping
     public ResponseEntity<List<CourseSessionResponse>> getAllSessions(@PathVariable Long courseId) {
-        List<CourseSession> sessions = courseSessionService.getAllSessionsByCourseId(courseId);
+        List<CourseSession> sessions = courseSessionUseCase.getAllSessionsByCourseId(courseId);
         List<CourseSessionResponse> responses = sessions.stream()
                 .map(CourseSessionResponse::from)
                 .collect(Collectors.toList());

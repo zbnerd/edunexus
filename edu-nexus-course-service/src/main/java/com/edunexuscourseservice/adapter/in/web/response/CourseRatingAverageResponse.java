@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.adapter.in.web;
+package com.edunexuscourseservice.adapter.in.web.response;
 
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import lombok.Builder;

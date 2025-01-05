@@ -1,6 +1,6 @@
 package com.edunexuscourseservice.application.service.kafka;
 
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
+import com.edunexuscourseservice.port.out.CourseRatingRedisRepository;
 import com.edunexuscourseservice.application.saga.event.CourseRatingAddEvent;
 import com.edunexuscourseservice.application.saga.event.CourseRatingDeleteEvent;
 import com.edunexuscourseservice.application.saga.event.CourseRatingUpdateEvent;

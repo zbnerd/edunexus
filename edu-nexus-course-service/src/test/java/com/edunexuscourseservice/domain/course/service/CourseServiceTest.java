@@ -1,10 +1,10 @@
 package com.edunexuscourseservice.domain.course.service;
 
-import com.edunexuscourseservice.application.service.CourseService;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
+import com.edunexuscourseservice.port.in.CourseUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,7 +29,7 @@ public class CourseServiceTest {
     private CourseRepository courseRepository;
 
     @InjectMocks
-    private CourseService courseService;
+    private CourseUseCase courseUseCase;
 
     @Test
     void testSaveCourse() {
@@ -40,7 +40,7 @@ public class CourseServiceTest {
         when(courseRepository.save(any(Course.class))).thenReturn(course);
 
         // then
-        Course result = courseService.saveCourse(course);
+        Course result = courseUseCase.saveCourse(course);
         assertNotNull(result);
         verify(courseRepository).save(course);
     }
@@ -72,7 +72,7 @@ public class CourseServiceTest {
         when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
 
         // then
-        Course result = courseService.updateCourse(1L, updatedDetails);
+        Course result = courseUseCase.updateCourse(1L, updatedDetails);
         assertNotNull(result);
         assertEquals("updated title", result.getTitle());
         assertEquals("updated description", result.getDescription());
@@ -88,7 +88,7 @@ public class CourseServiceTest {
         when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
 
         // then
-        Optional<Course> result = courseService.getCourseById(1L);
+        Optional<Course> result = courseUseCase.getCourseById(1L);
         assertTrue(result.isPresent());
         assertSame(course, result.get());
         verify(courseRepository).findById(1L);
@@ -107,7 +107,7 @@ public class CourseServiceTest {
 
 
         // then
-        List<Course> result = courseService.getAllCourses(condition, page);
+        List<Course> result = courseUseCase.getAllCourses(condition, page);
 
         assertNotNull(result);
         assertEquals(courses.size(), result.size());

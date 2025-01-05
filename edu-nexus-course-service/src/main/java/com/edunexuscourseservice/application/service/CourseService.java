@@ -5,8 +5,9 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.adapter.out.persistence.entity.redis.RCourse;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRedisRepository;
+import com.edunexuscourseservice.port.out.CourseRedisRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
+import com.edunexuscourseservice.port.in.CourseUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CourseService {
+public class CourseService implements CourseUseCase {
 
     private final CourseRepository courseRepository;
     private final CourseRedisRepository courseRedisRepository;

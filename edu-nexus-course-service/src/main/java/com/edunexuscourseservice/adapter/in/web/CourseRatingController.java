@@ -1,8 +1,10 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
+import com.edunexuscourseservice.adapter.in.web.response.CourseRatingResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
-import com.edunexuscourseservice.application.service.CourseRatingService;
+import com.edunexuscourseservice.application.service.CourseRatingUseCase;
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,13 +21,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseRatingController {
 
-    private final CourseRatingService courseRatingService;
+    private final CourseRatingUseCase courseRatingUseCase;
 
     // 강의 평가 추가
     @PostMapping
     public ResponseEntity<CourseRatingResponse> addRating(@PathVariable Long courseId,
                                                           @RequestBody CourseRatingCreateRequest request) {
-        CourseRating courseRating = courseRatingService.addRatingToCourse(courseId, request.toEntity());
+        CourseRating courseRating = courseRatingUseCase.addRatingToCourse(courseId, request.toEntity());
         CourseRatingResponse response = CourseRatingResponse.from(courseRating);
 
         return ResponseEntity.created(URI.create("/courses/" + courseId + "/ratings/" + courseRating.getId()))
@@ -38,7 +40,7 @@ public class CourseRatingController {
             @PathVariable Long ratingId,
             @RequestBody CourseRatingUpdateRequest request
     ) {
-        CourseRating updatedRating = courseRatingService.updateRating(ratingId, request.toEntity());
+        CourseRating updatedRating = courseRatingUseCase.updateRating(ratingId, request.toEntity());
         return ResponseEntity.ok(CourseRatingResponse.from(updatedRating));
     }
 
@@ -47,14 +49,14 @@ public class CourseRatingController {
     public ResponseEntity<Void> deleteRating(
             @PathVariable Long ratingId
     ) {
-        courseRatingService.deleteRating(ratingId);
+        courseRatingUseCase.deleteRating(ratingId);
         return ResponseEntity.noContent().build();
     }
 
     // 특정 강의의 모든 평가 조회
     @GetMapping
     public ResponseEntity<List<CourseRatingResponse>> getAllRatings(@PathVariable Long courseId) {
-        List<CourseRating> ratings = courseRatingService.getAllRatingsByCourseId(courseId);
+        List<CourseRating> ratings = courseRatingUseCase.getAllRatingsByCourseId(courseId);
         List<CourseRatingResponse> responses = ratings.stream()
                 .map(CourseRatingResponse::from)
                 .collect(Collectors.toList());
@@ -64,7 +66,7 @@ public class CourseRatingController {
     // 특정 강의의 평점 평균 조회
     @GetMapping("/average")
     public ResponseEntity<CourseRatingAverageResponse> getAverageRating(@PathVariable Long courseId) {
-        Double averageRating = RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(courseId), 2);
+        Double averageRating = RoundUtils.roundToNDecimals(courseRatingUseCase.getAverageRatingByCourseId(courseId), 2);
         CourseRatingAverageResponse response = CourseRatingAverageResponse.builder()
                 .averageRating(averageRating)
                 .courseId(courseId)
@@ -75,7 +77,7 @@ public class CourseRatingController {
 
     @GetMapping("/average/db")
     public ResponseEntity<CourseRatingAverageResponse> getAverageRatingFromDb(@PathVariable Long courseId) {
-        List<CourseRating> courseRatingList = courseRatingService.getAllRatingsByCourseId(courseId);
+        List<CourseRating> courseRatingList = courseRatingUseCase.getAllRatingsByCourseId(courseId);
         Double averageRating = RoundUtils.roundToNDecimals(courseRatingList.stream().mapToInt(CourseRating::getRating).average().getAsDouble(), 2);
         CourseRatingAverageResponse response = CourseRatingAverageResponse.builder()
                 .averageRating(averageRating)
