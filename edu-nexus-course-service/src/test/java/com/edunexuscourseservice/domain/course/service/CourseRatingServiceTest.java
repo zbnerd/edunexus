@@ -1,5 +1,6 @@
 package com.edunexuscourseservice.domain.course.service;
 
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
 import com.edunexuscourseservice.application.service.CourseRatingService;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;

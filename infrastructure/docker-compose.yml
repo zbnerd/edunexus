@@ -12,6 +12,7 @@ services:
     volumes:
       - ./db/mysql/data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
+      - ./db/mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
     platform: linux/x86_64
     networks:
       - edu-nexus-network
