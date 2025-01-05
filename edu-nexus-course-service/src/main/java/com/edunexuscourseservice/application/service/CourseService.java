@@ -5,7 +5,7 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.adapter.out.persistence.entity.redis.RCourse;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.port.out.CourseRedisRepository;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRedisRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import com.edunexuscourseservice.port.in.CourseUseCase;
 import lombok.RequiredArgsConstructor;

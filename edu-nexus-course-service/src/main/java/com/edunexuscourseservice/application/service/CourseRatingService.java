@@ -2,11 +2,12 @@ package com.edunexuscourseservice.application.service;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
 import com.edunexuscourseservice.application.service.kafka.CourseRatingProducerService;
 import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.port.out.CourseRatingRedisRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
+import com.edunexuscourseservice.port.in.CourseRatingUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CourseRatingUseCase implements com.edunexuscourseservice.port.in.CourseRatingUseCase {
+public class CourseRatingService implements CourseRatingUseCase {
 
     private final CourseRatingRepository courseRatingRepository;
     private final CourseRepository courseRepository;

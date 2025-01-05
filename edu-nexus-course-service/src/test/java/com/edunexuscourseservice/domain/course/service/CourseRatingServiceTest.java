@@ -1,7 +1,6 @@
 package com.edunexuscourseservice.domain.course.service;
 
-import com.edunexuscourseservice.port.out.CourseRatingRedisRepository;
-import com.edunexuscourseservice.application.service.CourseRatingUseCase;
+import com.edunexuscourseservice.application.service.CourseRatingService;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
@@ -35,7 +34,7 @@ public class CourseRatingServiceTest {
     private CourseRatingRedisRepository courseRatingRedisRepository;
 
     @InjectMocks
-    private CourseRatingUseCase courseRatingUseCase;
+    private CourseRatingService courseRatingService;
     
     @Test
     void testAddRatingToCourse() throws Exception  {
@@ -52,7 +51,7 @@ public class CourseRatingServiceTest {
         when(courseRatingRepository.save(any(CourseRating.class))).thenReturn(courseRating);
         
         // then
-        CourseRating result = courseRatingUseCase.addRatingToCourse(1L, courseRating);
+        CourseRating result = courseRatingService.addRatingToCourse(1L, courseRating);
         assertNotNull(result);
         verify(courseRatingRepository).save(courseRating);
         assertEquals(1L, result.getId());
@@ -83,7 +82,7 @@ public class CourseRatingServiceTest {
         when(courseRatingRepository.findById(1L)).thenReturn(Optional.of(existingRating));
 
         // then
-        CourseRating result = courseRatingUseCase.updateRating(1L, updateRating);
+        CourseRating result = courseRatingService.updateRating(1L, updateRating);
         assertNotNull(result);
         assertEquals(4, result.getRating());
         assertEquals("Good course!", result.getComment());
@@ -93,7 +92,7 @@ public class CourseRatingServiceTest {
     void testDeleteRating() {
         doNothing().when(courseRatingRepository).deleteById(1L);
 
-        courseRatingUseCase.deleteRating(1L);
+        courseRatingService.deleteRating(1L);
 
         verify(courseRatingRepository).deleteById(1L);
 
@@ -105,7 +104,7 @@ public class CourseRatingServiceTest {
 
         when(courseRatingRepository.findByCourseId(1L)).thenReturn(ratings);
 
-        List<CourseRating> allCourses = courseRatingUseCase.getAllRatingsByCourseId(1L);
+        List<CourseRating> allCourses = courseRatingService.getAllRatingsByCourseId(1L);
         assertNotNull(allCourses);
         assertEquals(ratings.size(), allCourses.size());
         verify(courseRatingRepository).findByCourseId(1L);
@@ -120,7 +119,7 @@ public class CourseRatingServiceTest {
         when(courseRatingRepository.findById(1L)).thenReturn(Optional.of(courseRating));
 
         // then
-        Optional<CourseRating> result = courseRatingUseCase.getRating(1L);
+        Optional<CourseRating> result = courseRatingService.getRating(1L);
         assertTrue(result.isPresent());
         assertEquals(courseRating, result.get());
         verify(courseRatingRepository).findById(1L);

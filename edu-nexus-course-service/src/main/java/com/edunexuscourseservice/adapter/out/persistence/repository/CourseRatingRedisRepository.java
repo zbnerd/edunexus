@@ -1,4 +1,4 @@
-package com.edunexuscourseservice.port.out;
+package com.edunexuscourseservice.adapter.out.persistence.repository;
 
 public interface CourseRatingRedisRepository {
 

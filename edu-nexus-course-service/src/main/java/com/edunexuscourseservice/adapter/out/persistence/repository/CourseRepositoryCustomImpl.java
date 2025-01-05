@@ -3,7 +3,6 @@ package com.edunexuscourseservice.adapter.out.persistence.repository;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.context.CourseSearchConditionContext;
-import com.edunexuscourseservice.port.out.CourseRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Pageable;
