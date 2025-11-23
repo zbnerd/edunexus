@@ -3,11 +3,34 @@
 <!-- logo -->
 
 ### EduNexus 학원예약 시스템 ✅
+> **MSA 아키텍처 및 분산 환경 기술 스택(Kafka, gRPC) 학습 프로젝트**
 
-[<img src="https://img.shields.io/badge/-readme.md-important?style=flat&logo=google-chrome&logoColor=white" />]() [<img src="https://img.shields.io/badge/-tech blog-blue?style=flat&logo=google-chrome&logoColor=white" />]() [<img src="https://img.shields.io/badge/release-v0.1.0-yellow?style=flat&logo=google-chrome&logoColor=white" />]() 
+[<img src="https://img.shields.io/badge/-readme.md-important?style=flat&logo=google-chrome&logoColor=white" />]() [<img src="https://img.shields.io/badge/-tech blog-blue?style=flat&logo=google-chrome&logoColor=white" />]() [<img src="https://img.shields.io/badge/release-v0.1.0-yellow?style=flat&logo=google-chrome&logoColor=white" />]() 
 <br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.12.3~-green?style=flat&logo=&logoColor=white" />]()
 
-</div> 
+</div> 
+
+<br/>
+
+## 📢 프로젝트 회고 (Engineering Retrospective)
+> **"기술의 화려함보다 문제 해결의 적합성이 중요하다는 것을 깨닫게 해 준 프로젝트"**
+>
+> 본 프로젝트는 MSA, Kafka, gRPC 등 최신 분산 처리 기술을 학습하고 적용하는 것을 목표로 시작했습니다. 하지만 개발 과정에서 **'목적 없는 기술 도입(Over-Engineering)'**이 가져오는 복잡도와 리소스 낭비를 직접 경험했습니다.
+
+### 🛑 문제점 및 한계 (Failures)
+- **목적 없는 기술 도입:** 트래픽이 적은 초기 단계 서비스임에도 불구하고 `Kafka`와 `MSA`를 도입하여, 비즈니스 로직 구현보다 인프라 설정과 유지보수에 과도한 시간이 소요되었습니다.
+- **복잡도 폭증:** 단순한 조회 기능조차 여러 마이크로서비스를 거쳐야 했기에 디버깅 난이도가 급상승했습니다.
+- **깊이의 부재:** 아키텍처를 조립하는 데 집중하느라, 정작 중요한 **'동시성 제어'**나 **'DB 쿼리 최적화'** 같은 백엔드의 본질적인 깊이를 놓쳤습니다.
+
+### 💡 얻은 교훈 (Lessons Learned)
+1. **기술은 도구일 뿐이다:** Kafka나 GraphQL은 대규모 트래픽과 복잡한 의존성이 검증되었을 때 도입해야 '득'이 된다는 것을 배웠습니다.
+2. **신입 엔지니어의 핵심 역량:** 아키텍처의 넓이(Breadth)보다는 **기능 하나를 만들더라도 극한으로 파고드는 깊이(Depth)**와 **안정성**이 더 중요함을 체감했습니다.
+3. **단계적 개발의 중요성:** 모놀리식으로 시작해 병목이 발생하는 지점부터 점진적으로 분리하는 것이 훨씬 효율적인 전략임을 깨달았습니다.
+
+👉 **[Next Step]:** 본 프로젝트의 교훈을 바탕으로, 이후 프로젝트에서는 **단일 API의 성능 극한 튜닝 및 동시성 제어(Concurrency Control)**에 집중하는 방향으로 엔지니어링 역량을 강화하고 있습니다.
+
+<br/>
+<br/>
 
 ## 📝 소개
 EduNexus 학원 예약시스템 - 전국의 모든 학원과 학생을 연결시켜주는 서비스 플랫폼입니다.
