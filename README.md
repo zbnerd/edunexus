@@ -1,7 +1,5 @@
 <div align="center">
 
-<!-- logo -->
-
 ### EduNexus 학원예약 시스템 ✅
 > **MSA 아키텍처 및 분산 환경 기술 스택(Kafka, gRPC) 학습 프로젝트**
 
@@ -9,6 +7,21 @@
 <br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2024.12.3~-green?style=flat&logo=&logoColor=white" />]()
 
 </div> 
+
+<br/>
+
+## ⚠️ Project Status: ARCHIVED (학습용/실패 사례 연구)
+
+> **[Note]**
+> 본 프로젝트는 MSA, Kafka 등 다양한 기술 스택을 학습하기 위해 시작되었으나, 
+> **"목적 없는 기술 도입(Over-Engineering)"**의 한계를 깨닫고 중단된 프로젝트입니다.
+>
+> 현재는 본 프로젝트의 실패 경험을 바탕으로, **기본기와 성능 최적화**에 집중한 
+> 새로운 프로젝트 **[MapleExpectation]**을 진행 중입니다.
+>
+> 👉 **[성장 회고록 보러 가기 (Velog)](https://velog.io/@zbnerd/%EC%84%B1%EC%9E%A5%EA%B8%B0-%EC%8B%A0%EC%9E%85-%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80-%ED%9D%94%ED%9E%88-%EA%B2%AA%EB%8A%94-%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D-%EC%87%BC%ED%95%91%EC%9D%98-%EC%B5%9C%ED%9B%84%EC%99%80-%EA%B5%90%ED%9B%88)**
+> 
+> 👉 **[개선된 MapleExpectation 프로젝트 보러 가기 (GitHub)](https://github.com/zbnerd/MapleExpectation)**
 
 <br/>
 
@@ -27,8 +40,6 @@
 2. **신입 엔지니어의 핵심 역량:** 아키텍처의 넓이(Breadth)보다는 **기능 하나를 만들더라도 극한으로 파고드는 깊이(Depth)**와 **안정성**이 더 중요함을 체감했습니다.
 3. **단계적 개발의 중요성:** 모놀리식으로 시작해 병목이 발생하는 지점부터 점진적으로 분리하는 것이 훨씬 효율적인 전략임을 깨달았습니다.
 
-👉 **[Next Step]:** 본 프로젝트의 교훈을 바탕으로, 이후 프로젝트에서는 **단일 API의 성능 극한 튜닝 및 동시성 제어(Concurrency Control)**에 집중하는 방향으로 엔지니어링 역량을 강화하고 있습니다.
-
 <br/>
 <br/>
 
@@ -36,7 +47,7 @@
 EduNexus 학원 예약시스템 - 전국의 모든 학원과 학생을 연결시켜주는 서비스 플랫폼입니다.
 
 - 프로젝트 소개
-EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 편리한 수업 예약과 관리를 지원하는 서비스 플랫폼입니다. 학생과 학부모는 다양한 학원과 강의를 한눈에 비교하고 예약할 수 있으며, 학원은 강의 관리와 학생 출결 기록을 효율적으로 운영할 수 있습니다. 이 플랫폼은 학원과 학생 간의 원활한 소통과 학습 효율성을 극대화하는 것을 목표로 합니다.
+EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 편리한 수업 예약과 관리를 지원하는 서비스 플랫폼입니다. 학생과 학부모는 다양한 학원과 강의를 한눈에 비교하고 예약할 수 있으며, 학원은 강의 관리와 학생 출결 기록을 효율적으로 운영할 수 있습니다.
 
 ## 🗂️ APIs
 작성한 API는 아래에서 확인할 수 있습니다.
@@ -63,7 +74,7 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 ### Infra
 <div>
 <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/Docker.png?raw=true" width="80">
-  <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/AWSEC2.png?raw=true" width="80">
+  <img src="https://github.com/yewon-Noh/readme-template/blob/main/skills/AWSEC2.png?raw=true" width="80">
 </div>
 
 ### Tools
@@ -82,13 +93,13 @@ EduNexus 학원 예약 시스템은 전국의 학원과 학생을 연결하여 �
 
 ## 🤔 기술적 이슈와 해결 과정
 - 윈도우 10 유령포트 점유문제
-  - [윈도우10 유령포트 점유문제](https://velog.io/@mps86/%EC%9C%88%EB%8F%84%EC%9A%B0-10-%EC%9C%A0%EB%A0%B9%ED%8F%AC%ED%8A%B8-%EC%A0%90%EC%9C%A0-%EB%AC%B8%EC%A0%9C)
+  - [윈도우10 유령포트 점유문제](https://velog.io/@mps86/%EC%9C%88%EB%8F%84%EC%9A%B0-10-%EC%9C%A0%EB%A0%B9%ED%8F%AC%ED%8A%B8-%EC%A0%90%EC%9C%A0-%EB%AC%B8%EC%A0%9C)
 - DP 기법을 이용한 평점 평균 계산 로직 with Redis
-  - [EduNexus DP 기법을 이용한 평점 평균 계산 로직](https://velog.io/@mps86/EduNexus-DP-%EA%B8%B0%EB%B2%95%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-Course-%ED%8F%89%EA%B7%A0-%ED%8F%89%EC%A0%90-%EA%B3%84%EC%82%B0-%EB%A1%9C%EC%A7%81)
+  - [EduNexus DP 기법을 이용한 평점 평균 계산 로직](https://velog.io/@mps86/EduNexus-DP-%EA%B8%B0%EB%B2%95%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-Course-%ED%8F%89%EA%B7%A0-%ED%8F%89%EC%A0%90-%EA%B3%84%EC%82%B0-%EB%A1%9C%EC%A7%81)
 - 평점 평균 계산 로직의 문제점
-  - [평점 평균 계산 로직의 문제점](https://velog.io/@mps86/CourseRating-%ED%98%84-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%98-%EB%AC%B8%EC%A0%9C%EC%A0%90)
+  - [평점 평균 계산 로직의 문제점](https://velog.io/@mps86/CourseRating-%ED%98%84-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%98-%EB%AC%B8%EC%A0%9C%EC%A0%90)
 - Kafka 기반 보상 트랜잭션을 통한 평점평균 시스템 Redis-DB 데이터 무결성 보장
-  - [Kafka 기반 보상 트랜잭션을 통한 평점평균 시스템 Redis-DB 데이터 무결성 보장](https://velog.io/@mps86/Kafka-%EA%B8%B0%EB%B0%98-%EB%B3%B4%EC%83%81-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98%EC%9D%84-%ED%86%B5%ED%95%9C-%ED%8F%89%EC%A0%90%ED%8F%89%EA%B7%A0-%EC%8B%9C%EC%8A%A4%ED%85%9C-Redis-DB-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%AC%B4%EA%B2%B0%EC%84%B1-%EB%B3%B4%EC%9E%A5)
+  - [Kafka 기반 보상 트랜잭션을 통한 평점평균 시스템 Redis-DB 데이터 무결성 보장](https://velog.io/@mps86/Kafka-%EA%B8%B0%EB%B0%98-%EB%B3%B4%EC%83%81-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98%EC%9D%84-%ED%86%B5%ED%95%9C-%ED%8F%89%EC%A0%90%ED%8F%89%EA%B7%A0-%EC%8B%9C%EC%8A%A4%ED%85%9C-Redis-DB-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%AC%B4%EA%B2%B0%EC%84%B1-%EB%B3%B4%EC%9E%A5)
 <br />
 
 ## 💁‍♂️ 프로젝트 팀원
