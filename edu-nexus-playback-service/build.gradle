@@ -44,6 +44,9 @@ dependencies {
 
     implementation project(':edu-nexus-grpc-common')
     implementation 'net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE'
+
+    // Protobuf runtime for tests
+    testImplementation 'com.google.protobuf:protobuf-java:3.25.1'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
