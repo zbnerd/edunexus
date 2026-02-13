@@ -37,3 +37,29 @@ out/
 .vscode/
 /infrastructure/db/mysql/
 /infrastructure/.data
+
+# Runtime data
+*.rdb
+*.log
+*.aof
+
+# Upload directories
+uploads/
+**/uploads/
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.webm
+
+# Build artifacts
+build/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
