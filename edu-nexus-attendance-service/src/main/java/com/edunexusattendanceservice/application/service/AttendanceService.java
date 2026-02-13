@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,12 +29,23 @@ import java.util.Optional;
 public class AttendanceService implements AttendanceUseCase {
 
     private final AttendanceRepository attendanceRepository;
+    private final AttendanceSessionService attendanceSessionService;
 
     @Override
     @Transactional
     public Attendance checkIn(CheckInRequest request) {
         log.info("Checking in user {} for session {} in course {}",
                 request.getUserId(), request.getSessionId(), request.getCourseId());
+
+        LocalDateTime checkInTime = LocalDateTime.now();
+
+        // Validate check-in time window
+        if (!attendanceSessionService.isCheckInAllowed(request.getSessionId(), checkInTime)) {
+            log.warn("Check-in not allowed for user {} in session {} - outside time window",
+                    request.getUserId(), request.getSessionId());
+            throw new IllegalArgumentException(
+                    "Check-in is not allowed at this time. Please check the session schedule.");
+        }
 
         // Check if already checked in
         Optional<Attendance> existingAttendance = attendanceRepository
@@ -54,10 +66,11 @@ public class AttendanceService implements AttendanceUseCase {
         attendance.setCourseId(request.getCourseId());
         attendance.setSessionId(request.getSessionId());
 
-        // Determine status - use provided status or default to PRESENT
+        // Determine status - use provided status or determine based on check-in time
         AttendanceStatus status = request.getStatus() != null
                 ? request.getStatus()
-                : AttendanceStatus.PRESENT;
+                : attendanceSessionService.determineAttendanceStatus(request.getSessionId(), checkInTime);
+
         attendance.checkIn(status);
 
         Attendance saved = attendanceRepository.save(attendance);

@@ -197,6 +197,94 @@ services:
     networks:
       - edu-nexus-network
 
+  # ==================== Monitoring Stack ====================
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: edu-nexus-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - edu-nexus-network
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: edu-nexus-grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=redis-datasource
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - edu-nexus-network
+
+  # Optional: Node Exporter for host metrics
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: edu-nexus-node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - edu-nexus-network
+
+  # Optional: Redis Exporter for Redis metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: edu-nexus-redis-exporter
+    restart: always
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=edu-nexus-redis:6379
+    depends_on:
+      - edu-nexus-redis
+    networks:
+      - edu-nexus-network
+
+  # Optional: MySQL Exporter for database metrics
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.1
+    container_name: edu-nexus-mysql-exporter
+    restart: always
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=root:fast@(edu-nexus-mysql:3306)/
+    depends_on:
+      - edu-nexus-mysql
+    networks:
+      - edu-nexus-network
+
 
 networks:
   back-tier:  # Prometheus 스택 내부 네트워크
@@ -204,3 +292,9 @@ networks:
   front-tier:  # Grafana와 외부 간의 네트워크
   edu-nexus-network:
     driver: bridge
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

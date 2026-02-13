@@ -8,6 +8,10 @@ import com.edunexusattendanceservice.domain.attendance.dto.AttendanceDto;
 import com.edunexusattendanceservice.domain.attendance.dto.AttendanceRateResponse;
 import com.edunexusattendanceservice.domain.attendance.dto.CheckInRequest;
 import com.edunexusattendanceservice.domain.attendance.enums.AttendanceStatus;
+import com.edunexusobservability.annotation.MetricTimed;
+import com.edunexusobservability.metrics.BusinessMetrics;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +30,26 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/attendances")
 @RequiredArgsConstructor
+@Timed
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final BusinessMetrics businessMetrics;
 
     /**
      * Check in a student to a session
      * POST /attendances/checkin
      */
     @PostMapping("/checkin")
+    @Counted(value = "attendance.checkin", description = "Student check-in attempts")
+    @MetricTimed
     public ResponseEntity<AttendanceResponse> checkIn(@Valid @RequestBody CheckInRequest request) {
         log.info("Check-in request for user {} in session {}", request.getUserId(), request.getSessionId());
         Attendance attendance = attendanceService.checkIn(request);
+
+        // Record business metric for successful check-in
+        businessMetrics.recordAttendance(attendance.getCourseId(), attendance.getStatus());
+
         return ResponseEntity.created(URI.create("/attendances/" + attendance.getId()))
                 .body(AttendanceResponse.from(attendance));
     }
@@ -47,6 +59,8 @@ public class AttendanceController {
      * POST /attendances/checkout/{id}
      */
     @PostMapping("/checkout/{id}")
+    @Counted(value = "attendance.checkout", description = "Student check-out attempts")
+    @Timed(value = "attendance.checkout", percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<AttendanceResponse> checkOut(@PathVariable Long id) {
         log.info("Check-out request for attendance record {}", id);
         Attendance attendance = attendanceService.checkOut(id);
@@ -58,6 +72,7 @@ public class AttendanceController {
      * GET /attendances/user/{userId}
      */
     @GetMapping("/user/{userId}")
+    @Timed(value = "attendance.retrieval", extraTags = {"operation", "getByUser"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<AttendanceResponse>> getAttendanceByUserId(@PathVariable Long userId) {
         log.info("Fetching attendance history for user {}", userId);
         List<Attendance> attendances = attendanceService.getAttendanceByUserId(userId);
@@ -72,6 +87,7 @@ public class AttendanceController {
      * GET /attendances/user/{userId}/course/{courseId}
      */
     @GetMapping("/user/{userId}/course/{courseId}")
+    @Timed(value = "attendance.retrieval", extraTags = {"operation", "getByUserAndCourse"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<AttendanceResponse>> getAttendanceByUserIdAndCourseId(
             @PathVariable Long userId,
             @PathVariable Long courseId) {
@@ -88,6 +104,7 @@ public class AttendanceController {
      * GET /attendances/session/{sessionId}
      */
     @GetMapping("/session/{sessionId}")
+    @Timed(value = "attendance.retrieval", extraTags = {"operation", "getBySession"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<AttendanceResponse>> getAttendanceBySessionId(@PathVariable Long sessionId) {
         log.info("Fetching attendance records for session {}", sessionId);
         List<Attendance> attendances = attendanceService.getAttendanceBySessionId(sessionId);
@@ -102,6 +119,7 @@ public class AttendanceController {
      * GET /attendances/rate/{userId}/{courseId}
      */
     @GetMapping("/rate/{userId}/{courseId}")
+    @Timed(value = "attendance.rate.calculation", percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<AttendanceRateResponse> getAttendanceRate(
             @PathVariable Long userId,
             @PathVariable Long courseId) {

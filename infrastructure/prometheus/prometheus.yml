@@ -1,0 +1,240 @@
+# Prometheus configuration for EduNexus microservices
+# Uses Eureka for service discovery to automatically find all services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'edunexus'
+    environment: 'dev'
+
+# Alertmanager configuration (optional - uncomment to enable)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load alert rules
+# rule_files:
+#   - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # ==================== Prometheus Self-Monitoring ====================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+  # ==================== Eureka Service Discovery ====================
+  # Main job that discovers all services from Eureka
+  - job_name: 'eureka-services'
+    eureka_sd_configs:
+      - server: http://edu-nexus-discovery:8000/eureka
+        refresh_interval: 30s
+    relabel_configs:
+      # Only scrape services that have the prometheus port enabled
+      - source_labels: [__meta_eureka_app_name]
+        regex: 'edu-nexus-.*'
+        action: keep
+      # Use the application name as the job label
+      - source_labels: [__meta_eureka_app_name]
+        target_label: application
+      # Use the instance ID as the instance label
+      - source_labels: [__meta_eureka_app_instance_id]
+        target_label: instance_id
+      # Add the service name tag
+      - source_labels: [__meta_eureka_app_name]
+        target_label: service
+        regex: 'edu-nexus-(.*)'
+        replacement: '${1}'
+      # Set the scheme to http
+      - source_labels: [__meta_eureka_app_name]
+        target_label: __scheme__
+        replacement: 'http'
+      # Set the metrics path
+      - source_labels: [__meta_eureka_app_name]
+        target_label: __metrics_path__
+        replacement: '/actuator/prometheus'
+      # Use the Eureka IP address
+      - source_labels: [__address__, __meta_eureka_app_name]
+        regex: '([^:]+)(:[0-9]+)?;edu-nexus-(.*)'
+        target_label: __address__
+        replacement: '${1}:8001'
+      # Special port handling per service
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-discovery;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8000'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-course-service;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8001'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-enrollment-service;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8002'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-file-manage-service;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8003'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-user-service;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8004'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-playback-service;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8005'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-graphql;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8006'
+      - source_labels: [__meta_eureka_app_name, __address__]
+        regex: 'edu-nexus-gateway;([^:]+)(:[0-9]+)?'
+        target_label: __address__
+        replacement: '${1}:8080'
+
+  # ==================== Static Service Configurations ====================
+  # Discovery Service (special handling - no actuator on default port)
+  - job_name: 'edu-nexus-discovery'
+    static_configs:
+      - targets: ['edu-nexus-discovery:8000']
+        labels:
+          application: 'edu-nexus-discovery'
+          service: 'discovery'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 30s
+
+  # Course Service
+  - job_name: 'edu-nexus-course-service'
+    static_configs:
+      - targets: ['edu-nexus-course-service:8001']
+        labels:
+          application: 'edu-nexus-course-service'
+          service: 'course'
+    metrics_path: '/actuator/prometheus'
+
+  # Enrollment Service
+  - job_name: 'edu-nexus-enrollment-service'
+    static_configs:
+      - targets: ['edu-nexus-enrollment-service:8002']
+        labels:
+          application: 'edu-nexus-enrollment-service'
+          service: 'enrollment'
+    metrics_path: '/actuator/prometheus'
+
+  # File Management Service
+  - job_name: 'edu-nexus-file-manage-service'
+    static_configs:
+      - targets: ['edu-nexus-file-manage-service:8003']
+        labels:
+          application: 'edu-nexus-file-manage-service'
+          service: 'file-manage'
+    metrics_path: '/actuator/prometheus'
+
+  # User Service
+  - job_name: 'edu-nexus-user-service'
+    static_configs:
+      - targets: ['edu-nexus-user-service:8004']
+        labels:
+          application: 'edu-nexus-user-service'
+          service: 'user'
+    metrics_path: '/actuator/prometheus'
+
+  # Playback Service
+  - job_name: 'edu-nexus-playback-service'
+    static_configs:
+      - targets: ['edu-nexus-playback-service:8005']
+        labels:
+          application: 'edu-nexus-playback-service'
+          service: 'playback'
+    metrics_path: '/actuator/prometheus'
+
+  # GraphQL Gateway
+  - job_name: 'edu-nexus-graphql'
+    static_configs:
+      - targets: ['edu-nexus-graphql:8006']
+        labels:
+          application: 'edu-nexus-graphql'
+          service: 'graphql'
+    metrics_path: '/actuator/prometheus'
+
+  # API Gateway
+  - job_name: 'edu-nexus-gateway'
+    static_configs:
+      - targets: ['edu-nexus-gateway:8080']
+        labels:
+          application: 'edu-nexus-gateway'
+          service: 'gateway'
+    metrics_path: '/actuator/prometheus'
+
+  # ==================== Infrastructure Monitoring ====================
+  # MySQL Exporter (if using mysql_exporter)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+        labels:
+          service: 'mysql'
+    scrape_interval: 30s
+
+  # Redis Exporter (if using redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+    scrape_interval: 30s
+
+  # Kafka JMX Exporter (if using kafka_jmx_exporter)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka1:9308', 'kafka2:9309', 'kafka3:9310']
+        labels:
+          service: 'kafka'
+    scrape_interval: 30s
+
+  # Node Exporter (for host metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node'
+    scrape_interval: 30s
+
+  # cAdvisor (for container metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
+    scrape_interval: 30s
+
+  # Grafana (for monitoring Grafana itself)
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          service: 'grafana'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+# Storage configuration
+storage:
+  tsdb:
+    path: /prometheus
+    retention.time: 15d
+    retention.size: 10GB
+
+# Remote write configuration (for long-term storage, optional)
+# remote_write:
+#   - url: "http://thanos-receiver:19291/api/v1/receive"
+
+# Tracing configuration (optional, for Grafana Tempo)
+# tracing:
+#   endpoint: "tempo:4318"
+#   client_type: "grpc"
+#   headers:
+#     X-Scope-OrgID: "edunexus"
