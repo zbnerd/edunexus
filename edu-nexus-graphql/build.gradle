@@ -47,8 +47,8 @@ dependencies {
 	// Kafka for Saga pattern
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// Common observability module
-	implementation project(':edu-nexus-observability')
+	// Common observability module - temporarily disabled due to compilation issues
+	// implementation project(':edu-nexus-observability')
 
 	implementation 'com.graphql-java:graphql-java-extended-scalars:21.0'
 	implementation 'net.devh:grpc-client-spring-boot-starter:3.0.0.RELEASE'

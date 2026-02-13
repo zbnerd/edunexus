@@ -37,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // Micrometer for metrics
     implementation 'io.micrometer:micrometer-core'
@@ -49,6 +50,10 @@ dependencies {
     // OpenTelemetry (optional, can be excluded if not using)
     implementation 'io.opentelemetry:opentelemetry-api'
     implementation 'io.opentelemetry:opentelemetry-context'
+
+    // AspectJ for AOP
+    implementation 'org.aspectj:aspectjweaver'
+    implementation 'org.aspectj:aspectjrt'
 
     // Annotation processing
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

@@ -16,14 +16,11 @@
     </appender>
 
     <!-- File appender for JSON structured logging (optional, for production) -->
-    <springProfile name="!local &amp; !dev">
+    <!-- <springProfile name="!local &amp; !dev">
         <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/graphql.log</file>
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <includeMdcKeyName>traceId</includeMdcKeyName>
-                <includeMdcKeyName>spanId</includeMdcKeyName>
-                <includeMdcKeyName>correlationId</includeMdcKeyName>
-                <includeContext>true</includeContext>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <fileNamePattern>logs/graphql-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
@@ -32,7 +29,7 @@
                 <totalSizeCap>3GB</totalSizeCap>
             </rollingPolicy>
         </appender>
-    </springProfile>
+    </springProfile> -->
 
     <!-- Application loggers -->
     <logger name="com.edunexusgraphql" level="INFO"/>
@@ -54,8 +51,8 @@
     <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <springProfile name="!local &amp; !dev">
+        <!-- <springProfile name="!local &amp; !dev">
             <appender-ref ref="JSON_FILE"/>
-        </springProfile>
+        </springProfile> -->
     </root>
 </configuration>

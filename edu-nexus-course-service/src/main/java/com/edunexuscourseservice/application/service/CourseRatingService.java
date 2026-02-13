@@ -2,7 +2,9 @@ package com.edunexuscourseservice.application.service;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
 import com.edunexus.common.exception.NotFoundException;
+import com.edunexuscourseservice.config.course.metrics.CourseMetrics;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,16 +40,26 @@ public class CourseRatingService implements CourseRatingUseCase {
     private final CourseRatingCrudService crudService;
     private final CourseRatingCacheOrchestrator cacheOrchestrator;
     private final CourseRatingQueryService queryService;
+    private final CourseMetrics courseMetrics;
 
     @Transactional
     @Override
     public CourseRating addRatingToCourse(Long courseId, CourseRating courseRating) {
-        CourseRating savedRating = crudService.save(courseId, courseRating);
+        Timer.Sample sample = courseMetrics.startCourseRetrieval();
+        try {
+            CourseRating savedRating = crudService.save(courseId, courseRating);
 
-        // Fire-and-forget cache update (async via Kafka)
-        cacheOrchestrator.onRatingAdded(courseId, courseRating.getRating(), savedRating.getId());
+            // Fire-and-forget cache update (async via Kafka)
+            cacheOrchestrator.onRatingAdded(courseId, courseRating.getRating(), savedRating.getId());
 
-        return savedRating;
+            courseMetrics.recordRatingCreated();
+            courseMetrics.stopCourseRetrieval(sample, "addRating");
+
+            return savedRating;
+        } catch (Exception e) {
+            log.error("Failed to add rating for course {}", courseId, e);
+            throw e;
+        }
     }
 
     @Transactional
@@ -102,7 +114,14 @@ public class CourseRatingService implements CourseRatingUseCase {
 
     @Override
     public Double getAverageRatingByCourseId(Long courseId) {
-        return queryService.getAverageRating(courseId);
+        Timer.Sample sample = courseMetrics.startCourseRetrieval();
+        try {
+            Double average = queryService.getAverageRating(courseId);
+            courseMetrics.stopCourseRetrieval(sample, "getAverageRating");
+            return average;
+        } finally {
+            // Sample is stopped in try block
+        }
     }
 
     @Override

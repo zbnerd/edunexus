@@ -7,10 +7,13 @@ import com.edunexusgraphql.resolver.EnrollmentDataResolver;
 import com.edunexusgraphql.service.CourseService;
 import com.edunexusgraphql.service.EnrollmentService;
 import com.edunexusgraphql.service.UserService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -18,24 +21,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Configuration
+@Component
 public class DataLoaderConfig {
 
     private final UserService userService;
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
+    private final BatchLoaderRegistry batchLoaderRegistry;
 
     @Autowired
-    public DataLoaderConfig(UserService userService, CourseService courseService, EnrollmentService enrollmentService) {
+    public DataLoaderConfig(UserService userService, CourseService courseService, EnrollmentService enrollmentService, BatchLoaderRegistry batchLoaderRegistry) {
         this.userService = userService;
         this.courseService = courseService;
         this.enrollmentService = enrollmentService;
+        this.batchLoaderRegistry = batchLoaderRegistry;
     }
 
-    @Bean
-    public BatchLoaderRegistry batchLoaderRegistry(BatchLoaderRegistry registry, UserService userService, CourseService courseService, EnrollmentService enrollmentService) {
+    @PostConstruct
+    public void registerBatchLoaders() {
         // Register course batch loader
-        registry.forTypePair(Long.class, Course.class)
+        batchLoaderRegistry.forTypePair(Long.class, Course.class)
                 .registerMappedBatchLoader((courseIds, env) -> {
                     List<Long> ids = courseIds.stream().toList();
                     return Mono.justOrEmpty(courseService.findCoursesByIds(ids)
@@ -45,7 +50,7 @@ public class DataLoaderConfig {
                 });
 
         // Register user batch loader
-        registry.forTypePair(Long.class, User.class)
+        batchLoaderRegistry.forTypePair(Long.class, User.class)
                 .registerMappedBatchLoader((userIds, env) -> {
                     List<Long> ids = userIds.stream().toList();
                     Map<Long, User> usersMap = userService.findUsersByIds(ids);
@@ -53,13 +58,11 @@ public class DataLoaderConfig {
                 });
 
         // Register payment batch loader
-        registry.forTypePair(Long.class, Payment.class)
+        batchLoaderRegistry.forTypePair(Long.class, Payment.class)
                 .registerMappedBatchLoader((paymentIds, env) -> {
                     List<Long> ids = paymentIds.stream().toList();
                     Map<Long, Payment> paymentsMap = enrollmentService.findPaymentsByIds(ids);
                     return Mono.justOrEmpty(paymentsMap);
                 });
-
-        return registry;
     }
 }

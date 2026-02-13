@@ -1,5 +1,7 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexusobservability.annotation.MetricTimed;
+import com.edunexusobservability.metrics.BusinessMetrics;
 import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
@@ -10,6 +12,8 @@ import com.edunexus.common.exception.NotFoundException;
 import com.edunexuscourseservice.port.in.CourseUseCase;
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/courses")
 @RequiredArgsConstructor
+@Timed
 public class CourseController {
 
     private final CourseUseCase courseUseCase;
@@ -32,6 +37,7 @@ public class CourseController {
 
     // 강의 생성
     @PostMapping
+    @Counted(value = "course.creation", description = "Course creation attempts")
     public ResponseEntity<CourseResponse> createCourse(@RequestBody CourseCreateRequest request) {
         CourseInfoDto courseInfoDto = request.toCourseInfoDto();
         Course course = new Course();
@@ -60,6 +66,7 @@ public class CourseController {
 
     // 특정 강의 정보 조회
     @GetMapping("/{courseId}")
+    @Timed(value = "course.retrieval", extraTags = {"operation", "getCourse"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<CourseInfoResponse> getCourse(@PathVariable Long courseId) {
         Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
@@ -82,6 +89,7 @@ public class CourseController {
 
     // 모든 강의 목록 조회
     @GetMapping
+    @Timed(value = "course.retrieval", extraTags = {"operation", "getAllCourses"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<CourseInfoResponse>> getAllCourses(
             @ModelAttribute CourseSearchCondition condition,
             Pageable pageable
@@ -108,6 +116,7 @@ public class CourseController {
      * Optimized for GraphQL batch loading to avoid N+1 queries.
      */
     @PostMapping("/batch")
+    @Timed(value = "course.batch_retrieval", extraTags = {"operation", "batchGetCourses"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<CourseInfoResponse>> getCoursesByIds(@RequestBody List<Long> courseIds) {
         if (courseIds == null || courseIds.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
