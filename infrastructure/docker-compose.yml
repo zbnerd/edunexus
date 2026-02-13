@@ -215,8 +215,6 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
-    networks:
-      - edu-nexus-network
 
   grafana:
     image: grafana/grafana:10.2.2
@@ -236,8 +234,6 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
-    networks:
-      - edu-nexus-network
 
   # Optional: Node Exporter for host metrics
   node-exporter:
@@ -254,8 +250,6 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    networks:
-      - edu-nexus-network
 
   # Optional: Redis Exporter for Redis metrics
   redis-exporter:
@@ -268,8 +262,6 @@ services:
       - REDIS_ADDR=edu-nexus-redis:6379
     depends_on:
       - edu-nexus-redis
-    networks:
-      - edu-nexus-network
 
   # Optional: MySQL Exporter for database metrics
   mysql-exporter:
@@ -281,17 +273,13 @@ services:
     environment:
       - DATA_SOURCE_NAME=root:fast@(edu-nexus-mysql:3306)/
     depends_on:
-      - edu-nexus-mysql
-    networks:
-      - edu-nexus-network
+      - edu-nexus-redis
 
 
 networks:
   back-tier:  # Prometheus 스택 내부 네트워크
     driver: bridge
   front-tier:  # Grafana와 외부 간의 네트워크
-  edu-nexus-network:
-    driver: bridge
 
 volumes:
   prometheus-data:

@@ -221,12 +221,6 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 30s
 
-# Storage configuration
-storage:
-  tsdb:
-    path: /prometheus
-    retention.time: 15d
-    retention.size: 10GB
 
 # Remote write configuration (for long-term storage, optional)
 # remote_write:
