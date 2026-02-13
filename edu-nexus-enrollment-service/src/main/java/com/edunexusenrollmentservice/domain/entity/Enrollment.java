@@ -28,6 +28,10 @@ public class Enrollment {
     @Column(nullable = false)
     private LocalDateTime registrationDate;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id", insertable = false, updatable = false)
     private Payment payment;

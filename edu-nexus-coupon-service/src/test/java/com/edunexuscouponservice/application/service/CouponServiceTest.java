@@ -10,6 +10,8 @@ import com.edunexuscouponservice.domain.coupon.dto.*;
 import com.edunexuscouponservice.domain.coupon.enums.CouponStatus;
 import com.edunexuscouponservice.domain.coupon.enums.CouponType;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -137,8 +140,9 @@ class CouponServiceTest {
 
     @Test
     void getAllActiveCoupons_ShouldReturnActiveCoupons() {
-        when(couponRepository.findByStatus(CouponStatus.ACTIVE))
-                .thenReturn(Arrays.asList(testCoupon));
+        Page<Coupon> couponPage = new PageImpl<>(Arrays.asList(testCoupon));
+        when(couponRepository.findByStatus(eq(CouponStatus.ACTIVE), any()))
+                .thenReturn(couponPage);
 
         List<CouponDto> result = couponService.getAllActiveCoupons();
 

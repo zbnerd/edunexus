@@ -74,7 +74,7 @@ class AuthControllerTest {
     @Test
     void login_WhenValidCredentials_ShouldReturnTokenWith200Status() {
         // given
-        when(userService.getUserByEmailOrThrowToNotFoundException("test@example.com"))
+        when(userService.requireByEmail("test@example.com"))
                 .thenReturn(testUser);
         when(jwtService.login(testUser, "password123"))
                 .thenReturn("jwt.token.string");
@@ -88,7 +88,7 @@ class AuthControllerTest {
         assertNotNull(response.getBody());
         assertEquals("jwt.token.string", response.getBody().get("token"));
 
-        verify(userService).getUserByEmailOrThrowToNotFoundException("test@example.com");
+        verify(userService).requireByEmail("test@example.com");
         verify(jwtService).login(testUser, "password123");
         verify(userService).logUserLogin(testUser.getId(), "192.168.1.1");
     }
@@ -96,7 +96,7 @@ class AuthControllerTest {
     @Test
     void login_WhenUserServiceThrowsException_ShouldPropagateException() {
         // given
-        when(userService.getUserByEmailOrThrowToNotFoundException("test@example.com"))
+        when(userService.requireByEmail("test@example.com"))
                 .thenThrow(new NotFoundException("User not found"));
 
         // when & then
@@ -104,14 +104,14 @@ class AuthControllerTest {
             authController.login(request, loginRequest);
         });
 
-        verify(userService).getUserByEmailOrThrowToNotFoundException("test@example.com");
+        verify(userService).requireByEmail("test@example.com");
         verify(jwtService, never()).login(any(), any());
     }
 
     @Test
     void login_WhenJwtServiceThrowsException_ShouldPropagateException() {
         // given
-        when(userService.getUserByEmailOrThrowToNotFoundException("test@example.com"))
+        when(userService.requireByEmail("test@example.com"))
                 .thenReturn(testUser);
         when(jwtService.login(testUser, "password123"))
                 .thenThrow(new RuntimeException("JWT generation failed"));
@@ -121,7 +121,7 @@ class AuthControllerTest {
             authController.login(request, loginRequest);
         });
 
-        verify(userService).getUserByEmailOrThrowToNotFoundException("test@example.com");
+        verify(userService).requireByEmail("test@example.com");
         verify(jwtService).login(testUser, "password123");
     }
     //endregion
@@ -280,7 +280,7 @@ class AuthControllerTest {
             authController.login(null, loginRequest);
         });
 
-        verify(userService, never()).getUserByEmailOrThrowToNotFoundException(any());
+        verify(userService, never()).requireByEmail(any());
     }
 
     @Test
@@ -290,7 +290,7 @@ class AuthControllerTest {
             authController.login(request, null);
         });
 
-        verify(userService, never()).getUserByEmailOrThrowToNotFoundException(any());
+        verify(userService, never()).requireByEmail(any());
     }
 
     @Test
@@ -326,7 +326,7 @@ class AuthControllerTest {
     @Test
     void login_WhenRemoteAddrIsNull_ShouldStillWork() {
         // given
-        when(userService.getUserByEmailOrThrowToNotFoundException("test@example.com"))
+        when(userService.requireByEmail("test@example.com"))
                 .thenReturn(testUser);
         when(jwtService.login(testUser, "password123"))
                 .thenReturn("jwt.token.string");

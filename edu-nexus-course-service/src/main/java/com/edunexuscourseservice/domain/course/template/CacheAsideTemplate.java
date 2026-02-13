@@ -153,4 +153,12 @@ public class CacheAsideTemplate {
     public void resetMetrics() {
         metrics.reset();
     }
+
+    /**
+     * Get the underlying RedisTemplate for advanced operations.
+     * Used for Lua scripts and other atomic operations.
+     */
+    public RedisTemplate<String, Object> getRedisTemplate() {
+        return redisTemplate;
+    }
 }

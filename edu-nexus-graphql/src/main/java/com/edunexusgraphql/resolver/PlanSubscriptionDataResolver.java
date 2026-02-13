@@ -19,6 +19,8 @@ public class PlanSubscriptionDataResolver {
     @SchemaMapping(typeName = "PlanSubscription", field = "user")
     public User getUser(PlanSubscription subscription) {
         return userService.findById(subscription.getUserId()).orElse(null);
+        // Note: GraphQL allows null for nullable fields. If user field is @NonNull,
+        // use .orElseThrow(() -> new NotFoundException("User not found"))
     }
 
     @SchemaMapping(typeName = "PlanSubscription", field = "payment")

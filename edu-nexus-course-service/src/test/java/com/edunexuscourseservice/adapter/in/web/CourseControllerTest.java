@@ -1,5 +1,7 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexuscourseservice.adapter.in.web.request.CourseCreateRequest;
+import com.edunexuscourseservice.adapter.in.web.request.CourseUpdateRequest;
 import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
@@ -70,16 +72,16 @@ class CourseControllerTest {
     @Test
     void createCourse_WhenValidRequest_ShouldReturnCreatedStatusWithCourse() throws Exception {
         // given
-        CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
-        java.lang.reflect.Field titleField = CourseController.CourseCreateRequest.class.getDeclaredField("title");
+        CourseCreateRequest request = new CourseCreateRequest();
+        java.lang.reflect.Field titleField = CourseCreateRequest.class.getDeclaredField("title");
         titleField.setAccessible(true);
         titleField.set(request, "New Course");
 
-        java.lang.reflect.Field descField = CourseController.CourseCreateRequest.class.getDeclaredField("description");
+        java.lang.reflect.Field descField = CourseCreateRequest.class.getDeclaredField("description");
         descField.setAccessible(true);
         descField.set(request, "New Description");
 
-        java.lang.reflect.Field instructorField = CourseController.CourseCreateRequest.class.getDeclaredField("instructorId");
+        java.lang.reflect.Field instructorField = CourseCreateRequest.class.getDeclaredField("instructorId");
         instructorField.setAccessible(true);
         instructorField.set(request, 1L);
 
@@ -104,16 +106,16 @@ class CourseControllerTest {
     @Test
     void createCourse_WhenServiceThrowsException_ShouldPropagateException() throws Exception {
         // given
-        CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
-        java.lang.reflect.Field titleField = CourseController.CourseCreateRequest.class.getDeclaredField("title");
+        CourseCreateRequest request = new CourseCreateRequest();
+        java.lang.reflect.Field titleField = CourseCreateRequest.class.getDeclaredField("title");
         titleField.setAccessible(true);
         titleField.set(request, "New Course");
 
-        java.lang.reflect.Field descField = CourseController.CourseCreateRequest.class.getDeclaredField("description");
+        java.lang.reflect.Field descField = CourseCreateRequest.class.getDeclaredField("description");
         descField.setAccessible(true);
         descField.set(request, "New Description");
 
-        java.lang.reflect.Field instructorField = CourseController.CourseCreateRequest.class.getDeclaredField("instructorId");
+        java.lang.reflect.Field instructorField = CourseCreateRequest.class.getDeclaredField("instructorId");
         instructorField.setAccessible(true);
         instructorField.set(request, 1L);
 
@@ -144,16 +146,16 @@ class CourseControllerTest {
         idField1.set(existingCourse, 1L);
 
         // Use reflection to set private fields since CourseUpdateRequest doesn't have setters
-        CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
-        java.lang.reflect.Field titleField = CourseController.CourseUpdateRequest.class.getDeclaredField("title");
+        CourseUpdateRequest request = new CourseUpdateRequest();
+        java.lang.reflect.Field titleField = CourseUpdateRequest.class.getDeclaredField("title");
         titleField.setAccessible(true);
         titleField.set(request, "Updated Title");
 
-        java.lang.reflect.Field descField = CourseController.CourseUpdateRequest.class.getDeclaredField("description");
+        java.lang.reflect.Field descField = CourseUpdateRequest.class.getDeclaredField("description");
         descField.setAccessible(true);
         descField.set(request, "Updated Description");
 
-        java.lang.reflect.Field instructorField = CourseController.CourseUpdateRequest.class.getDeclaredField("instructorId");
+        java.lang.reflect.Field instructorField = CourseUpdateRequest.class.getDeclaredField("instructorId");
         instructorField.setAccessible(true);
         instructorField.set(request, 1L);
 
@@ -176,16 +178,16 @@ class CourseControllerTest {
     @Test
     void updateCourse_WhenCourseNotFound_ShouldThrowNotFoundException() throws Exception {
         // given
-        CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
-        java.lang.reflect.Field titleField = CourseController.CourseUpdateRequest.class.getDeclaredField("title");
+        CourseUpdateRequest request = new CourseUpdateRequest();
+        java.lang.reflect.Field titleField = CourseUpdateRequest.class.getDeclaredField("title");
         titleField.setAccessible(true);
         titleField.set(request, "Updated Title");
 
-        java.lang.reflect.Field descField = CourseController.CourseUpdateRequest.class.getDeclaredField("description");
+        java.lang.reflect.Field descField = CourseUpdateRequest.class.getDeclaredField("description");
         descField.setAccessible(true);
         descField.set(request, "Updated Description");
 
-        java.lang.reflect.Field instructorField = CourseController.CourseUpdateRequest.class.getDeclaredField("instructorId");
+        java.lang.reflect.Field instructorField = CourseUpdateRequest.class.getDeclaredField("instructorId");
         instructorField.setAccessible(true);
         instructorField.set(request, 1L);
 

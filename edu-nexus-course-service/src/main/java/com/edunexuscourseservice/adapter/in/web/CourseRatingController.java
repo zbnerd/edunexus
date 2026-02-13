@@ -23,7 +23,13 @@ public class CourseRatingController {
 
     private final CourseRatingUseCase courseRatingService;
 
-    // 강의 평가 추가
+    /**
+     * Adds a new rating to a course.
+     *
+     * @param courseId the ID of the course to rate
+     * @param request the rating request with user ID, score (1-5), and optional comment
+     * @return ResponseEntity with created rating and Location header
+     */
     @PostMapping
     public ResponseEntity<CourseRatingResponse> addRating(@PathVariable Long courseId,
                                                           @RequestBody CourseRatingCreateRequest request) {
@@ -34,7 +40,14 @@ public class CourseRatingController {
                 .body(response);
     }
 
-    // 강의 평가 업데이트
+    /**
+     * Updates an existing course rating.
+     *
+     * @param ratingId the ID of the rating to update
+     * @param request the update request with new score and/or comment
+     * @return ResponseEntity with updated rating
+     * @throws NotFoundException if rating doesn't exist
+     */
     @PutMapping("/{ratingId}")
     public ResponseEntity<CourseRatingResponse> updateRating(
             @PathVariable Long ratingId,
@@ -44,7 +57,13 @@ public class CourseRatingController {
         return ResponseEntity.ok(CourseRatingResponse.from(updatedRating));
     }
 
-    // 강의 평가 삭제
+    /**
+     * Deletes a course rating.
+     *
+     * @param ratingId the ID of the rating to delete
+     * @return ResponseEntity with no content (204)
+     * @throws NotFoundException if rating doesn't exist
+     */
     @DeleteMapping("/{ratingId}")
     public ResponseEntity<Void> deleteRating(
             @PathVariable Long ratingId
@@ -53,7 +72,12 @@ public class CourseRatingController {
         return ResponseEntity.noContent().build();
     }
 
-    // 특정 강의의 모든 평가 조회
+    /**
+     * Retrieves all ratings for a specific course.
+     *
+     * @param courseId the ID of the course
+     * @return ResponseEntity with list of all ratings
+     */
     @GetMapping
     public ResponseEntity<List<CourseRatingResponse>> getAllRatings(@PathVariable Long courseId) {
         List<CourseRating> ratings = courseRatingService.getAllRatingsByCourseId(courseId);
@@ -63,7 +87,12 @@ public class CourseRatingController {
         return ResponseEntity.ok(responses);
     }
 
-    // 특정 강의의 평점 평균 조회
+    /**
+     * Retrieves the average rating for a specific course from cache.
+     *
+     * @param courseId the ID of the course
+     * @return ResponseEntity with course ID and average rating rounded to 2 decimals
+     */
     @GetMapping("/average")
     public ResponseEntity<CourseRatingAverageResponse> getAverageRating(@PathVariable Long courseId) {
         Double averageRating = RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(courseId), 2);
@@ -75,6 +104,14 @@ public class CourseRatingController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieves the average rating directly from the database.
+     * This bypasses the cache and is useful for debugging or cache comparison.
+     *
+     * @param courseId the ID of the course
+     * @return ResponseEntity with course ID and average rating from DB
+     * @throws NotFoundException if course has no ratings
+     */
     @GetMapping("/average/db")
     public ResponseEntity<CourseRatingAverageResponse> getAverageRatingFromDb(@PathVariable Long courseId) {
         List<CourseRating> courseRatingList = courseRatingService.getAllRatingsByCourseId(courseId);

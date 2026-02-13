@@ -51,15 +51,12 @@ public class AttendanceService implements AttendanceUseCase {
         Optional<Attendance> existingAttendance = attendanceRepository
                 .findByUserIdAndSessionId(request.getUserId(), request.getSessionId());
 
-        if (existingAttendance.isPresent()) {
-            Attendance attendance = existingAttendance.get();
-            if (attendance.getCheckOutTime() == null) {
-                log.warn("User {} already checked in to session {}",
-                        request.getUserId(), request.getSessionId());
-                return attendance;
-            }
-            // Previously checked out, create new record
+        if (existingAttendance.map(attendance -> attendance.getCheckOutTime() == null).orElse(false)) {
+            log.warn("User {} already checked in to session {}",
+                    request.getUserId(), request.getSessionId());
+            return existingAttendance.get();
         }
+        // Previously checked out or no record, create new record
 
         Attendance attendance = new Attendance();
         attendance.setUserId(request.getUserId());
@@ -109,7 +106,7 @@ public class AttendanceService implements AttendanceUseCase {
     @Override
     public List<Attendance> getAttendanceByUserId(Long userId) {
         log.debug("Fetching all attendance records for user {}", userId);
-        return attendanceRepository.findByUserId(userId);
+        return attendanceRepository.findAllByUserId(userId);
     }
 
     @Override
@@ -121,7 +118,7 @@ public class AttendanceService implements AttendanceUseCase {
     @Override
     public List<Attendance> getAttendanceBySessionId(Long sessionId) {
         log.debug("Fetching all attendance records for session {}", sessionId);
-        return attendanceRepository.findBySessionId(sessionId);
+        return attendanceRepository.findAllBySessionId(sessionId);
     }
 
     @Override

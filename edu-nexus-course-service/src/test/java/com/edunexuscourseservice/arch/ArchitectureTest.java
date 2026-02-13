@@ -36,6 +36,7 @@ class ArchitectureTest {
                 .should().onlyDependOnClassesThat()
                 .resideInAnyPackage(
                         "..adapter.in.web..",
+                        "..adapter.in.web.request..",
                         "..adapter.in.web.response..",
                         "..port.in..",
                         "..domain.course.dto..",
@@ -44,7 +45,9 @@ class ArchitectureTest {
                         "..adapter.out.persistence.entity..",
                         "..adapter.out.persistence.entity.condition..",
                         "java..",
+                        "jakarta.validation..",
                         "org.springframework..",
+                        "org.springframework.context..",
                         "lombok..",
                         "com.edunexusobservability..",
                         "com.edunexus.common..",

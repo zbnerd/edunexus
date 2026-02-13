@@ -3,145 +3,58 @@ package com.edunexusgraphql.service;
 import com.edunexusgraphql.model.Course;
 import com.edunexusgraphql.model.CourseRating;
 import com.edunexusgraphql.model.CourseSession;
+import com.edunexusgraphql.port.client.CourseClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+/**
+ * Service for course-related operations.
+ * Delegates HTTP client operations to CourseClient interface.
+ */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CourseService {
-    private static final String BASE_URL = "https://edu-nexus-course-service/courses";
-    private final RestTemplate restTemplate;
 
-    @Autowired
-    public CourseService(@LoadBalanced RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private final CourseClient courseClient;
 
     public Course createCourse(String title, String description, Long instructorId) {
-        Course course = new Course();
-        course.setTitle(title);
-        course.setDescription(description);
-        course.setInstructorId(instructorId);
-
-        return restTemplate.postForObject(BASE_URL, course, Course.class);
+        return courseClient.createCourse(title, description, instructorId);
     }
 
     public Course updateCourse(Long id, String title, String description) {
-        Course course = new Course();
-        course.setId(id);
-        course.setTitle(title);
-        course.setDescription(description);
-
-        restTemplate.put(BASE_URL + "/" + id, course);
-        return course;
+        return courseClient.updateCourse(id, title, description);
     }
 
-    @Cacheable(value = "course", key = "#courseId")
     public Optional<Course> findCourseById(Long courseId) {
-        Course course = restTemplate.getForObject(BASE_URL + "/" + courseId, Course.class);
-        course.setId(courseId);
-        return Optional.ofNullable(course);
+        return courseClient.findCourseById(courseId);
     }
 
-    @Cacheable(value = "courses", key = "#courseIds")
     public List<Course> findCoursesByIds(List<Long> courseIds) {
-        // Optimize batch query to avoid N+1 problem
-        // Use POST with course IDs in request body for better performance with large lists
-        if (courseIds == null || courseIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Limit batch size to avoid URL length issues and improve performance
-        // Spring Data REST supports batch queries via query params or POST body
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/batch");
-        URI uri = builder.build().toUri();
-
-        // Send course IDs as POST body for better handling of large lists
-        Course[] courses = restTemplate.postForObject(uri, courseIds, Course[].class);
-        if (courses == null) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.asList(courses);
+        return courseClient.findCoursesByIds(courseIds);
     }
-
 
     public List<Course> findAllCourses(String title, String description, Integer page) {
-
-        String url = BASE_URL + "?title=" + title + "&description=" + description + "&page=" + page;
-
-        Course[] courses = restTemplate.getForObject(url, Course[].class);
-        if (courses == null) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.asList(courses);
+        return courseClient.findAllCourses(title, description, page);
     }
 
     public CourseSession addSessionToCourse(Long courseId, String title) {
-        CourseSession courseSession = new CourseSession();
-        courseSession.setTitle(title);
-
-        CourseSession addedSession = restTemplate.postForObject(
-                UriComponentsBuilder.fromUriString(BASE_URL + "/{courseId}/sessions")
-                        .buildAndExpand(courseId).toUri(), courseSession, CourseSession.class);
-
-        if (addedSession != null) {
-            addedSession.setCourseId(courseId);
-        }
-
-        return addedSession;
+        return courseClient.addSessionToCourse(courseId, title);
     }
 
     public Optional<CourseSession> findSessionById(Long courseId, Long sessionId) {
-        String url = UriComponentsBuilder.fromUriString(BASE_URL + "/{courseId}/sessions/{sessionId}")
-                .buildAndExpand(courseId, sessionId).toUriString();
-        try {
-            CourseSession retrievedSession = restTemplate.getForObject(url, CourseSession.class);
-            if (retrievedSession != null) {
-                retrievedSession.setCourseId(courseId);
-            }
-
-            return Optional.ofNullable(retrievedSession);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return courseClient.findSessionById(courseId, sessionId);
     }
 
     public List<CourseSession> findAllSessionsByCourseId(Long courseId) {
-        String url = UriComponentsBuilder.fromUriString(BASE_URL + "/{courseId}/sessions")
-                .buildAndExpand(courseId).toUriString();
-        CourseSession[] sessions = restTemplate.getForObject(url, CourseSession[].class);
-        if (sessions == null) {
-            return Collections.emptyList();
-        }
-
-        return Arrays.stream(sessions)
-                .peek(session -> session.setCourseId(courseId))
-                .collect(Collectors.toList());
+        return courseClient.findAllSessionsByCourseId(courseId);
     }
 
     public CourseRating addRatingToCourse(Long userId, Long courseId, Integer rating, String comment) {
-        CourseRating courseRating = new CourseRating();
-        courseRating.setUserId(userId);
-        courseRating.setCourseId(courseId);
-        courseRating.setRating(rating);
-        courseRating.setComment(comment);
-
-        String url = UriComponentsBuilder.fromUriString(BASE_URL + "/{courseId}/ratings")
-                .buildAndExpand(courseId).toUriString();
-        return restTemplate.postForObject(url, courseRating, CourseRating.class);
+        return courseClient.addRatingToCourse(userId, courseId, rating, comment);
     }
 }

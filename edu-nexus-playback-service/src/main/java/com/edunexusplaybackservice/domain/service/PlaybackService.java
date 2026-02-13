@@ -11,12 +11,16 @@ import com.fastcampus.nextplaybackservice.domain.service.PlaybackServiceGrpc;
 import com.fastcampus.nextplaybackservice.domain.service.PlaybackServiceOuterClass;
 import handler.GrpcResponseHandler;
 import io.grpc.stub.StreamObserver;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @GrpcService
 @RequiredArgsConstructor
 public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase {
@@ -88,11 +92,16 @@ public class PlaybackService extends PlaybackServiceGrpc.PlaybackServiceImplBase
     }
 
     private PlaybackServiceOuterClass.EndRecordResponse getEndRecordResponse(PlaybackRecord record) {
-        record.setEndTime(LocalDateTime.now());
-        playbackRecordRepository.save(record);
+        try {
+            record.setEndTime(LocalDateTime.now());
+            playbackRecordRepository.save(record);
 
-        return PlaybackServiceOuterClass.EndRecordResponse.newBuilder()
-                .setRecord(record.toProto())
-                .build();
+            return PlaybackServiceOuterClass.EndRecordResponse.newBuilder()
+                    .setRecord(record.toProto())
+                    .build();
+        } catch (ObjectOptimisticLockingFailureException | OptimisticLockException e) {
+            log.warn("Optimistic lock conflict while ending playback record: {}", record.getRecordId(), e);
+            throw new IllegalStateException("Playback record was modified by another transaction. Please try again.", e);
+        }
     }
 }

@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: edu-nexus-graphql
+
+  h2:
+    console:
+      enabled: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "com.edunexusgraphql"
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    listener:
+      ack-mode: manual_immediate
+
+  graphql:
+    path: /graphql
+    graphiql:
+      enabled: false
+    schema:
+      inspection:
+        enabled: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+    registerWithEureka: true
+    fetchRegistry: true
+
+jwt:
+  secret: ${JWT_SECRET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - metrics
+          - prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+  tracing:
+    sampling:
+      probability: 0.1
+    propagation:
+      consume: b3
+      produce: b3_multi
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT}
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      service: graphql
+      environment: prod
+
+logging:
+  pattern:
+    level: "%5p [%X{traceId:-},%X{spanId:-}]"
+
+server:
+  port: 8006
+
+grpc:
+  client:
+    edu-nexus-playback-service:
+      address: 'discovery:///edu-nexus-playback-service'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext
+    edu-nexus-enrollment-service:
+      address: 'discovery:///edu-nexus-enrollment-service'
+      enable-keep-alive: true
+      keep-alive-without-calls: true
+      negotiation-type: plaintext

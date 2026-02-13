@@ -8,6 +8,7 @@ import com.edunexusattendanceservice.domain.attendance.dto.AttendanceDto;
 import com.edunexusattendanceservice.domain.attendance.dto.AttendanceRateResponse;
 import com.edunexusattendanceservice.domain.attendance.dto.CheckInRequest;
 import com.edunexusattendanceservice.domain.attendance.enums.AttendanceStatus;
+import com.edunexusattendanceservice.adapter.in.web.response.AttendanceResponse;
 import com.edunexusobservability.annotation.MetricTimed;
 import com.edunexusobservability.metrics.BusinessMetrics;
 import io.micrometer.core.annotation.Counted;
@@ -169,41 +170,5 @@ public class AttendanceController {
                         ErrorCode.ENTITY_NOT_FOUND,
                         "Attendance not found for user " + userId + " in session " + sessionId));
         return ResponseEntity.ok(AttendanceResponse.from(attendance));
-    }
-
-    /**
-     * Response DTO for attendance operations
-     */
-    @lombok.Getter
-    @lombok.Builder
-    public static class AttendanceResponse {
-        private Long id;
-        private Long userId;
-        private Long courseId;
-        private Long sessionId;
-        private String checkInTime;
-        private String checkOutTime;
-        private String status;
-        private String createdAt;
-        private String updatedAt;
-
-        public static AttendanceResponse from(Attendance attendance) {
-            return AttendanceResponse.builder()
-                    .id(attendance.getId())
-                    .userId(attendance.getUserId())
-                    .courseId(attendance.getCourseId())
-                    .sessionId(attendance.getSessionId())
-                    .checkInTime(attendance.getCheckInTime() != null
-                            ? attendance.getCheckInTime().toString() : null)
-                    .checkOutTime(attendance.getCheckOutTime() != null
-                            ? attendance.getCheckOutTime().toString() : null)
-                    .status(attendance.getStatus() != null
-                            ? attendance.getStatus().name() : null)
-                    .createdAt(attendance.getCreatedAt() != null
-                            ? attendance.getCreatedAt().toString() : null)
-                    .updatedAt(attendance.getUpdatedAt() != null
-                            ? attendance.getUpdatedAt().toString() : null)
-                    .build();
-        }
     }
 }

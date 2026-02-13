@@ -39,7 +39,11 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonBackReference
     private List<UserLoginHistory> loginHistories;
 

@@ -3,8 +3,8 @@ package com.edunexusfilemanageservice.domain.controller;
 import com.edunexusfilemanageservice.domain.entity.SessionFile;
 import com.edunexusfilemanageservice.domain.service.FileStorageService;
 import com.edunexusfilemanageservice.domain.service.SessionFileService;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Parameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +33,9 @@ public class SessionFileController {
     }
 
     @PostMapping
-    public ResponseEntity<SessionFile> uploadFile(@PathVariable Long sessionId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<SessionFile> uploadFile(
+            @PathVariable @NotNull Long sessionId,
+            @RequestParam("file") @NotNull MultipartFile file) {
         SessionFile storedFile = fileStorageService.storeFile(file, sessionId);
         return ResponseEntity.ok(sessionFileService.saveFile(storedFile));
     }

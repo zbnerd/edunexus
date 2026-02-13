@@ -6,26 +6,32 @@ import com.edunexusenrollmentservice.domain.service.FakePaymentServiceGrpc;
 import com.edunexusgraphql.model.Enrollment;
 import com.edunexusgraphql.model.Payment;
 import com.edunexusgraphql.model.PlanSubscription;
+import com.edunexusgraphql.port.client.EnrollmentClient;
 import com.edunexusgraphql.saga.PaymentOrchestrationService;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * Service for enrollment-related operations.
+ * Delegates client operations to EnrollmentClient interface.
+ * Private gRPC methods retained for saga orchestrator use.
+ */
 @Service
 @RequiredArgsConstructor
 public class EnrollmentService {
 
+    private final EnrollmentClient enrollmentClient;
+    private final PaymentOrchestrationService paymentOrchestrationService;
+
+    // Private gRPC stubs for saga orchestrator use only
     @GrpcClient("edu-nexus-enrollment-service")
     private EnrollmentServiceGrpc.EnrollmentServiceBlockingStub enrollmentStub;
 
     @GrpcClient("edu-nexus-payment-service")
     private FakePaymentServiceGrpc.FakePaymentServiceBlockingStub paymentStub;
-
-    private final PaymentOrchestrationService paymentOrchestrationService;
 
     public Payment purchaseCourse(Long userId, Long courseId, Double amount, String paymentMethod) {
         // Use Saga orchestrator for distributed transaction
@@ -74,62 +80,26 @@ public class EnrollmentService {
     }
 
     public boolean checkCourseAccess(long courseId, long userId) {
-        EnrollmentServiceOuterClass.CourseAccessRequest request = EnrollmentServiceOuterClass.CourseAccessRequest.newBuilder()
-                .setCourseId(courseId)
-                .setUserId(userId)
-                .build();
-        EnrollmentServiceOuterClass.CourseAccessResponse response = enrollmentStub.checkCourseAccess(request);
-        return response.getHasAccess();
+        return enrollmentClient.checkCourseAccess(courseId, userId);
     }
 
     public boolean checkSubscriptionAccess(long userId) {
-        EnrollmentServiceOuterClass.SubscriptionAccessRequest request = EnrollmentServiceOuterClass.SubscriptionAccessRequest.newBuilder()
-                .setUserId(userId)
-                .build();
-        EnrollmentServiceOuterClass.SubscriptionAccessResponse response = enrollmentStub.checkSubscriptionAccess(request);
-        return response.getHasAccess();
+        return enrollmentClient.checkSubscriptionAccess(userId);
     }
 
     public List<Enrollment> getEnrollmentsByUserId(Long userId) {
-        EnrollmentServiceOuterClass.UserEnrollmentsRequest request = EnrollmentServiceOuterClass.UserEnrollmentsRequest.newBuilder()
-                .setUserId(userId)
-                .build();
-        EnrollmentServiceOuterClass.UserEnrollmentsResponse response = enrollmentStub.getUserEnrollments(request);
-        return response.getEnrollmentsList().stream()
-                .map(Enrollment::fromProto)
-                .collect(Collectors.toList());
+        return enrollmentClient.getEnrollmentsByUserId(userId);
     }
-
 
     public List<PlanSubscription> getSubscriptionsByUserId(Long userId) {
-        EnrollmentServiceOuterClass.UserSubscriptionsRequest request = EnrollmentServiceOuterClass.UserSubscriptionsRequest.newBuilder()
-                .setUserId(userId)
-                .build();
-        EnrollmentServiceOuterClass.UserSubscriptionsResponse response = enrollmentStub.getUserPlanSubscriptions(request);
-        return response.getSubscriptionsList().stream()
-                .map(PlanSubscription::fromProto)
-                .collect(Collectors.toList());
+        return enrollmentClient.getSubscriptionsByUserId(userId);
     }
 
-    @Cacheable(value = "payment", key = "#paymentId")
     public Payment findPaymentById(Long paymentId) {
-        EnrollmentServiceOuterClass.PaymentsByIdRequest request = EnrollmentServiceOuterClass.PaymentsByIdRequest.newBuilder()
-                .setPaymentId(paymentId)
-                .build();
-
-        EnrollmentServiceOuterClass.PaymentsByIdResponse response = paymentStub.getPaymentsByPaymentId(request);
-        return Payment.fromProto(response.getPayment());
+        return enrollmentClient.findPaymentById(paymentId);
     }
 
     public java.util.Map<Long, Payment> findPaymentsByIds(List<Long> paymentIds) {
-        if (paymentIds == null || paymentIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
-        }
-
-        return paymentIds.stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        id -> id,
-                        id -> findPaymentById(id)
-                ));
+        return enrollmentClient.findPaymentsByIds(paymentIds);
     }
 }

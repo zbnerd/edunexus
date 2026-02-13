@@ -1,6 +1,7 @@
 package com.edunexusfilemanageservice.domain.service;
 
 import com.edunexusfilemanageservice.domain.entity.SessionFile;
+import com.edunexusfilemanageservice.domain.exception.FileStorageException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class FileStorageService {
 
         try {
             if (fileName.contains("..")) {
-                throw new RuntimeException("Filename contains invalid path sequence " + originalFileName);
+                throw new FileStorageException("Filename contains invalid path sequence " + originalFileName);
             }
 
             Path targetLocation = Paths.get(uploadDir).resolve(fileName);
@@ -45,7 +46,7 @@ public class FileStorageService {
 
             return new SessionFile(sessionId, fileName, "mp4", targetLocation.toString());
         } catch (IOException ex) {
-            throw new RuntimeException("Could not store file " + fileName + ". Please try again!", ex);
+            throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
     }
 }

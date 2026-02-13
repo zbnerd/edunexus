@@ -1,11 +1,11 @@
 package com.edunexuscourseservice.adapter.in.web;
 
+import com.edunexuscourseservice.adapter.in.web.request.CourseSessionCreateRequest;
+import com.edunexuscourseservice.adapter.in.web.request.CourseSessionUpdateRequest;
 import com.edunexuscourseservice.adapter.in.web.response.CourseSessionResponse;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
 import com.edunexus.common.exception.NotFoundException;
 import com.edunexuscourseservice.port.in.CourseSessionUseCase;
-import lombok.Builder;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class CourseSessionController {
     // 강의 세션 추가
     @PostMapping
     public ResponseEntity<CourseSessionResponse> addSession(@PathVariable Long courseId,
-                                                            @RequestBody CourseSessionCreateRequest request) {
+                                                            @RequestBody @jakarta.validation.Valid CourseSessionCreateRequest request) {
         CourseSession courseSession = courseSessionUseCase.addSessionToCourse(courseId, request.toEntity());
         CourseSessionResponse response = CourseSessionResponse.from(courseSession);
 
@@ -36,7 +36,7 @@ public class CourseSessionController {
     @PutMapping("/{sessionId}")
     public ResponseEntity<CourseSessionResponse> updateSession(
             @PathVariable Long sessionId,
-            @RequestBody CourseSessionUpdateRequest request
+            @RequestBody @jakarta.validation.Valid CourseSessionUpdateRequest request
     ) {
         CourseSession updatedSession = courseSessionUseCase.updateSession(sessionId, request.toEntity());
         return ResponseEntity.ok(CourseSessionResponse.from(updatedSession));
@@ -61,29 +61,4 @@ public class CourseSessionController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
-
-    @Getter
-    @Builder
-    static class CourseSessionCreateRequest {
-        private String title;
-
-        public CourseSession toEntity() {
-            CourseSession courseSession = new CourseSession();
-            courseSession.setCourseSessionInfo(this.title);
-            return courseSession;
-        }
-    }
-
-    @Getter
-    @Builder
-    static class CourseSessionUpdateRequest {
-        private String title;
-
-        public CourseSession toEntity() {
-            CourseSession courseSession = new CourseSession();
-            courseSession.setCourseSessionInfo(this.title);
-            return courseSession;
-        }
-    }
-
 }

@@ -7,6 +7,7 @@ import com.edunexusenrollmentservice.domain.service.EnrollmentServiceOuterClass;
 import com.edunexusenrollmentservice.domain.service.FakePaymentServiceGrpc;
 import com.edunexusenrollmentservice.domain.service.PaymentService;
 import handler.GrpcResponseHandler;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -56,11 +57,17 @@ public class PaymentGrpcService extends FakePaymentServiceGrpc.FakePaymentServic
             EnrollmentServiceOuterClass.PaymentsByIdRequest request,
             StreamObserver<EnrollmentServiceOuterClass.PaymentsByIdResponse> responseObserver
     ) {
-        Payment payment = paymentService.getPaymentById(request.getPaymentId());
-        EnrollmentServiceOuterClass.PaymentsByIdResponse response = EnrollmentServiceOuterClass.PaymentsByIdResponse.newBuilder()
-                .setPayment(payment.toProto())
-                .build();
-
-        GrpcResponseHandler.sendResponse(response, responseObserver);
+        paymentService.getPaymentById(request.getPaymentId())
+                .ifPresentOrElse(
+                        payment -> {
+                            EnrollmentServiceOuterClass.PaymentsByIdResponse response = EnrollmentServiceOuterClass.PaymentsByIdResponse.newBuilder()
+                                    .setPayment(payment.toProto())
+                                    .build();
+                            GrpcResponseHandler.sendResponse(response, responseObserver);
+                        },
+                        () -> responseObserver.onError(Status.NOT_FOUND
+                                .withDescription("Payment not found with id: " + request.getPaymentId())
+                                .asRuntimeException())
+                );
     }
 }

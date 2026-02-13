@@ -1,8 +1,9 @@
 package com.edunexususerservice.domain.user.controller;
 
-import com.edunexususerservice.domain.user.exception.NotFoundException;
+import com.edunexus.common.exception.NotFoundException;
 import com.edunexususerservice.domain.user.dto.PasswordChangeDto;
 import com.edunexususerservice.domain.user.dto.UserDto;
+import com.edunexususerservice.domain.user.dto.UserResponse;
 import com.edunexususerservice.domain.user.entity.User;
 import com.edunexususerservice.domain.user.entity.UserLoginHistory;
 import com.edunexususerservice.domain.user.service.UserService;
@@ -21,26 +22,27 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> signUp(
-            @RequestBody UserDto userDto
+    public ResponseEntity<UserResponse> signUp(
+            @RequestBody @jakarta.validation.Valid UserDto userDto
     ) {
         User user = userService.signUp(userDto.getName(), userDto.getEmail(), userDto.getPassword());
-        return ResponseEntity.created(URI.create("/users/" + user.getId())).body(user);
+        return ResponseEntity.created(URI.create("/users/" + user.getId())).body(UserResponse.from(user));
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable Long userId) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @PostMapping("/{userId}/password-change")
-    public ResponseEntity<User> changePassword(
+    public ResponseEntity<UserResponse> changePassword(
             @PathVariable Long userId,
-            @RequestBody PasswordChangeDto passwordChangeDto
+            @RequestBody @jakarta.validation.Valid PasswordChangeDto passwordChangeDto
     ) {
-        return ResponseEntity.ok(userService.updatePassword(userId, passwordChangeDto));
+        User user = userService.updatePassword(userId, passwordChangeDto);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @GetMapping("/{userId}/login-histories")

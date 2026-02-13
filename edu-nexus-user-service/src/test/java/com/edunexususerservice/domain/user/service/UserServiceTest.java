@@ -353,13 +353,13 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserByEmailOrThrowToNotFoundException_WhenEmailDoesNotExist_ShouldThrowNotFoundException() {
+    void requireByEmail_WhenEmailDoesNotExist_ShouldThrowNotFoundException() {
         // given
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(com.edunexususerservice.domain.user.exception.NotFoundException.class, () -> {
-            userService.getUserByEmailOrThrowToNotFoundException("nonexistent@example.com");
+            userService.requireByEmail("nonexistent@example.com");
         });
 
         verify(userRepository).findByEmail("nonexistent@example.com");

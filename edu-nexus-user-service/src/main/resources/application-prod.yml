@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: edu-nexus-user-service
+
+  h2:
+    console:
+      enabled: false
+
+  datasource:
+    url: ${DB_URL}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 300000
+
+  jpa:
+    defer-datasource-initialization: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL}
+    registerWithEureka: true
+    fetchRegistry: true
+
+jwt:
+  secret: ${JWT_SECRET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - info
+          - health
+          - metrics
+          - prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+  tracing:
+    sampling:
+      probability: 0.1
+    propagation:
+      consume: b3
+      produce: b3_multi
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT}
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      service: user
+      environment: prod
+
+logging:
+  pattern:
+    level: "%5p [%X{traceId:-},%X{spanId:-}]"
+
+server:
+  port: 8004

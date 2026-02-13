@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.Arrays;
@@ -32,6 +33,9 @@ public class CourseServiceTest {
 
     @Mock
     private CourseRedisRepository courseRedisRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private CourseService courseService;
@@ -75,7 +79,6 @@ public class CourseServiceTest {
 
         // when
         when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
-        when(courseRedisRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
         Course result = courseService.updateCourse(1L, updatedDetails);
