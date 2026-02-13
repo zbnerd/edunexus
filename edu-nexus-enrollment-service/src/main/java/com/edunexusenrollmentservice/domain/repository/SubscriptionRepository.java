@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s payment WHERE s.userId = :userId AND s.endDate > :endDate ORDER BY s.endDate DESC")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.payment WHERE s.userId = :userId AND s.endDate > :endDate ORDER BY s.endDate DESC")
     Optional<Subscription> findTopByUserIdAndEndDateAfterOrderByEndDateDesc(@Param("userId") Long userId, @Param("endDate") LocalDateTime endDate);
 
     List<Subscription> findAllByUserId(Long userId);
