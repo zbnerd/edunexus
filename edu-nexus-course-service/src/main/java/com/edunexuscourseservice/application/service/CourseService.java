@@ -85,4 +85,18 @@ public class CourseService implements CourseUseCase {
         return courseRepository.findAll(condition, pageable);
     }
 
+    /**
+     * Batch fetch courses by IDs to avoid N+1 queries.
+     * Optimized for GraphQL batch loading and other scenarios requiring multiple courses.
+     */
+    public List<Course> getCoursesByIds(List<Long> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) {
+            return List.of();
+        }
+
+        // Use findAllById() which is optimized by JPA to fetch in batches
+        // This is much more efficient than individual findById() calls
+        return courseRepository.findAllById(courseIds);
+    }
+
 }

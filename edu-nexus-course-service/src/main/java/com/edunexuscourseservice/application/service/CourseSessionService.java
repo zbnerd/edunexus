@@ -7,12 +7,16 @@ import com.edunexuscourseservice.adapter.out.persistence.repository.CourseReposi
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseSessionRepository;
 import com.edunexuscourseservice.port.in.CourseSessionUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -43,7 +47,19 @@ public class CourseSessionService implements CourseSessionUseCase {
         return courseSessionRepository.findById(sessionId);
     }
 
+    /**
+     * Get all sessions by course ID.
+     * Consider using getSessionsByCourseIdPaged() for better performance with large datasets.
+     */
     public List<CourseSession> getAllSessionsByCourseId(Long courseId) {
         return courseSessionRepository.findByCourseId(courseId);
+    }
+
+    /**
+     * Get paginated sessions by course ID for better performance.
+     * Recommended over getAllSessionsByCourseId() to avoid loading entire collections.
+     */
+    public Page<CourseSession> getSessionsByCourseIdPaged(Long courseId, Pageable pageable) {
+        return courseSessionRepository.findByCourseId(courseId, pageable);
     }
 }

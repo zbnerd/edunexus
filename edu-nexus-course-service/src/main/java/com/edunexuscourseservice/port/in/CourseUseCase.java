@@ -12,4 +12,13 @@ public interface CourseUseCase {
     Course updateCourse(Long courseId, Course newCourse);
     Optional<Course> getCourseById(Long courseId);
     List<Course> getAllCourses(CourseSearchCondition condition, Pageable pageable);
+
+    /**
+     * Batch fetch courses by IDs to avoid N+1 queries.
+     * Optimized for GraphQL batch loading and other scenarios requiring multiple courses.
+     *
+     * @param courseIds List of course IDs
+     * @return List of courses (only found ones)
+     */
+    List<Course> getCoursesByIds(List<Long> courseIds);
 }

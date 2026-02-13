@@ -31,21 +31,35 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        // Key Serializer
+        // Key Serializer - String for readable keys
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        // Value Serializer
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setEnableTransactionSupport(true);
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer()); // JSON 직렬화
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 
+        // Value Serializer - JSON for proper object serialization
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        // Enable transaction support for multi-operation atomicity
+        redisTemplate.setEnableTransactionSupport(true);
+
+        redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(60))  // 캐시 만료 시간 60분 설정
+                // Use JSON serialization for cache values
+                .serializeValuesWith(
+                    org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer())
+                )
+                // 5 minute TTL as per ADR-000 (Cache-Aside pattern)
+                // Cache is ephemeral and should be refreshed from DB
+                .entryTtl(Duration.ofMinutes(5))
+                // Don't cache null values - treat as miss
                 .disableCachingNullValues();
+
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory))
                 .cacheDefaults(config)
                 .build();

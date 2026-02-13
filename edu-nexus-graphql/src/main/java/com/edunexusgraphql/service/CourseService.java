@@ -57,12 +57,19 @@ public class CourseService {
 
     @Cacheable(value = "courses", key = "#courseIds")
     public List<Course> findCoursesByIds(List<Long> courseIds) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL);
-        courseIds.forEach(id -> builder.queryParam("courseId", id));
+        // Optimize batch query to avoid N+1 problem
+        // Use POST with course IDs in request body for better performance with large lists
+        if (courseIds == null || courseIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
+        // Limit batch size to avoid URL length issues and improve performance
+        // Spring Data REST supports batch queries via query params or POST body
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/batch");
         URI uri = builder.build().toUri();
 
-        Course[] courses = restTemplate.getForObject(uri, Course[].class);
+        // Send course IDs as POST body for better handling of large lists
+        Course[] courses = restTemplate.postForObject(uri, courseIds, Course[].class);
         if (courses == null) {
             return Collections.emptyList();
         }

@@ -1,0 +1,35 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.edunexus'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jakarta Validation for BeanValidator
+    api 'jakarta.validation:jakarta.validation-api:3.0.2'
+    api 'org.springframework.boot:spring-boot-starter-validation:3.4.0'
+
+    // JPA for BaseRepository
+    api 'org.springframework.boot:spring-boot-starter-data-jpa:3.4.0'
+
+    // Lombok for reducing boilerplate
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.4.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

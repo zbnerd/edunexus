@@ -1,4 +1,6 @@
 rootProject.name = 'edu-nexus'
+include 'edu-nexus-common'
+include 'edu-nexus-observability'
 include 'edu-nexus-course-service'
 include 'edu-nexus-discovery'
 include 'edu-nexus-enrollment-service'

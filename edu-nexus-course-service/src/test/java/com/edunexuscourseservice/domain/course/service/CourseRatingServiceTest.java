@@ -2,6 +2,7 @@ package com.edunexuscourseservice.domain.course.service;
 
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
 import com.edunexuscourseservice.application.service.CourseRatingService;
+import com.edunexuscourseservice.application.service.kafka.CourseRatingProducerService;
 import com.edunexuscourseservice.domain.course.dto.CourseRatingInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CourseRatingServiceTest {
@@ -33,6 +35,9 @@ public class CourseRatingServiceTest {
 
     @Mock
     private CourseRatingRedisRepository courseRatingRedisRepository;
+
+    @Mock
+    private CourseRatingProducerService courseRatingProducerService;
 
     @InjectMocks
     private CourseRatingService courseRatingService;
@@ -50,11 +55,12 @@ public class CourseRatingServiceTest {
         // when
         when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
         when(courseRatingRepository.save(any(CourseRating.class))).thenReturn(courseRating);
-        
+
         // then
         CourseRating result = courseRatingService.addRatingToCourse(1L, courseRating);
         assertNotNull(result);
         verify(courseRatingRepository).save(courseRating);
+        verify(courseRatingProducerService).sendRatingAddedEvent(1L, courseRating.getRating(), 1L);
         assertEquals(1L, result.getId());
 
     }
@@ -87,16 +93,31 @@ public class CourseRatingServiceTest {
         assertNotNull(result);
         assertEquals(4, result.getRating());
         assertEquals("Good course!", result.getComment());
+        verify(courseRatingProducerService).sendRatingUpdatedEvent(
+                existingRating.getCourse().getId(), 5, 4, "Good course!");
     }
 
     @Test
-    void testDeleteRating() {
+    void testDeleteRating() throws Exception {
+        // given
+        CourseRating existingRating = new CourseRating();
+        setId(existingRating, 1L);
+        existingRating.setCourseRatingInfo(
+                CourseRatingInfoDto.builder()
+                        .rating(5)
+                        .comment("Great course!")
+                        .build()
+        );
+        when(courseRatingRepository.findById(1L)).thenReturn(Optional.of(existingRating));
         doNothing().when(courseRatingRepository).deleteById(1L);
 
+        // when
         courseRatingService.deleteRating(1L);
 
+        // then
         verify(courseRatingRepository).deleteById(1L);
-
+        verify(courseRatingProducerService).sendRatingDeletedEvent(
+                existingRating.getCourse().getId(), 5);
     }
 
     @Test

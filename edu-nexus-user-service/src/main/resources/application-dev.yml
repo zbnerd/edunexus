@@ -5,8 +5,8 @@ spring:
   datasource:
     url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_user
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: edu
-    password: nexus
+    username: ${DB_USERNAME:edu}
+    password: ${DB_PASSWORD:}
 
   jpa:
     defer-datasource-initialization: true
@@ -38,7 +38,7 @@ eureka:
     fetchRegistry: true
 
 jwt:
-  secret: gP1hx!82&fD4z@V9X%YqL#m6kP*o$w3B5E7Jr^N+T2a8ZyC-WxQ#vK@LdFt&R!rt
+  secret: ${JWT_SECRET:}
 
 management:
   tracing:

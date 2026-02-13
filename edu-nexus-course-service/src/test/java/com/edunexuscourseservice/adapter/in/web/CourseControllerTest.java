@@ -1,0 +1,428 @@
+package com.edunexuscourseservice.adapter.in.web;
+
+import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
+import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
+import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
+import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
+import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexuscourseservice.application.service.CourseService;
+import com.edunexuscourseservice.domain.course.util.RoundUtils;
+import com.edunexuscourseservice.port.in.CourseRatingUseCase;
+import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
+import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+/**
+ * Unit tests for CourseController
+ *
+ * Tests the course REST API endpoints including CRUD operations,
+ * rating lookups, and batch functionality. Verifies proper HTTP responses
+ * and service layer interactions.
+ */
+@ExtendWith(MockitoExtension.class)
+class CourseControllerTest {
+
+    @Mock
+    private CourseService courseService;
+
+    @Mock
+    private CourseRatingUseCase courseRatingUseCase;
+
+    @InjectMocks
+    private CourseController courseController;
+
+    private Course testCourse;
+
+    @BeforeEach
+    void setUp() {
+        testCourse = new Course();
+        testCourse.setCourseInfo(CourseInfoDto.builder()
+                .title("Test Course")
+                .description("Test Description")
+                .instructorId(1L)
+                .build());
+    }
+
+    //region Create Course Tests
+    @Test
+    void createCourse_WhenValidRequest_ShouldReturnCreatedStatusWithCourse() {
+        // given
+        CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
+        request.setTitle("New Course");
+        request.setDescription("New Description");
+        request.setInstructorId(1L);
+
+        when(courseService.saveCourse(any(Course.class))).thenReturn(testCourse);
+
+        // when
+        ResponseEntity<CourseResponse> response = courseController.createCourse(request);
+
+        // then
+        assertEquals(201, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(testCourse.getId(), response.getBody().getId());
+        assertEquals("New Course", response.getBody().getTitle());
+
+        // Check Location header
+        assertNotNull(response.getHeaders().getLocation());
+        assertTrue(response.getHeaders().getLocation().toString().contains("/courses/"));
+
+        verify(courseService).saveCourse(any(Course.class));
+    }
+
+    @Test
+    void createCourse_WhenServiceThrowsException_ShouldPropagateException() {
+        // given
+        CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
+        request.setTitle("New Course");
+        request.setDescription("New Description");
+        request.setInstructorId(1L);
+
+        when(courseService.saveCourse(any(Course.class)))
+                .thenThrow(new RuntimeException("Course creation failed"));
+
+        // when & then
+        assertThrows(RuntimeException.class, () -> {
+            courseController.createCourse(request);
+        });
+
+        verify(courseService).saveCourse(any(Course.class));
+    }
+    //endregion
+
+    //region Update Course Tests
+    @Test
+    void updateCourse_WhenValidRequest_ShouldReturnUpdatedCourse() {
+        // given
+        Course existingCourse = new Course();
+        existingCourse.setCourseInfo(CourseInfoDto.builder()
+                .title("Old Title")
+                .description("Old Description")
+                .instructorId(1L)
+                .build());
+
+        CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
+        request.setTitle("Updated Title");
+        request.setDescription("Updated Description");
+        request.setInstructorId(1L);
+
+        when(courseService.getCourseById(1L)).thenReturn(Optional.of(existingCourse));
+        when(courseService.updateCourse(1L, any(Course.class))).thenReturn(testCourse);
+
+        // when
+        ResponseEntity<CourseResponse> response = courseController.updateCourse(1L, request);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(testCourse.getId(), response.getBody().getId());
+        assertEquals("Updated Title", response.getBody().getTitle());
+
+        verify(courseService).getCourseById(1L);
+        verify(courseService).updateCourse(1L, any(Course.class));
+    }
+
+    @Test
+    void updateCourse_WhenCourseNotFound_ShouldThrowNotFoundException() {
+        // given
+        CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
+        request.setTitle("Updated Title");
+        request.setDescription("Updated Description");
+        request.setInstructorId(1L);
+
+        when(courseService.getCourseById(999L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(NotFoundException.class, () -> {
+            courseController.updateCourse(999L, request);
+        });
+
+        verify(courseService).getCourseById(999L);
+        verify(courseService, never()).updateCourse(any(), any());
+    }
+    //endregion
+
+    //region Get Course Tests
+    @Test
+    void getCourse_WhenCourseExists_ShouldReturnCourseWithRating() {
+        // given
+        when(courseService.getCourseById(1L)).thenReturn(Optional.of(testCourse));
+        when(courseRatingUseCase.getAverageRatingByCourseId(1L)).thenReturn(4.5);
+
+        // when
+        ResponseEntity<CourseInfoResponse> response = courseController.getCourse(1L);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(testCourse.getId(), response.getBody().getId());
+        assertEquals("Test Course", response.getBody().getTitle());
+        assertEquals(4.5, response.getBody().getCourseRatingAvg());
+
+        verify(courseService).getCourseById(1L);
+        verify(courseRatingUseCase).getAverageRatingByCourseId(1L);
+    }
+
+    @Test
+    void getCourse_WhenCourseNotFound_ShouldThrowNotFoundException() {
+        // given
+        when(courseService.getCourseById(999L)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(NotFoundException.class, () -> {
+            courseController.getCourse(999L);
+        });
+
+        verify(courseService).getCourseById(999L);
+        verify(courseRatingUseCase, never()).getAverageRatingByCourseId(any());
+    }
+
+    @Test
+    void getCourseRatingAverage_WhenCourseExists_ShouldReturnRating() {
+        // given
+        when(courseRatingUseCase.getAverageRatingByCourseId(1L)).thenReturn(4.7);
+
+        // when
+        ResponseEntity<CourseRatingAverageResponse> response = courseController.getCourseRatingAverage(1L);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1L, response.getBody().getCourseId());
+        assertEquals(4.7, response.getBody().getCourseRatingAvg());
+
+        verify(courseRatingUseCase).getAverageRatingByCourseId(1L);
+    }
+
+    @Test
+    void getCourseRatingAverage_WhenNoRatingExists_ShouldReturnZero() {
+        // given
+        when(courseRatingUseCase.getAverageRatingByCourseId(999L)).thenReturn(0.0);
+
+        // when
+        ResponseEntity<CourseRatingAverageResponse> response = courseController.getCourseRatingAverage(999L);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(999L, response.getBody().getCourseId());
+        assertEquals(0.0, response.getBody().getCourseRatingAvg());
+
+        verify(courseRatingUseCase).getAverageRatingByCourseId(999L);
+    }
+    //endregion
+
+    //region Get All Courses Tests
+    @Test
+    void getAllCourses_WhenCoursesExist_ShouldReturnCourseListWithRatings() {
+        // given
+        Course course1 = new Course();
+        course1.setCourseInfo(CourseInfoDto.builder()
+                .title("Course 1")
+                .description("Description 1")
+                .instructorId(1L)
+                .build());
+
+        Course course2 = new Course();
+        course2.setCourseInfo(CourseInfoDto.builder()
+                .title("Course 2")
+                .description("Description 2")
+                .instructorId(1L)
+                .build());
+
+        List<Course> courses = List.of(course1, course2);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(courseService.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
+                .thenReturn(courses);
+        when(courseRatingUseCase.getAverageRatingsByCourseIds(List.of(1L, 2L)))
+                .thenReturn(Map.of(1L, 4.5, 2L, 4.0));
+
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getAllCourses(
+                new CourseSearchCondition(), pageable);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+
+        CourseInfoResponse response1 = response.getBody().get(0);
+        assertEquals(1L, response1.getId());
+        assertEquals("Course 1", response1.getTitle());
+        assertEquals(4.5, response1.getCourseRatingAvg());
+
+        CourseInfoResponse response2 = response.getBody().get(1);
+        assertEquals(2L, response2.getId());
+        assertEquals("Course 2", response2.getTitle());
+        assertEquals(4.0, response2.getCourseRatingAvg());
+
+        verify(courseService).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
+        verify(courseRatingUseCase).getAverageRatingsByCourseIds(List.of(1L, 2L));
+    }
+
+    @Test
+    void getAllCourses_WhenNoCoursesExist_ShouldReturnEmptyList() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(courseService.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
+                .thenReturn(List.of());
+
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getAllCourses(
+                new CourseSearchCondition(), pageable);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        verify(courseService).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
+        verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
+    }
+    //endregion
+
+    //region Batch Course Tests
+    @Test
+    void getCoursesByIds_WhenValidIds_ShouldReturnCoursesWithRatings() {
+        // given
+        Course course1 = new Course();
+        course1.setCourseInfo(CourseInfoDto.builder()
+                .title("Batch Course 1")
+                .description("Batch Description 1")
+                .instructorId(1L)
+                .build());
+
+        Course course2 = new Course();
+        course2.setCourseInfo(CourseInfoDto.builder()
+                .title("Batch Course 2")
+                .description("Batch Description 2")
+                .instructorId(1L)
+                .build());
+
+        List<Long> courseIds = List.of(1L, 2L);
+        List<Course> courses = List.of(course1, course2);
+
+        when(courseService.getCoursesByIds(courseIds)).thenReturn(courses);
+        when(courseRatingUseCase.getAverageRatingsByCourseIds(courseIds))
+                .thenReturn(Map.of(1L, 4.8, 2L, 3.9));
+
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getCoursesByIds(courseIds);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+
+        CourseInfoResponse response1 = response.getBody().get(0);
+        assertEquals(1L, response1.getId());
+        assertEquals("Batch Course 1", response1.getTitle());
+        assertEquals(4.8, response1.getCourseRatingAvg());
+
+        CourseInfoResponse response2 = response.getBody().get(1);
+        assertEquals(2L, response2.getId());
+        assertEquals("Batch Course 2", response2.getTitle());
+        assertEquals(3.9, response2.getCourseRatingAvg());
+
+        verify(courseService).getCoursesByIds(courseIds);
+        verify(courseRatingUseCase).getAverageRatingsByCourseIds(courseIds);
+    }
+
+    @Test
+    void getCoursesByIds_WhenEmptyList_ShouldReturnEmptyResponse() {
+        // given
+        List<Long> emptyIds = List.of();
+
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getCoursesByIds(emptyIds);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        verify(courseService, never()).getCoursesByIds(any());
+        verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
+    }
+
+    @Test
+    void getCoursesByIds_WhenSomeIdsNotFound_ShouldReturnOnlyFoundCourses() {
+        // given
+        Course foundCourse = new Course();
+        foundCourse.setCourseInfo(CourseInfoDto.builder()
+                .title("Found Course")
+                .description("Found Description")
+                .instructorId(1L)
+                .build());
+
+        List<Long> courseIds = List.of(1L, 999L); // 999 doesn't exist
+        List<Course> courses = List.of(foundCourse); // Only return found courses
+
+        when(courseService.getCoursesByIds(courseIds)).thenReturn(courses);
+        when(courseRatingUseCase.getAverageRatingsByCourseIds(courseIds))
+                .thenReturn(Map.of(1L, 4.5));
+
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getCoursesByIds(courseIds);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+
+        CourseInfoResponse response1 = response.getBody().get(0);
+        assertEquals(1L, response1.getId());
+        assertEquals("Found Course", response1.getTitle());
+        assertEquals(4.5, response1.getCourseRatingAvg());
+
+        verify(courseService).getCoursesByIds(courseIds);
+        verify(courseRatingUseCase).getAverageRatingsByCourseIds(courseIds);
+    }
+    //endregion
+
+    //region Edge Cases
+    @Test
+    void updateCourse_WhenRequestIsNull_ShouldThrowException() {
+        // when & then
+        assertThrows(Exception.class, () -> {
+            courseController.updateCourse(1L, null);
+        });
+
+        verify(courseService, never()).getCourseById(any());
+    }
+
+    @Test
+    void getCoursesByIds_WhenRequestIsNull_ShouldReturnEmptyResponse() {
+        // when
+        ResponseEntity<List<CourseInfoResponse>> response = courseController.getCoursesByIds(null);
+
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+
+        verify(courseService, never()).getCoursesByIds(any());
+        verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
+    }
+    //endregion
+}

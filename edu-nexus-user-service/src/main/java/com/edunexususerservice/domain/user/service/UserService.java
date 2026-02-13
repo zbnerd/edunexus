@@ -50,7 +50,7 @@ public class UserService {
     public List<UserLoginHistory> getUserLoginHistories(Long userId) {
         return getUserById(userId)
                 .map(User::getLoginHistories)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
     }
 
     @Transactional

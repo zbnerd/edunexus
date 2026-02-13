@@ -41,7 +41,7 @@ eureka:
     fetchRegistry: true
 
 jwt:
-  secret: gP1hx!82&fD4z@V9X%YqL#m6kP*o$w3B5E7Jr^N+T2a8ZyC-WxQ#vK@LdFt&R!rt
+  secret: ${JWT_SECRET:}
 
 server:
   port: 8004

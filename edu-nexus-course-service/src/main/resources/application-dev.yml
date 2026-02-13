@@ -7,16 +7,22 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      enable-auto-commit: false
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: -1
+    listener:
+      ack-mode: manual_immediate
+      error-handler: kafkaErrorHandler
 
   datasource:
     url: jdbc:mysql://edu-nexus-mysql:3306/edu_nexus_course
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: edu
-    password: nexus
+    username: ${DB_USERNAME:edu}
+    password: ${DB_PASSWORD:}
 
   data:
     redis:

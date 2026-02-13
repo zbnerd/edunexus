@@ -39,9 +39,12 @@ dependencies {
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	implementation 'com.graphql-java:graphql-java-extended-scalars:21.0'
+	// Common observability module
+	implementation project(':edu-nexus-observability')
 
+	implementation 'com.graphql-java:graphql-java-extended-scalars:21.0'
 	implementation 'net.devh:grpc-client-spring-boot-starter:3.0.0.RELEASE'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation project(':edu-nexus-grpc-common')
 }
 

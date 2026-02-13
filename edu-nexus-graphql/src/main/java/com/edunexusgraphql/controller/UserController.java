@@ -16,7 +16,8 @@ public class UserController {
 
     @QueryMapping
     public User getUser(@Argument Long userId) {
-        return userService.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return userService.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     @MutationMapping

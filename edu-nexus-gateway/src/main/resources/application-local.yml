@@ -3,12 +3,35 @@ spring:
     name: edu-nexus-gateway
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 60s
+        pool:
+          type: elastic
+          max-connections: 500
+          max-idle-time: 20s
+          max-life-time: 60s
+          acquire-timeout: 30000
       routes:
         - id: auth_route
           uri: lb://edu-nexus-user-service
           predicates:
             - Path=/auth/**
             - Method=POST, GET
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: user-service
+                fallbackUri: forward:/fallback/users
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+                methods: GET,POST
+                backoff:
+                  firstBackoff: 1000
+                  maxBackoff: 5000
+                  factor: 2
         - id: file_route
           uri: lb://edu-nexus-file-manage-service
           predicates:
@@ -16,11 +39,38 @@ spring:
             - Method=POST, GET
           filters:
             - RewritePath=/files/(?<segment>.*),/%\{segment}
+            - name: CircuitBreaker
+              args:
+                name: file-service
+                fallbackUri: forward:/fallback/files
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+                methods: GET,POST
+                backoff:
+                  firstBackoff: 1000
+                  maxBackoff: 5000
+                  factor: 2
         - id: graphql_route
           uri: lb://edu-nexus-graphql
           predicates:
             - Path=/graphql
             - Method=POST, GET
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: graphql-service
+                fallbackUri: forward:/fallback/graphql
+            - name: Retry
+              args:
+                retries: 2
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+                methods: POST
+                backoff:
+                  firstBackoff: 500
+                  maxBackoff: 2000
+                  factor: 2
       global-cors:
         cors-configurations:
           '[/**]':
@@ -35,6 +85,11 @@ spring:
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 100
+            redis-rate-limiter.burstCapacity: 200
+            key-resolver: "#{@ipKeyResolver}"
 
 eureka:
   client:
@@ -57,3 +112,63 @@ logging:
     reactor.ipc.netty: DEBUG
     reactor.netty: DEBUG
     io.github.resilience4j: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 50
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+        permitted-number-of-calls-in-half-open-state: 10
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      user-service:
+        base-config: default
+      file-service:
+        base-config: default
+      graphql-service:
+        sliding-window-size: 30
+        failure-rate-threshold: 40
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 5
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+    instances:
+      user-service:
+        base-config: default
+      file-service:
+        base-config: default
+      graphql-service:
+        max-attempts: 2
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,gateway,circuitbreakers,retries
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+  health:
+    circuitbreakers:
+      enabled: true

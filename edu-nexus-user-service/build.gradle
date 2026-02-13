@@ -43,6 +43,7 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-data-rest:1.7.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'

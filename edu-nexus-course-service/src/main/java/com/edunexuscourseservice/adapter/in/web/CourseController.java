@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -85,9 +87,41 @@ public class CourseController {
             Pageable pageable
     ) {
         List<Course> courses = courseService.getAllCourses(condition, pageable);
+
+        // Batch fetch all course ratings at once to avoid N+1 query
+        List<Long> courseIds = courses.stream()
+                .map(Course::getId)
+                .collect(Collectors.toList());
+
+        // Use batch lookup for ratings (optimized to avoid N+1)
+        Map<Long, Double> averageRatings = courseRatingService.getAverageRatingsByCourseIds(courseIds);
+
         List<CourseInfoResponse> responses = courses.stream()
                 .map(course -> CourseInfoResponse.from(course,
-                        RoundUtils.roundToNDecimals(courseRatingService.getAverageRatingByCourseId(course.getId()), 2)))
+                        RoundUtils.roundToNDecimals(averageRatings.getOrDefault(course.getId(), 0.0), 2)))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * Batch endpoint for fetching multiple courses by IDs.
+     * Optimized for GraphQL batch loading to avoid N+1 queries.
+     */
+    @PostMapping("/batch")
+    public ResponseEntity<List<CourseInfoResponse>> getCoursesByIds(@RequestBody List<Long> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        // Batch fetch all courses efficiently using findAllById
+        List<Course> courses = courseService.getCoursesByIds(courseIds);
+
+        // Batch fetch all ratings at once
+        Map<Long, Double> averageRatings = courseRatingService.getAverageRatingsByCourseIds(courseIds);
+
+        List<CourseInfoResponse> responses = courses.stream()
+                .map(course -> CourseInfoResponse.from(course,
+                        RoundUtils.roundToNDecimals(averageRatings.getOrDefault(course.getId(), 0.0), 2)))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
