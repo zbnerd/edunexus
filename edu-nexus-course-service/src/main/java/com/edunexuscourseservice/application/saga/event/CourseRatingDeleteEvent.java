@@ -13,6 +13,7 @@ import java.util.UUID;
 public class CourseRatingDeleteEvent {
     private String eventId; // UUID for idempotency
     private Instant occurredAt; // Event timestamp
+    private Long sequenceNumber; // Sequence number for ordering
 
     private Long courseId;
     private int oldRating;
@@ -21,6 +22,7 @@ public class CourseRatingDeleteEvent {
         return new CourseRatingDeleteEvent(
             UUID.randomUUID().toString(),
             Instant.now(),
+            System.currentTimeMillis(), // Use timestamp as sequence number
             courseId,
             oldRating
         );

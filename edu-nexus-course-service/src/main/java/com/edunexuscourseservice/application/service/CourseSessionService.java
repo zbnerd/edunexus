@@ -25,6 +25,15 @@ public class CourseSessionService implements CourseSessionUseCase {
     private final CourseSessionRepository courseSessionRepository;
     private final CourseRepository courseRepository;
 
+    /**
+     * Adds a new session to an existing course.
+     *
+     * @param courseId the ID of the course to add the session to
+     * @param courseSession the session entity to add
+     * @return the saved course session with generated ID
+     * @throws NotFoundException if the course with specified ID doesn't exist
+     * @throws IllegalArgumentException if courseSession is null
+     */
     @Transactional
     public CourseSession addSessionToCourse(Long courseId, CourseSession courseSession) {
         Course course = courseRepository.findById(courseId)
@@ -34,6 +43,15 @@ public class CourseSessionService implements CourseSessionUseCase {
         return courseSessionRepository.save(courseSession);
     }
 
+    /**
+     * Updates an existing course session with new information.
+     *
+     * @param sessionId the ID of the session to update
+     * @param newCourseSession the new session information
+     * @return the updated course session
+     * @throws NotFoundException if session with specified ID doesn't exist
+     * @throws IllegalArgumentException if newCourseSession is null
+     */
     @Transactional
     public CourseSession updateSession(Long sessionId, CourseSession newCourseSession) {
         CourseSession courseSession = getSession(sessionId)
@@ -43,21 +61,38 @@ public class CourseSessionService implements CourseSessionUseCase {
         return courseSession;
     }
 
+    /**
+     * Retrieves a course session by its ID.
+     *
+     * @param sessionId the unique identifier of the session
+     * @return Optional containing the session if found, empty otherwise
+     */
     public Optional<CourseSession> getSession(Long sessionId) {
         return courseSessionRepository.findById(sessionId);
     }
 
     /**
-     * Get all sessions by course ID.
-     * Consider using getSessionsByCourseIdPaged() for better performance with large datasets.
+     * Retrieves all sessions for a specific course.
+     * Consider using {@link #getSessionsByCourseIdPaged(Long, Pageable)} for better
+     * performance with large datasets.
+     *
+     * @param courseId the ID of the course
+     * @return list of all sessions for the course
+     * @throws IllegalArgumentException if courseId is null
      */
     public List<CourseSession> getAllSessionsByCourseId(Long courseId) {
         return courseSessionRepository.findByCourseId(courseId);
     }
 
     /**
-     * Get paginated sessions by course ID for better performance.
-     * Recommended over getAllSessionsByCourseId() to avoid loading entire collections.
+     * Retrieves paginated sessions for a specific course.
+     * Recommended over {@link #getAllSessionsByCourseId(Long)} to avoid loading
+     * entire collections for large datasets.
+     *
+     * @param courseId the ID of the course
+     * @param pageable pagination and sorting parameters
+     * @return page of course sessions
+     * @throws IllegalArgumentException if courseId or pageable is null
      */
     public Page<CourseSession> getSessionsByCourseIdPaged(Long courseId, Pageable pageable) {
         return courseSessionRepository.findByCourseId(courseId, pageable);

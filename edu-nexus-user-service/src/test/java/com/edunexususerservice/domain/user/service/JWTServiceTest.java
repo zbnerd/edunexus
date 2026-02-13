@@ -105,7 +105,7 @@ class JWTServiceTest {
         String token = Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(new Date(currentTimeMillis))
-                .setExpiration(new Date(currentTimeMillis + 3600000))
+                .setExpiration(new Date(currentTimeMillis + JwtConstants.TOKEN_EXPIRATION_MS))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .compact();
         
@@ -177,7 +177,7 @@ class JWTServiceTest {
         verify(jwtService).parseJwtClaims("expired.token");
         verify(userRepository).findByEmail("user@example.com");
         verify(userLoginTokenRedisRepository).deleteLoginToken(user.getId());
-        verify(userLoginTokenRedisRepository).saveLoginToken(user.getId(), newToken, 3600);
+        verify(userLoginTokenRedisRepository).saveLoginToken(user.getId(), newToken, JwtConstants.TOKEN_EXPIRATION_SECONDS);
     }
 
     @Test
@@ -195,7 +195,7 @@ class JWTServiceTest {
     @Test
     void validateToken_WhenTokenIsExpired_ShouldReturnFalse() {
         // given
-        long expiredTime = System.currentTimeMillis() - 3600000; // 1 hour ago
+        long expiredTime = System.currentTimeMillis() - JwtConstants.TOKEN_EXPIRATION_MS; // 1 hour ago
         String expiredToken = Jwts.builder()
                 .setSubject("user@example.com")
                 .setIssuedAt(new Date(expiredTime))
@@ -217,7 +217,7 @@ class JWTServiceTest {
         String validToken = Jwts.builder()
                 .setSubject("user@example.com")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .setExpiration(new Date(System.currentTimeMillis() + JwtConstants.TOKEN_EXPIRATION_MS))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .compact();
 
@@ -303,7 +303,7 @@ class JWTServiceTest {
         String validToken = Jwts.builder()
                 .setSubject("user@example.com")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
+                .setExpiration(new Date(System.currentTimeMillis() + JwtConstants.TOKEN_EXPIRATION_MS))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .compact();
 

@@ -17,5 +17,7 @@ public class PaymentDataResolver {
     @SchemaMapping(typeName = "Payment", field = "user")
     public User getUser(Payment payment) {
         return userService.findById(payment.getUserId()).orElse(null);
+        // Note: GraphQL allows null for nullable fields. If user field is @NonNull,
+        // use .orElseThrow(() -> new NotFoundException("User not found"))
     }
 }

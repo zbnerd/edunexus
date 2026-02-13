@@ -38,3 +38,11 @@ ALTER TABLE COURSE_RATINGS
     ADD CONSTRAINT FK_COURSES_TO_COURSE_RATINGS
         FOREIGN KEY (course_id)
             REFERENCES COURSES (course_id);
+
+-- Indexes for performance optimization
+CREATE INDEX idx_course_sessions_course_id ON COURSE_SESSIONS(course_id);
+CREATE INDEX idx_course_ratings_course_id ON COURSE_RATINGS(course_id);
+CREATE INDEX idx_course_ratings_user_id ON COURSE_RATINGS(user_id);
+
+-- Composite index for user-course rating lookups
+CREATE INDEX idx_course_ratings_user_course ON COURSE_RATINGS(user_id, course_id);

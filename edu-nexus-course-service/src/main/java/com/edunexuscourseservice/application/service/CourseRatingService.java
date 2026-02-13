@@ -42,6 +42,17 @@ public class CourseRatingService implements CourseRatingUseCase {
     private final CourseRatingQueryService queryService;
     private final CourseMetrics courseMetrics;
 
+    /**
+     * Adds a new rating to a course.
+     * Implements Cache-Aside pattern: saves to database immediately,
+     * triggers async cache update via Kafka.
+     *
+     * @param courseId the ID of the course to rate
+     * @param courseRating the rating entity containing score and optional comment
+     * @return the saved rating with generated ID
+     * @throws IllegalArgumentException if courseRating is null
+     * @throws RuntimeException if database save fails
+     */
     @Transactional
     @Override
     public CourseRating addRatingToCourse(Long courseId, CourseRating courseRating) {
@@ -62,6 +73,16 @@ public class CourseRatingService implements CourseRatingUseCase {
         }
     }
 
+    /**
+     * Updates an existing course rating.
+     * Calculates rating delta for cache update and triggers async Kafka event.
+     *
+     * @param ratingId the ID of the rating to update
+     * @param newCourseRating the new rating information
+     * @return the updated rating entity
+     * @throws NotFoundException if rating with specified ID doesn't exist
+     * @throws IllegalArgumentException if newCourseRating is null
+     */
     @Transactional
     @Override
     public CourseRating updateRating(Long ratingId, CourseRating newCourseRating) {
@@ -83,11 +104,24 @@ public class CourseRatingService implements CourseRatingUseCase {
         return updatedRating;
     }
 
+    /**
+     * Retrieves a specific rating by its ID.
+     *
+     * @param ratingId the unique identifier of the rating
+     * @return Optional containing the rating if found, empty otherwise
+     */
     @Override
     public Optional<CourseRating> getRating(Long ratingId) {
         return crudService.findById(ratingId);
     }
 
+    /**
+     * Deletes a course rating by its ID.
+     * Triggers async cache update via Kafka before deletion.
+     *
+     * @param ratingId the ID of the rating to delete
+     * @throws NotFoundException if rating with specified ID doesn't exist
+     */
     @Transactional
     @Override
     public void deleteRating(Long ratingId) {
@@ -107,11 +141,26 @@ public class CourseRatingService implements CourseRatingUseCase {
         crudService.delete(ratingId);
     }
 
+    /**
+     * Retrieves all ratings for a specific course.
+     *
+     * @param courseId the ID of the course
+     * @return list of all ratings for the course
+     * @throws IllegalArgumentException if courseId is null
+     */
     @Override
     public List<CourseRating> getAllRatingsByCourseId(Long courseId) {
         return queryService.getRatingsByCourseId(courseId);
     }
 
+    /**
+     * Retrieves the average rating for a specific course.
+     * Uses cached value from Redis if available.
+     *
+     * @param courseId the ID of the course
+     * @return the average rating, or 0.0 if no ratings exist
+     * @throws IllegalArgumentException if courseId is null
+     */
     @Override
     public Double getAverageRatingByCourseId(Long courseId) {
         Timer.Sample sample = courseMetrics.startCourseRetrieval();
@@ -124,6 +173,14 @@ public class CourseRatingService implements CourseRatingUseCase {
         }
     }
 
+    /**
+     * Batch retrieves average ratings for multiple courses.
+     * Optimized to avoid N+1 queries when loading multiple courses.
+     *
+     * @param courseIds list of course IDs to get ratings for
+     * @return map of course ID to average rating (0.0 if no ratings)
+     * @throws IllegalArgumentException if courseIds is null
+     */
     @Override
     public Map<Long, Double> getAverageRatingsByCourseIds(List<Long> courseIds) {
         return queryService.getAverageRatings(courseIds);

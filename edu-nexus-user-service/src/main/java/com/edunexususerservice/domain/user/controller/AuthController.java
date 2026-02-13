@@ -28,9 +28,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(
             HttpServletRequest request,
-            @RequestBody LoginRequest loginRequest
+            @RequestBody @jakarta.validation.Valid LoginRequest loginRequest
     ) {
-        User existingUser = userService.getUserByEmailOrThrowToNotFoundException(loginRequest.getEmail());
+        User existingUser = userService.requireByEmail(loginRequest.getEmail());
         String token = jwtService.login(existingUser, loginRequest.getPassword());
         String ipAddress = request.getRemoteAddr();
 
@@ -39,14 +39,15 @@ public class AuthController {
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<User> validateToken(@RequestBody TokenRequest tokenRequest) {
+    public ResponseEntity<User> validateToken(@RequestBody @jakarta.validation.Valid TokenRequest tokenRequest) {
         Claims claims = jwtService.parseJwtClaims(tokenRequest.getToken());
-        return ResponseEntity.ok(userService.getUserByEmail(claims.getSubject()).orElseThrow());
+        return ResponseEntity.ok(userService.getUserByEmail(claims.getSubject())
+                .orElseThrow(() -> new com.edunexususerservice.domain.user.exception.NotFoundException("User not found")));
     }
 
     @PostMapping("/verify-token")
     public ResponseEntity<Map<String, Boolean>> verifyToken(
-            @RequestBody TokenRequest tokenRequest
+            @RequestBody @jakarta.validation.Valid TokenRequest tokenRequest
     ) {
         boolean isValid = jwtService.validateToken(tokenRequest.getToken());
         return ResponseEntity.ok(Collections.singletonMap("isValid", isValid));
@@ -54,7 +55,7 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, String>> refreshToken(
-            @RequestBody TokenRequest tokenRequest
+            @RequestBody @jakarta.validation.Valid TokenRequest tokenRequest
     ) {
         String newToken = jwtService.refreshToken(tokenRequest.getToken());
         return ResponseEntity.ok(Collections.singletonMap("token", newToken));

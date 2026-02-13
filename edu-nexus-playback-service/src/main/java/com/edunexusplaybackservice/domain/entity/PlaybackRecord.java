@@ -31,6 +31,10 @@ public class PlaybackRecord {
     @Column(name = "end_time", columnDefinition = "TIMESTAMP")
     private LocalDateTime endTime;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     public void setPlaybackRecordInfo(PlaybackRecordDto playbackRecordDto) {
         this.userId = playbackRecordDto.getUserId();
         this.fileId = playbackRecordDto.getFileId();

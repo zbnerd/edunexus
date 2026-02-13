@@ -47,11 +47,11 @@ public class JWTService {
         String jwtToken = Jwts.builder()
                 .setSubject(existingUser.getEmail())
                 .setIssuedAt(new Date(currentTimeMillis))
-                .setExpiration(new Date(currentTimeMillis + 3600000)) // Token expires in 1 hour
+                .setExpiration(new Date(currentTimeMillis + JwtConstants.TOKEN_EXPIRATION_MS))
                 .signWith(jwtSigningKey())
                 .compact();
 
-        redisRepository.saveLoginToken(existingUser.getId(), jwtToken, 3600);
+        redisRepository.saveLoginToken(existingUser.getId(), jwtToken, JwtConstants.TOKEN_EXPIRATION_SECONDS);
         return jwtToken;
     }
 
@@ -78,11 +78,11 @@ public class JWTService {
         String jwtToken = Jwts.builder()
                 .setSubject(userEmail)
                 .setIssuedAt(new Date(currentTimeMillis))
-                .setExpiration(new Date(currentTimeMillis + 3600000)) // Token expires in 1 hour
+                .setExpiration(new Date(currentTimeMillis + JwtConstants.TOKEN_EXPIRATION_MS))
                 .signWith(jwtSigningKey())
                 .compact();
 
-        redisRepository.saveLoginToken(userId, jwtToken, 3600);
+        redisRepository.saveLoginToken(userId, jwtToken, JwtConstants.TOKEN_EXPIRATION_SECONDS);
 
         return jwtToken;
     }

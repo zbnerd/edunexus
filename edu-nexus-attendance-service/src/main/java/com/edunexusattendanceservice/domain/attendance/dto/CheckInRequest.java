@@ -1,6 +1,7 @@
 package com.edunexusattendanceservice.domain.attendance.dto;
 
 import com.edunexusattendanceservice.domain.attendance.enums.AttendanceStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,9 +13,16 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class CheckInRequest {
+    @NotNull(message = "User ID is required")
     private Long userId;
+
+    @NotNull(message = "Course ID is required")
     private Long courseId;
+
+    @NotNull(message = "Session ID is required")
     private Long sessionId;
+
+    @NotNull(message = "Attendance status is required")
     private AttendanceStatus status;
 
     /**

@@ -168,7 +168,7 @@ class AttendanceServiceTest {
         attendance2.setCourseId(1L);
         attendance2.setSessionId(2L);
 
-        when(attendanceRepository.findByUserId(1L))
+        when(attendanceRepository.findAllByUserId(1L))
                 .thenReturn(Arrays.asList(testAttendance, attendance2));
 
         // When
@@ -205,7 +205,7 @@ class AttendanceServiceTest {
         attendance2.setCourseId(1L);
         attendance2.setSessionId(1L);
 
-        when(attendanceRepository.findBySessionId(1L))
+        when(attendanceRepository.findAllBySessionId(1L))
                 .thenReturn(Arrays.asList(testAttendance, attendance2));
 
         // When

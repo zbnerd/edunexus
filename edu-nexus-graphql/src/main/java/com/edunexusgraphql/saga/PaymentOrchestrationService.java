@@ -3,6 +3,7 @@ package com.edunexusgraphql.saga;
 import com.edunexusenrollmentservice.domain.service.EnrollmentServiceGrpc;
 import com.edunexusenrollmentservice.domain.service.EnrollmentServiceOuterClass;
 import com.edunexusenrollmentservice.domain.service.FakePaymentServiceGrpc;
+import com.edunexusgraphql.constants.SubscriptionConstants;
 import com.edunexusgraphql.model.Payment;
 import com.edunexusgraphql.service.EnrollmentService;
 import com.edunexusgraphql.service.kafka.PaymentProducerService;
@@ -90,7 +91,7 @@ public class PaymentOrchestrationService {
 
             } else if ("SUBSCRIPTION".equals(type)) {
                 manageSubscription(userId, System.currentTimeMillis(),
-                        System.currentTimeMillis() + 31536000000L, paymentId);
+                        System.currentTimeMillis() + SubscriptionConstants.DEFAULT_SUBSCRIPTION_DURATION_MS, paymentId);
                 log.info("Subscription managed successfully for paymentId={}", paymentId);
 
                 // Step 4a: SUCCESS - Confirm payment

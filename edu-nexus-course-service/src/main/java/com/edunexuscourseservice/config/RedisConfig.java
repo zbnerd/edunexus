@@ -14,6 +14,8 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RedisConfig {
@@ -48,20 +50,36 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        // Default cache configuration
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 // Use JSON serialization for cache values
                 .serializeValuesWith(
                     org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
                         .fromSerializer(new GenericJackson2JsonRedisSerializer())
                 )
-                // 5 minute TTL as per ADR-000 (Cache-Aside pattern)
-                // Cache is ephemeral and should be refreshed from DB
-                .entryTtl(Duration.ofMinutes(5))
                 // Don't cache null values - treat as miss
-                .disableCachingNullValues();
+                .disableCachingNullValues()
+                // Add cache key prefix
+                .prefixCacheNameWith("edunexus:");
+
+        // Cache-specific TTL configurations
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        // Courses cache: 10 minutes TTL - course data changes infrequently
+        cacheConfigurations.put("courses", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+
+        // Course ratings cache: 2 minutes TTL - ratings change more frequently
+        cacheConfigurations.put("courseRatings", defaultConfig.entryTtl(Duration.ofMinutes(2)));
+
+        // Course sessions cache: 10 minutes TTL - session data changes infrequently
+        cacheConfigurations.put("courseSessions", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+
+        // Default cache: 5 minutes TTL as per ADR-000 (Cache-Aside pattern)
+        RedisCacheConfiguration defaultConfigWithTtl = defaultConfig.entryTtl(Duration.ofMinutes(5));
 
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory))
-                .cacheDefaults(config)
+                .cacheDefaults(defaultConfigWithTtl)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
 

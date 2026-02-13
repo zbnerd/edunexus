@@ -15,5 +15,6 @@ CREATE TABLE `user_login_histories`
     `user_id`     INT NOT NULL COMMENT '사용자 테이블의 ID를 참조, 외래키',
     `login_time`  DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '로그인 시간, 기본값은 현재 시간',
     `ip_address`  VARCHAR(45) NULL COMMENT '로그인한 사용자의 IP 주소, IPv6 주소도 저장 가능',
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+    INDEX `idx_user_login_histories_user_id` (`user_id`)
 );

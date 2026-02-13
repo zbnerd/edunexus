@@ -2,6 +2,7 @@ package com.edunexususerservice.domain.user.controller;
 
 import com.edunexususerservice.domain.user.dto.PasswordChangeDto;
 import com.edunexususerservice.domain.user.dto.UserDto;
+import com.edunexususerservice.domain.user.dto.UserResponse;
 import com.edunexususerservice.domain.user.entity.User;
 import com.edunexususerservice.domain.user.entity.UserLoginHistory;
 import com.edunexususerservice.domain.user.exception.NotFoundException;
@@ -72,7 +73,7 @@ class UserControllerTest {
                 .thenReturn(testUser);
 
         // when
-        ResponseEntity<User> response = userController.signUp(userDto);
+        ResponseEntity<UserResponse> response = userController.signUp(userDto);
 
         // then
         assertEquals(201, response.getStatusCodeValue());
@@ -114,7 +115,7 @@ class UserControllerTest {
         when(userService.getUserById(1L)).thenReturn(Optional.of(testUser));
 
         // when
-        ResponseEntity<User> response = userController.getUser(1L);
+        ResponseEntity<UserResponse> response = userController.getUser(1L);
 
         // then
         assertEquals(200, response.getStatusCodeValue());
@@ -156,7 +157,7 @@ class UserControllerTest {
                 .thenReturn(testUser);
 
         // when
-        ResponseEntity<User> response = userController.changePassword(1L, passwordChangeDto);
+        ResponseEntity<UserResponse> response = userController.changePassword(1L, passwordChangeDto);
 
         // then
         assertEquals(200, response.getStatusCodeValue());
@@ -277,7 +278,7 @@ class UserControllerTest {
         when(userService.signUp(null, null, null)).thenReturn(testUser);
 
         // when
-        ResponseEntity<User> response = userController.signUp(userDto);
+        ResponseEntity<UserResponse> response = userController.signUp(userDto);
 
         // then
         assertEquals(201, response.getStatusCodeValue());

@@ -8,7 +8,6 @@ import com.edunexusgraphql.service.CourseService;
 import com.edunexusgraphql.service.EnrollmentService;
 import com.edunexusgraphql.service.UserService;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
@@ -29,7 +28,6 @@ public class DataLoaderConfig {
     private final EnrollmentService enrollmentService;
     private final BatchLoaderRegistry batchLoaderRegistry;
 
-    @Autowired
     public DataLoaderConfig(UserService userService, CourseService courseService, EnrollmentService enrollmentService, BatchLoaderRegistry batchLoaderRegistry) {
         this.userService = userService;
         this.courseService = courseService;

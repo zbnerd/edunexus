@@ -11,6 +11,8 @@ import com.edunexuscouponservice.domain.coupon.enums.CouponStatus;
 import com.edunexuscouponservice.port.in.CouponUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +34,9 @@ public class CouponService implements CouponUseCase {
     public CouponDto createCoupon(CreateCouponRequest request) {
         log.info("Creating coupon with code: {}", request.getCode());
 
-        if (couponRepository.findByCode(request.getCode()).isPresent()) {
+        couponRepository.findByCode(request.getCode()).ifPresent(existing -> {
             throw new BusinessException("Coupon with code " + request.getCode() + " already exists");
-        }
+        });
 
         if (request.getValidUntil().isBefore(request.getValidFrom())) {
             throw new BusinessException("Valid until date must be after valid from date");
@@ -72,8 +74,8 @@ public class CouponService implements CouponUseCase {
 
     @Override
     public List<CouponDto> getAllActiveCoupons() {
-        List<Coupon> coupons = couponRepository.findByStatus(CouponStatus.ACTIVE);
-        return coupons.stream()
+        Page<Coupon> couponPage = couponRepository.findByStatus(CouponStatus.ACTIVE, Pageable.unpaged());
+        return couponPage.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -87,8 +89,8 @@ public class CouponService implements CouponUseCase {
 
     @Override
     public List<CouponDto> getValidCoupons() {
-        List<Coupon> coupons = couponRepository.findValidCoupons(LocalDateTime.now());
-        return coupons.stream()
+        Page<Coupon> couponPage = couponRepository.findValidCoupons(LocalDateTime.now(), Pageable.unpaged());
+        return couponPage.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -97,12 +99,12 @@ public class CouponService implements CouponUseCase {
     public CouponValidationResult validateCoupon(String code, Double orderAmount) {
         log.info("Validating coupon: {} for order amount: {}", code, orderAmount);
 
-        Coupon coupon = couponRepository.findByCode(code)
-                .orElse(null);
+        return couponRepository.findByCode(code)
+                .map(coupon -> validateCoupon(coupon, orderAmount))
+                .orElse(CouponValidationResult.invalid("Coupon not found"));
+    }
 
-        if (coupon == null) {
-            return CouponValidationResult.invalid("Coupon not found");
-        }
+    private CouponValidationResult validateCoupon(Coupon coupon, Double orderAmount) {
 
         if (!coupon.isValid()) {
             if (coupon.getStatus() != CouponStatus.ACTIVE) {

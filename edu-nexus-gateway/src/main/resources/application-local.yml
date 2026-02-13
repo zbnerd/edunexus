@@ -74,13 +74,22 @@ spring:
       global-cors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:9000"
+            allowedOrigins:
+              - "http://localhost:9000"
+              - "https://localhost:9000"
             allowedMethods:
               - POST
               - GET
               - OPTIONS
             allowedHeaders:
-              - "*"
+              - "Authorization"
+              - "Content-Type"
+              - "Accept"
+              - "Origin"
+              - "Access-Control-Request-Method"
+              - "Access-Control-Request-Headers"
+              - "X-Requested-With"
+              - "X-Custom-Header"
             allowCredentials: true
 
       default-filters:

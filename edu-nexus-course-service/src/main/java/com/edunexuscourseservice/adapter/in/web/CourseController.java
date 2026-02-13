@@ -2,6 +2,8 @@ package com.edunexuscourseservice.adapter.in.web;
 
 import com.edunexusobservability.annotation.MetricTimed;
 import com.edunexusobservability.metrics.BusinessMetrics;
+import com.edunexuscourseservice.adapter.in.web.request.CourseCreateRequest;
+import com.edunexuscourseservice.adapter.in.web.request.CourseUpdateRequest;
 import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
@@ -14,7 +16,6 @@ import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -35,10 +36,16 @@ public class CourseController {
     private final CourseUseCase courseUseCase;
     private final CourseRatingUseCase courseRatingService;
 
-    // 강의 생성
+    /**
+     * Creates a new course.
+     *
+     * @param request the course creation request with title, description, and instructor ID
+     * @return ResponseEntity with created course and Location header
+     * @throws jakarta.validation.ConstraintViolationException if request validation fails
+     */
     @PostMapping
     @Counted(value = "course.creation", description = "Course creation attempts")
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CourseCreateRequest request) {
+    public ResponseEntity<CourseResponse> createCourse(@RequestBody @jakarta.validation.Valid CourseCreateRequest request) {
         CourseInfoDto courseInfoDto = request.toCourseInfoDto();
         Course course = new Course();
         course.setCourseInfo(courseInfoDto);
@@ -49,10 +56,18 @@ public class CourseController {
         return ResponseEntity.created(URI.create("/courses/" + savedCourse.getId())).body(response);
     }
 
-    // 강의 정보 업데이트
+    /**
+     * Updates an existing course's information.
+     *
+     * @param courseId the ID of the course to update
+     * @param request the update request with new course information
+     * @return ResponseEntity with updated course data
+     * @throws NotFoundException if course doesn't exist
+     * @throws jakarta.validation.ConstraintViolationException if request validation fails
+     */
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long courseId,
-                                                       @RequestBody CourseUpdateRequest request) {
+                                                       @RequestBody @jakarta.validation.Valid CourseUpdateRequest request) {
         Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
         CourseInfoDto courseInfoDto = request.toCourseInfoDto(course.getInstructorId());
@@ -64,7 +79,13 @@ public class CourseController {
         return ResponseEntity.ok(CourseResponse.from(updatedCourse));
     }
 
-    // 특정 강의 정보 조회
+    /**
+     * Retrieves detailed information for a specific course including average rating.
+     *
+     * @param courseId the ID of the course to retrieve
+     * @return ResponseEntity with course details and average rating
+     * @throws NotFoundException if course doesn't exist
+     */
     @GetMapping("/{courseId}")
     @Timed(value = "course.retrieval", extraTags = {"operation", "getCourse"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<CourseInfoResponse> getCourse(@PathVariable Long courseId) {
@@ -77,7 +98,12 @@ public class CourseController {
         return ResponseEntity.ok(CourseInfoResponse.from(course, RoundUtils.roundToNDecimals(courseRatingAvg, 2)));
     }
 
-    // 특정 강의 평균 평점 조회
+    /**
+     * Retrieves the average rating for a specific course.
+     *
+     * @param courseId the ID of the course
+     * @return ResponseEntity with course ID and average rating
+     */
     @GetMapping("/{courseId}/course-rating-average")
     public ResponseEntity<CourseRatingAverageResponse> getCourseRatingAverage(
             @PathVariable Long courseId
@@ -87,7 +113,14 @@ public class CourseController {
         return ResponseEntity.ok(CourseRatingAverageResponse.from(courseId, courseRatingAvg));
     }
 
-    // 모든 강의 목록 조회
+    /**
+     * Retrieves a paginated list of courses with optional filtering.
+     * Batch fetches ratings to avoid N+1 query problems.
+     *
+     * @param condition search conditions (title, description filters)
+     * @param pageable pagination and sorting parameters
+     * @return ResponseEntity with list of courses including average ratings
+     */
     @GetMapping
     @Timed(value = "course.retrieval", extraTags = {"operation", "getAllCourses"}, percentiles = {0.5, 0.95, 0.99})
     public ResponseEntity<List<CourseInfoResponse>> getAllCourses(
@@ -114,6 +147,9 @@ public class CourseController {
     /**
      * Batch endpoint for fetching multiple courses by IDs.
      * Optimized for GraphQL batch loading to avoid N+1 queries.
+     *
+     * @param courseIds list of course IDs to retrieve
+     * @return ResponseEntity with list of courses including average ratings
      */
     @PostMapping("/batch")
     @Timed(value = "course.batch_retrieval", extraTags = {"operation", "batchGetCourses"}, percentiles = {0.5, 0.95, 0.99})
@@ -133,35 +169,5 @@ public class CourseController {
                         RoundUtils.roundToNDecimals(averageRatings.getOrDefault(course.getId(), 0.0), 2)))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
-    }
-
-    @Getter
-    static class CourseCreateRequest {
-        private String title;
-        private String description;
-        private Long instructorId;
-
-        public CourseInfoDto toCourseInfoDto() {
-            return CourseInfoDto.builder()
-                    .title(this.title)
-                    .description(this.description)
-                    .instructorId(this.instructorId)
-                    .build();
-        }
-    }
-
-    @Getter
-    static class CourseUpdateRequest {
-        private String title;
-        private String description;
-        private Long instructorId;
-
-        public CourseInfoDto toCourseInfoDto(Long instructorId) {
-            return CourseInfoDto.builder()
-                    .title(this.title)
-                    .description(this.description)
-                    .instructorId(instructorId)
-                    .build();
-        }
     }
 }

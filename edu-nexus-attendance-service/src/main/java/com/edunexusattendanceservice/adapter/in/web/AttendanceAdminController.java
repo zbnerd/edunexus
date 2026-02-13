@@ -2,7 +2,6 @@ package com.edunexusattendanceservice.adapter.in.web;
 
 import com.edunexus.common.exception.NotFoundException;
 import com.edunexus.common.exception.ErrorCode;
-import com.edunexusattendanceservice.adapter.in.web.AttendanceController.AttendanceResponse;
 import com.edunexusattendanceservice.adapter.out.persistence.entity.Attendance;
 import com.edunexusattendanceservice.adapter.out.persistence.entity.AttendanceSession;
 import com.edunexusattendanceservice.application.service.AttendanceService;
@@ -10,6 +9,13 @@ import com.edunexusattendanceservice.application.service.AttendanceSessionServic
 import com.edunexusattendanceservice.domain.attendance.dto.AttendanceRateResponse;
 import com.edunexusattendanceservice.domain.attendance.dto.CheckInRequest;
 import com.edunexusattendanceservice.domain.attendance.enums.AttendanceStatus;
+import com.edunexusattendanceservice.adapter.in.web.response.AttendanceResponse;
+import com.edunexusattendanceservice.adapter.in.web.response.AttendanceSessionResponse;
+import com.edunexusattendanceservice.adapter.in.web.response.SessionReportResponse;
+import com.edunexusattendanceservice.adapter.in.web.response.CourseReportResponse;
+import com.edunexusattendanceservice.adapter.in.web.response.AtRiskStudentResponse;
+import com.edunexusattendanceservice.adapter.in.web.request.AttendanceSessionRequest;
+import com.edunexusattendanceservice.adapter.in.web.request.MarkAttendanceRequest;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
@@ -242,91 +248,5 @@ public class AttendanceAdminController {
         log.info("Manually triggering absence marking for ended sessions");
         attendanceSessionService.markAbsencesForEndedSessions();
         return ResponseEntity.ok(Map.of("message", "Absence marking completed"));
-    }
-
-    // Response DTOs
-
-    @lombok.Getter
-    @lombok.Builder
-    public static class AttendanceSessionResponse {
-        private Long id;
-        private Long courseId;
-        private Long sessionId;
-        private String scheduledStart;
-        private String scheduledEnd;
-        private Integer attendanceWindowMinutes;
-        private Boolean autoMarkAbsent;
-        private String createdAt;
-        private String updatedAt;
-
-        public static AttendanceSessionResponse from(AttendanceSession session) {
-            return AttendanceSessionResponse.builder()
-                    .id(session.getId())
-                    .courseId(session.getCourseId())
-                    .sessionId(session.getSessionId())
-                    .scheduledStart(session.getScheduledStart().toString())
-                    .scheduledEnd(session.getScheduledEnd().toString())
-                    .attendanceWindowMinutes(session.getAttendanceWindowMinutes())
-                    .autoMarkAbsent(session.getAutoMarkAbsent())
-                    .createdAt(session.getCreatedAt() != null ? session.getCreatedAt().toString() : null)
-                    .updatedAt(session.getUpdatedAt() != null ? session.getUpdatedAt().toString() : null)
-                    .build();
-        }
-    }
-
-    @lombok.Getter
-    @lombok.Builder
-    public static class SessionReportResponse {
-        private Long sessionId;
-        private long totalStudents;
-        private long presentCount;
-        private long lateCount;
-        private long absentCount;
-        private double attendanceRate;
-        private List<AttendanceResponse> attendances;
-    }
-
-    @lombok.Getter
-    @lombok.Builder
-    public static class CourseReportResponse {
-        private Long courseId;
-        private int totalSessions;
-        private long totalAttendanceRecords;
-        private long totalPresent;
-        private long totalLate;
-        private long totalAbsent;
-        private double overallAttendanceRate;
-    }
-
-    @lombok.Getter
-    @lombok.Builder
-    public static class AtRiskStudentResponse {
-        private Long userId;
-        private Long courseId;
-        private double attendanceRate;
-        private int attendedSessions;
-        private int totalSessions;
-    }
-
-    // Request DTOs
-
-    @lombok.Getter
-    @lombok.Setter
-    public static class AttendanceSessionRequest {
-        private Long courseId;
-        private Long sessionId;
-        private String scheduledStart;
-        private String scheduledEnd;
-        private Integer attendanceWindowMinutes;
-        private Boolean autoMarkAbsent;
-    }
-
-    @lombok.Getter
-    @lombok.Setter
-    public static class MarkAttendanceRequest {
-        private Long userId;
-        private Long courseId;
-        private Long sessionId;
-        private AttendanceStatus status;
     }
 }

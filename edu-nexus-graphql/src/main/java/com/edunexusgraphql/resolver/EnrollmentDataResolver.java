@@ -9,7 +9,6 @@ import com.edunexusgraphql.service.EnrollmentService;
 import com.edunexusgraphql.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.dataloader.DataLoader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
@@ -22,7 +21,6 @@ public class EnrollmentDataResolver {
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
 
-    @Autowired
     public EnrollmentDataResolver(UserService userService, CourseService courseService, EnrollmentService enrollmentService) {
         this.userService = userService;
         this.courseService = courseService;
