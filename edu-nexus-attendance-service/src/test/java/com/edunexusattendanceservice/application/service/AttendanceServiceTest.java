@@ -30,6 +30,9 @@ class AttendanceServiceTest {
     @Mock
     private AttendanceRepository attendanceRepository;
 
+    @Mock
+    private AttendanceSessionService attendanceSessionService;
+
     @InjectMocks
     private AttendanceService attendanceService;
 
@@ -54,6 +57,12 @@ class AttendanceServiceTest {
                 .sessionId(1L)
                 .status(AttendanceStatus.PRESENT)
                 .build();
+
+        // Default mocking for AttendanceSessionService
+        lenient().when(attendanceSessionService.isCheckInAllowed(anyLong(), any(LocalDateTime.class)))
+                .thenReturn(true);
+        lenient().when(attendanceSessionService.determineAttendanceStatus(anyLong(), any(LocalDateTime.class)))
+                .thenReturn(AttendanceStatus.PRESENT);
     }
 
     @Test

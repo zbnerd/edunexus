@@ -4,6 +4,7 @@ import com.edunexuscourseservice.application.service.CourseService;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
+import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRedisRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import com.edunexuscourseservice.port.in.CourseUseCase;
 import org.junit.jupiter.api.Test;
@@ -29,8 +30,11 @@ public class CourseServiceTest {
     @Mock
     private CourseRepository courseRepository;
 
+    @Mock
+    private CourseRedisRepository courseRedisRepository;
+
     @InjectMocks
-    private CourseService courseService;  // Use concrete class instead of interface
+    private CourseService courseService;
 
     @Test
     void testSaveCourse() {
@@ -50,7 +54,7 @@ public class CourseServiceTest {
     void testUpdateCourse() throws Exception {
         // given
         Course existingCourse = new Course();
-        setId(existingCourse, 1L); // 리플렉션으로 ID 설정
+        setId(existingCourse, 1L);
         existingCourse.setCourseInfo(
                 CourseInfoDto.builder()
                         .title("original title")
@@ -60,7 +64,7 @@ public class CourseServiceTest {
         );
 
         Course updatedDetails = new Course();
-        setId(updatedDetails, 1L); // 동일 ID로 설정
+        setId(updatedDetails, 1L);
         updatedDetails.setCourseInfo(
                 CourseInfoDto.builder()
                         .title("updated title")
@@ -71,6 +75,7 @@ public class CourseServiceTest {
 
         // when
         when(courseRepository.findById(1L)).thenReturn(Optional.of(existingCourse));
+        when(courseRedisRepository.findById(1L)).thenReturn(Optional.empty());
 
         // then
         Course result = courseService.updateCourse(1L, updatedDetails);
@@ -86,6 +91,7 @@ public class CourseServiceTest {
         Course course = new Course();
 
         // when
+        when(courseRedisRepository.findById(1L)).thenReturn(Optional.empty());
         when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
 
         // then
@@ -117,7 +123,7 @@ public class CourseServiceTest {
 
     private void setId(Object target, Long id) throws Exception {
         Field field = target.getClass().getDeclaredField("id");
-        field.setAccessible(true); // private 필드 접근 허용
+        field.setAccessible(true);
         field.set(target, id);
     }
 }

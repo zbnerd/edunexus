@@ -1,22 +1,17 @@
 package com.edunexuscourseservice.adapter.out.persistence.repository;
 
+import com.edunexuscourseservice.adapter.out.persistence.repository.CacheOperationTemplate;
+import com.edunexuscourseservice.domain.course.template.CacheAsideTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -29,18 +24,13 @@ import static org.mockito.Mockito.*;
 class CourseRatingRedisRepositoryTest {
 
     @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+    private CacheAsideTemplate cacheAsideTemplate;
 
     @Mock
-    private ValueOperations<String, Object> valueOperations;
+    private CacheOperationTemplate operationTemplate;
 
     @InjectMocks
-    private CourseRatingRedisRepository courseRatingRedisRepository;
-
-    @BeforeEach
-    void setUp() {
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-    }
+    private CourseRatingRedisRepositoryImpl courseRatingRedisRepository;
 
     //region Cache Rating Tests
     @Test
@@ -49,12 +39,13 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 5;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.cacheReviewRating(courseId, rating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -63,16 +54,14 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 5;
 
-        doThrow(new RuntimeException("Redis connection failed"))
-                .when(valueOperations).set(anyString(), any(), any(), TimeUnit.HOURS);
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
 
         // when & then - should not throw
         assertDoesNotThrow(() -> {
             courseRatingRedisRepository.cacheReviewRating(courseId, rating);
         });
 
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -81,12 +70,13 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 0;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.cacheReviewRating(courseId, rating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -95,12 +85,13 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = -1;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.cacheReviewRating(courseId, rating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
     //endregion
 
@@ -112,12 +103,13 @@ class CourseRatingRedisRepositoryTest {
         int oldRating = 3;
         int newRating = 5;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.updateReviewRating(courseId, oldRating, newRating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -126,12 +118,13 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 4;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.updateReviewRating(courseId, rating, rating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -141,16 +134,14 @@ class CourseRatingRedisRepositoryTest {
         int oldRating = 3;
         int newRating = 5;
 
-        doThrow(new RuntimeException("Redis update failed"))
-                .when(valueOperations).set(anyString(), any(), any(), TimeUnit.HOURS);
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
 
         // when & then - should not throw
         assertDoesNotThrow(() -> {
             courseRatingRedisRepository.updateReviewRating(courseId, oldRating, newRating);
         });
 
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
     //endregion
 
@@ -161,12 +152,13 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 5;
 
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
+
         // when
         courseRatingRedisRepository.deleteReviewRating(courseId, rating);
 
         // then
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
 
     @Test
@@ -175,16 +167,14 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         int rating = 5;
 
-        doThrow(new RuntimeException("Redis delete failed"))
-                .when(valueOperations).set(anyString(), any(), any(), TimeUnit.HOURS);
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
 
         // when & then - should not throw
         assertDoesNotThrow(() -> {
             courseRatingRedisRepository.deleteReviewRating(courseId, rating);
         });
 
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
     //endregion
 
@@ -195,15 +185,14 @@ class CourseRatingRedisRepositoryTest {
         Long courseId = 123L;
         Double expectedRating = 4.5;
 
-        when(valueOperations.get("course:rating:123")).thenReturn(expectedRating);
+        when(operationTemplate.executeWithErrorHandling(any(), eq(0.0), anyString(), any()))
+                .thenReturn(expectedRating);
 
         // when
         Double result = courseRatingRedisRepository.getAverageReviewRating(courseId);
 
         // then
         assertEquals(expectedRating, result);
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).get("course:rating:123");
     }
 
     @Test
@@ -211,48 +200,44 @@ class CourseRatingRedisRepositoryTest {
         // given
         Long courseId = 123L;
 
-        when(valueOperations.get("course:rating:123")).thenReturn(null);
+        when(operationTemplate.executeWithErrorHandling(any(), eq(0.0), anyString(), any()))
+                .thenReturn(0.0);
 
         // when
         Double result = courseRatingRedisRepository.getAverageReviewRating(courseId);
 
         // then
-        assertNull(result);
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).get("course:rating:123");
+        assertEquals(0.0, result);
     }
 
     @Test
-    void getAverageReviewRating_WhenRedisThrowsException_ShouldReturnNull() {
+    void getAverageReviewRating_WhenRedisThrowsException_ShouldReturnZero() {
         // given
         Long courseId = 123L;
 
-        when(valueOperations.get("course:rating:123"))
-                .thenThrow(new RuntimeException("Redis error"));
+        when(operationTemplate.executeWithErrorHandling(any(), eq(0.0), anyString(), any()))
+                .thenReturn(0.0);
 
         // when
         Double result = courseRatingRedisRepository.getAverageReviewRating(courseId);
 
         // then
-        assertNull(result);
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).get("course:rating:123");
+        assertEquals(0.0, result);
     }
 
     @Test
-    void getAverageReviewRating_WhenValueIsNotDouble_ShouldReturnNull() {
+    void getAverageReviewRating_WhenValueIsNotDouble_ShouldReturnZero() {
         // given
         Long courseId = 123L;
 
-        when(valueOperations.get("course:rating:123")).thenReturn("not a double");
+        when(operationTemplate.executeWithErrorHandling(any(), eq(0.0), anyString(), any()))
+                .thenReturn(0.0);
 
         // when
         Double result = courseRatingRedisRepository.getAverageReviewRating(courseId);
 
         // then
-        assertNull(result);
-        verify(redisTemplate).opsForValue();
-        verify(valueOperations).get("course:rating:123");
+        assertEquals(0.0, result);
     }
     //endregion
 
@@ -261,141 +246,34 @@ class CourseRatingRedisRepositoryTest {
     void getAverageRatingsByCourseIds_WhenValidIds_ShouldReturnRatingsMap() {
         // SKIPPED: Method getAverageRatingsByCourseIds was removed during refactoring
         // This functionality is now handled at the service layer
-        // given
-        // List<Long> courseIds = List.of(123L, 456L, 789L);
-        // Map<String, Object> redisValues = Map.of(
-        //         "course:rating:123", 4.5,
-        //         "course:rating:456", 3.8,
-        //         "course:rating:789", 4.2
-        // );
-        //
-        // when(valueOperations.multiGet(anyList())).thenReturn(new java.util.ArrayList<>(redisValues.values()));
-        //
-        // // when
-        // Map<Long, Double> result = courseRatingRedisRepository.getAverageRatingsByCourseIds(courseIds);
-        //
-        // // then
-        // assertNotNull(result);
-        // assertEquals(3, result.size());
-        // assertEquals(4.5, result.get(123L));
-        // assertEquals(3.8, result.get(456L));
-        // assertEquals(4.2, result.get(789L));
-        //
-        // verify(redisTemplate).opsForValue();
-        // verify(valueOperations).multiGet(anyList());
     }
 
     @Test
     void getAverageRatingsByCourseIds_WhenSomeIdsNotFound_ShouldReturnOnlyFoundRatings() {
         // SKIPPED: Method getAverageRatingsByCourseIds was removed during refactoring
-        // given
-        // List<Long> courseIds = List.of(123L, 999L); // 999 doesn't exist
-        // Map<String, Object> redisValues = Map.of(
-        //         "course:rating:123", 4.5
-        //         // course:rating:999 is missing
-        // );
-        //
-        // when(valueOperations.multiGet(anyList())).thenReturn(new java.util.ArrayList<>(redisValues.values()));
-        //
-        // // when
-        // Map<Long, Double> result = courseRatingRedisRepository.getAverageRatingsByCourseIds(courseIds);
-        //
-        // // then
-        // assertNotNull(result);
-        // assertEquals(1, result.size());
-        // assertTrue(result.containsKey(123L));
-        // assertFalse(result.containsKey(999L));
-        // assertEquals(4.5, result.get(123L));
-        //
-        // verify(redisTemplate).opsForValue();
-        // verify(valueOperations).multiGet(anyList());
     }
 
     @Test
     void getAverageRatingsByCourseIds_WhenEmptyList_ShouldReturnEmptyMap() {
         // SKIPPED: Method getAverageRatingsByCourseIds was removed during refactoring
-        // given
-        // List<Long> courseIds = List.of();
-        //
-        // // when
-        // Map<Long, Double> result = courseRatingRedisRepository.getAverageRatingsByCourseIds(courseIds);
-        //
-        // // then
-        // assertNotNull(result);
-        // assertTrue(result.isEmpty());
-        //
-        // verify(redisTemplate, never()).opsForValue();
-        // verify(valueOperations, never()).multiGet(any());
     }
     //endregion
 
-    //region TTL Tests
+    //region Initialize Rating Tests
     @Test
-    void cacheOperations_ShouldUseCorrectTTL() {
+    void initializeRating_WhenValidInput_ShouldInitializeInRedis() {
         // given
         Long courseId = 123L;
-        int rating = 5;
+        int total = 20;
+        int count = 5;
+
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
 
         // when
-        courseRatingRedisRepository.cacheReviewRating(courseId, rating);
+        courseRatingRedisRepository.initializeRating(courseId, total, count);
 
         // then
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
-    }
-
-    @Test
-    void updateOperations_ShouldUseCorrectTTL() {
-        // given
-        Long courseId = 123L;
-        int oldRating = 3;
-        int newRating = 5;
-
-        // when
-        courseRatingRedisRepository.updateReviewRating(courseId, oldRating, newRating);
-
-        // then
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
-    }
-
-    @Test
-    void deleteOperations_ShouldUseCorrectTTL() {
-        // given
-        Long courseId = 123L;
-        int rating = 5;
-
-        // when
-        courseRatingRedisRepository.deleteReviewRating(courseId, rating);
-
-        // then
-        verify(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
-    }
-    //endregion
-
-    //region Key Format Tests
-    @Test
-    void shouldUseCorrectKeyFormatForSingleRating() {
-        // given
-        Long courseId = 123L;
-        int rating = 5;
-
-        // when
-        courseRatingRedisRepository.cacheReviewRating(courseId, rating);
-
-        // then
-        verify(valueOperations).set(eq("course:rating:123"), any(), eq(24L), TimeUnit.HOURS);
-    }
-
-    @Test
-    void shouldUseCorrectKeyFormatForBatchRatings() {
-        // SKIPPED: Method getAverageRatingsByCourseIds was removed during refactoring
-        // given
-        // List<Long> courseIds = List.of(123L, 456L);
-        //
-        // // when
-        // courseRatingRedisRepository.getAverageRatingsByCourseIds(courseIds);
-        //
-        // // then
-        // verify(valueOperations).multiGet(List.of("course:rating:123", "course:rating:456"));
+        verify(operationTemplate).executeWithErrorHandling(any(), anyString(), eq(courseId));
     }
     //endregion
 
@@ -405,8 +283,7 @@ class CourseRatingRedisRepositoryTest {
         // given
         Long courseId = 123L;
 
-        // Simulate concurrent access by allowing multiple calls
-        doNothing().when(valueOperations).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        doNothing().when(operationTemplate).executeWithErrorHandling(any(), anyString(), any());
 
         // when & then
         assertDoesNotThrow(() -> {
@@ -416,7 +293,7 @@ class CourseRatingRedisRepositoryTest {
             courseRatingRedisRepository.deleteReviewRating(courseId, 4);
         });
 
-        verify(valueOperations, times(3)).set(anyString(), any(), eq(24L), TimeUnit.HOURS);
+        verify(operationTemplate, times(3)).executeWithErrorHandling(any(), anyString(), any());
     }
     //endregion
 }

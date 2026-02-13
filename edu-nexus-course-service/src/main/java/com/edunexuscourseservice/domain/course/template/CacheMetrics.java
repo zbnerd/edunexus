@@ -1,5 +1,7 @@
 package com.edunexuscourseservice.domain.course.template;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Cache metrics tracking
  * <p>
@@ -8,6 +10,7 @@ package com.edunexuscourseservice.domain.course.template;
  * - Total request tracking
  * - Reset capability for testing
  */
+@Component
 public class CacheMetrics {
     private volatile long hits = 0;
     private volatile long misses = 0;

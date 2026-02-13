@@ -6,14 +6,12 @@ import com.edunexuscourseservice.application.saga.event.CourseRatingDeleteEvent;
 import com.edunexuscourseservice.application.saga.event.CourseRatingUpdateEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.KafkaException;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,11 +39,6 @@ class CourseRatingConsumerServiceTest {
     private final String validUpdateEventJson = "{\"courseId\":123,\"oldRating\":3,\"newRating\":5,\"eventId\":\"event-124\"}";
     private final String validDeleteEventJson = "{\"courseId\":123,\"oldRating\":5,\"eventId\":\"event-125\"}";
 
-    @BeforeEach
-    void setUp() {
-        // Reset mocks before each test
-        reset(objectMapper, courseRatingRedisRepository);
-    }
 
     //region Course Rating Add Event Tests
     @Test
