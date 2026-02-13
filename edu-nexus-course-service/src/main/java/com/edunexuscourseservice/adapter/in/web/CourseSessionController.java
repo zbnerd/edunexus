@@ -2,7 +2,7 @@ package com.edunexuscourseservice.adapter.in.web;
 
 import com.edunexuscourseservice.adapter.in.web.response.CourseSessionResponse;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexus.common.exception.NotFoundException;
 import com.edunexuscourseservice.port.in.CourseSessionUseCase;
 import lombok.Builder;
 import lombok.Getter;

@@ -2,6 +2,22 @@ spring:
   application:
     name: edu-nexus-graphql
 
+  kafka:
+    bootstrap-servers: kafka1:9092,kafka2:9093,kafka3:9094
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    listener:
+      ack-mode: manual_immediate
+
   graphql:
     path: /graphql
     graphiql:
@@ -18,6 +34,9 @@ eureka:
       defaultZone: http://edu-nexus-discovery:8000/eureka/
     registerWithEureka: true
     fetchRegistry: true
+
+jwt:
+  secret: ${JWT_SECRET:}
 
 management:
   tracing:

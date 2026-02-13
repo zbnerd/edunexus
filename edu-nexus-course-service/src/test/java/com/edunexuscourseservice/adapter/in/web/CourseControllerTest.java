@@ -4,8 +4,8 @@ import com.edunexuscourseservice.adapter.in.web.response.CourseInfoResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseRatingAverageResponse;
 import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.application.service.CourseService;
+import com.edunexus.common.exception.NotFoundException;
+import com.edunexuscourseservice.port.in.CourseUseCase;
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
 class CourseControllerTest {
 
     @Mock
-    private CourseService courseService;
+    private CourseUseCase courseUseCase;
 
     @Mock
     private CourseRatingUseCase courseRatingUseCase;
@@ -63,14 +63,22 @@ class CourseControllerTest {
 
     //region Create Course Tests
     @Test
-    void createCourse_WhenValidRequest_ShouldReturnCreatedStatusWithCourse() {
+    void createCourse_WhenValidRequest_ShouldReturnCreatedStatusWithCourse() throws Exception {
         // given
         CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
-        request.setTitle("New Course");
-        request.setDescription("New Description");
-        request.setInstructorId(1L);
+        java.lang.reflect.Field titleField = CourseController.CourseCreateRequest.class.getDeclaredField("title");
+        titleField.setAccessible(true);
+        titleField.set(request, "New Course");
 
-        when(courseService.saveCourse(any(Course.class))).thenReturn(testCourse);
+        java.lang.reflect.Field descField = CourseController.CourseCreateRequest.class.getDeclaredField("description");
+        descField.setAccessible(true);
+        descField.set(request, "New Description");
+
+        java.lang.reflect.Field instructorField = CourseController.CourseCreateRequest.class.getDeclaredField("instructorId");
+        instructorField.setAccessible(true);
+        instructorField.set(request, 1L);
+
+        when(courseUseCase.saveCourse(any(Course.class))).thenReturn(testCourse);
 
         // when
         ResponseEntity<CourseResponse> response = courseController.createCourse(request);
@@ -85,18 +93,26 @@ class CourseControllerTest {
         assertNotNull(response.getHeaders().getLocation());
         assertTrue(response.getHeaders().getLocation().toString().contains("/courses/"));
 
-        verify(courseService).saveCourse(any(Course.class));
+        verify(courseUseCase).saveCourse(any(Course.class));
     }
 
     @Test
-    void createCourse_WhenServiceThrowsException_ShouldPropagateException() {
+    void createCourse_WhenServiceThrowsException_ShouldPropagateException() throws Exception {
         // given
         CourseController.CourseCreateRequest request = new CourseController.CourseCreateRequest();
-        request.setTitle("New Course");
-        request.setDescription("New Description");
-        request.setInstructorId(1L);
+        java.lang.reflect.Field titleField = CourseController.CourseCreateRequest.class.getDeclaredField("title");
+        titleField.setAccessible(true);
+        titleField.set(request, "New Course");
 
-        when(courseService.saveCourse(any(Course.class)))
+        java.lang.reflect.Field descField = CourseController.CourseCreateRequest.class.getDeclaredField("description");
+        descField.setAccessible(true);
+        descField.set(request, "New Description");
+
+        java.lang.reflect.Field instructorField = CourseController.CourseCreateRequest.class.getDeclaredField("instructorId");
+        instructorField.setAccessible(true);
+        instructorField.set(request, 1L);
+
+        when(courseUseCase.saveCourse(any(Course.class)))
                 .thenThrow(new RuntimeException("Course creation failed"));
 
         // when & then
@@ -104,13 +120,13 @@ class CourseControllerTest {
             courseController.createCourse(request);
         });
 
-        verify(courseService).saveCourse(any(Course.class));
+        verify(courseUseCase).saveCourse(any(Course.class));
     }
     //endregion
 
     //region Update Course Tests
     @Test
-    void updateCourse_WhenValidRequest_ShouldReturnUpdatedCourse() {
+    void updateCourse_WhenValidRequest_ShouldReturnUpdatedCourse() throws Exception {
         // given
         Course existingCourse = new Course();
         existingCourse.setCourseInfo(CourseInfoDto.builder()
@@ -119,13 +135,22 @@ class CourseControllerTest {
                 .instructorId(1L)
                 .build());
 
+        // Use reflection to set private fields since CourseUpdateRequest doesn't have setters
         CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
-        request.setTitle("Updated Title");
-        request.setDescription("Updated Description");
-        request.setInstructorId(1L);
+        java.lang.reflect.Field titleField = CourseController.CourseUpdateRequest.class.getDeclaredField("title");
+        titleField.setAccessible(true);
+        titleField.set(request, "Updated Title");
 
-        when(courseService.getCourseById(1L)).thenReturn(Optional.of(existingCourse));
-        when(courseService.updateCourse(1L, any(Course.class))).thenReturn(testCourse);
+        java.lang.reflect.Field descField = CourseController.CourseUpdateRequest.class.getDeclaredField("description");
+        descField.setAccessible(true);
+        descField.set(request, "Updated Description");
+
+        java.lang.reflect.Field instructorField = CourseController.CourseUpdateRequest.class.getDeclaredField("instructorId");
+        instructorField.setAccessible(true);
+        instructorField.set(request, 1L);
+
+        when(courseUseCase.getCourseById(1L)).thenReturn(Optional.of(existingCourse));
+        when(courseUseCase.updateCourse(1L, any(Course.class))).thenReturn(testCourse);
 
         // when
         ResponseEntity<CourseResponse> response = courseController.updateCourse(1L, request);
@@ -136,27 +161,35 @@ class CourseControllerTest {
         assertEquals(testCourse.getId(), response.getBody().getId());
         assertEquals("Updated Title", response.getBody().getTitle());
 
-        verify(courseService).getCourseById(1L);
-        verify(courseService).updateCourse(1L, any(Course.class));
+        verify(courseUseCase).getCourseById(1L);
+        verify(courseUseCase).updateCourse(1L, any(Course.class));
     }
 
     @Test
-    void updateCourse_WhenCourseNotFound_ShouldThrowNotFoundException() {
+    void updateCourse_WhenCourseNotFound_ShouldThrowNotFoundException() throws Exception {
         // given
         CourseController.CourseUpdateRequest request = new CourseController.CourseUpdateRequest();
-        request.setTitle("Updated Title");
-        request.setDescription("Updated Description");
-        request.setInstructorId(1L);
+        java.lang.reflect.Field titleField = CourseController.CourseUpdateRequest.class.getDeclaredField("title");
+        titleField.setAccessible(true);
+        titleField.set(request, "Updated Title");
 
-        when(courseService.getCourseById(999L)).thenReturn(Optional.empty());
+        java.lang.reflect.Field descField = CourseController.CourseUpdateRequest.class.getDeclaredField("description");
+        descField.setAccessible(true);
+        descField.set(request, "Updated Description");
+
+        java.lang.reflect.Field instructorField = CourseController.CourseUpdateRequest.class.getDeclaredField("instructorId");
+        instructorField.setAccessible(true);
+        instructorField.set(request, 1L);
+
+        when(courseUseCase.getCourseById(999L)).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(NotFoundException.class, () -> {
             courseController.updateCourse(999L, request);
         });
 
-        verify(courseService).getCourseById(999L);
-        verify(courseService, never()).updateCourse(any(), any());
+        verify(courseUseCase).getCourseById(999L);
+        verify(courseUseCase, never()).updateCourse(any(), any());
     }
     //endregion
 
@@ -164,7 +197,7 @@ class CourseControllerTest {
     @Test
     void getCourse_WhenCourseExists_ShouldReturnCourseWithRating() {
         // given
-        when(courseService.getCourseById(1L)).thenReturn(Optional.of(testCourse));
+        when(courseUseCase.getCourseById(1L)).thenReturn(Optional.of(testCourse));
         when(courseRatingUseCase.getAverageRatingByCourseId(1L)).thenReturn(4.5);
 
         // when
@@ -177,21 +210,21 @@ class CourseControllerTest {
         assertEquals("Test Course", response.getBody().getTitle());
         assertEquals(4.5, response.getBody().getCourseRatingAvg());
 
-        verify(courseService).getCourseById(1L);
+        verify(courseUseCase).getCourseById(1L);
         verify(courseRatingUseCase).getAverageRatingByCourseId(1L);
     }
 
     @Test
     void getCourse_WhenCourseNotFound_ShouldThrowNotFoundException() {
         // given
-        when(courseService.getCourseById(999L)).thenReturn(Optional.empty());
+        when(courseUseCase.getCourseById(999L)).thenReturn(Optional.empty());
 
         // when & then
         assertThrows(NotFoundException.class, () -> {
             courseController.getCourse(999L);
         });
 
-        verify(courseService).getCourseById(999L);
+        verify(courseUseCase).getCourseById(999L);
         verify(courseRatingUseCase, never()).getAverageRatingByCourseId(any());
     }
 
@@ -207,7 +240,7 @@ class CourseControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getCourseId());
-        assertEquals(4.7, response.getBody().getCourseRatingAvg());
+        assertEquals(4.7, response.getBody().getAverageRating());
 
         verify(courseRatingUseCase).getAverageRatingByCourseId(1L);
     }
@@ -224,7 +257,7 @@ class CourseControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertNotNull(response.getBody());
         assertEquals(999L, response.getBody().getCourseId());
-        assertEquals(0.0, response.getBody().getCourseRatingAvg());
+        assertEquals(0.0, response.getBody().getAverageRating());
 
         verify(courseRatingUseCase).getAverageRatingByCourseId(999L);
     }
@@ -251,7 +284,7 @@ class CourseControllerTest {
         List<Course> courses = List.of(course1, course2);
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(courseService.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
+        when(courseUseCase.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
                 .thenReturn(courses);
         when(courseRatingUseCase.getAverageRatingsByCourseIds(List.of(1L, 2L)))
                 .thenReturn(Map.of(1L, 4.5, 2L, 4.0));
@@ -275,7 +308,7 @@ class CourseControllerTest {
         assertEquals("Course 2", response2.getTitle());
         assertEquals(4.0, response2.getCourseRatingAvg());
 
-        verify(courseService).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
+        verify(courseUseCase).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
         verify(courseRatingUseCase).getAverageRatingsByCourseIds(List.of(1L, 2L));
     }
 
@@ -284,7 +317,7 @@ class CourseControllerTest {
         // given
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(courseService.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
+        when(courseUseCase.getAllCourses(any(CourseSearchCondition.class), any(Pageable.class)))
                 .thenReturn(List.of());
 
         // when
@@ -296,7 +329,7 @@ class CourseControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isEmpty());
 
-        verify(courseService).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
+        verify(courseUseCase).getAllCourses(any(CourseSearchCondition.class), any(Pageable.class));
         verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
     }
     //endregion
@@ -322,7 +355,7 @@ class CourseControllerTest {
         List<Long> courseIds = List.of(1L, 2L);
         List<Course> courses = List.of(course1, course2);
 
-        when(courseService.getCoursesByIds(courseIds)).thenReturn(courses);
+        when(courseUseCase.getCoursesByIds(courseIds)).thenReturn(courses);
         when(courseRatingUseCase.getAverageRatingsByCourseIds(courseIds))
                 .thenReturn(Map.of(1L, 4.8, 2L, 3.9));
 
@@ -344,7 +377,7 @@ class CourseControllerTest {
         assertEquals("Batch Course 2", response2.getTitle());
         assertEquals(3.9, response2.getCourseRatingAvg());
 
-        verify(courseService).getCoursesByIds(courseIds);
+        verify(courseUseCase).getCoursesByIds(courseIds);
         verify(courseRatingUseCase).getAverageRatingsByCourseIds(courseIds);
     }
 
@@ -361,7 +394,7 @@ class CourseControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isEmpty());
 
-        verify(courseService, never()).getCoursesByIds(any());
+        verify(courseUseCase, never()).getCoursesByIds(any());
         verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
     }
 
@@ -378,7 +411,7 @@ class CourseControllerTest {
         List<Long> courseIds = List.of(1L, 999L); // 999 doesn't exist
         List<Course> courses = List.of(foundCourse); // Only return found courses
 
-        when(courseService.getCoursesByIds(courseIds)).thenReturn(courses);
+        when(courseUseCase.getCoursesByIds(courseIds)).thenReturn(courses);
         when(courseRatingUseCase.getAverageRatingsByCourseIds(courseIds))
                 .thenReturn(Map.of(1L, 4.5));
 
@@ -395,7 +428,7 @@ class CourseControllerTest {
         assertEquals("Found Course", response1.getTitle());
         assertEquals(4.5, response1.getCourseRatingAvg());
 
-        verify(courseService).getCoursesByIds(courseIds);
+        verify(courseUseCase).getCoursesByIds(courseIds);
         verify(courseRatingUseCase).getAverageRatingsByCourseIds(courseIds);
     }
     //endregion
@@ -408,7 +441,7 @@ class CourseControllerTest {
             courseController.updateCourse(1L, null);
         });
 
-        verify(courseService, never()).getCourseById(any());
+        verify(courseUseCase, never()).getCourseById(any());
     }
 
     @Test
@@ -421,7 +454,7 @@ class CourseControllerTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isEmpty());
 
-        verify(courseService, never()).getCoursesByIds(any());
+        verify(courseUseCase, never()).getCoursesByIds(any());
         verify(courseRatingUseCase, never()).getAverageRatingsByCourseIds(any());
     }
     //endregion

@@ -6,6 +6,8 @@ import com.edunexusenrollmentservice.domain.service.FakePaymentServiceGrpc;
 import com.edunexusgraphql.model.Enrollment;
 import com.edunexusgraphql.model.Payment;
 import com.edunexusgraphql.model.PlanSubscription;
+import com.edunexusgraphql.saga.PaymentOrchestrationService;
+import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EnrollmentService {
 
     @GrpcClient("edu-nexus-enrollment-service")
@@ -22,20 +25,23 @@ public class EnrollmentService {
     @GrpcClient("edu-nexus-payment-service")
     private FakePaymentServiceGrpc.FakePaymentServiceBlockingStub paymentStub;
 
-    public Payment purchaseCourse(Long userId, Long courseId, Double amount, String paymentMethod) {
-        Payment paymentResponse = createPayment(userId, "COURSE", amount, paymentMethod);
-        registerCourse(userId, courseId, paymentResponse.getId());
+    private final PaymentOrchestrationService paymentOrchestrationService;
 
-        return paymentResponse;
+    public Payment purchaseCourse(Long userId, Long courseId, Double amount, String paymentMethod) {
+        // Use Saga orchestrator for distributed transaction
+        return paymentOrchestrationService.purchaseCourseWithSaga(
+                userId, courseId, amount, paymentMethod, "COURSE"
+        );
     }
 
     public Payment purchaseSubscription(long userId, double amount, String paymentMethod) {
-        Payment paymentResponse = createPayment(userId, "SUBSCRIPTION", amount, paymentMethod);
-        manageSubscription(userId, System.currentTimeMillis(), System.currentTimeMillis() + 31536000000L, paymentResponse.getId());  // 1 year subscription
-
-        return paymentResponse;
+        // Use Saga orchestrator for distributed transaction
+        return paymentOrchestrationService.purchaseCourseWithSaga(
+                userId, null, amount, paymentMethod, "SUBSCRIPTION"
+        );
     }
 
+    // Private methods retained for saga orchestrator use
     private Payment createPayment(long userId, String type, double amount, String paymentMethod) {
         EnrollmentServiceOuterClass.PaymentRequest request =
                 EnrollmentServiceOuterClass.PaymentRequest.newBuilder()
@@ -46,7 +52,6 @@ public class EnrollmentService {
                         .build();
 
         return Payment.fromProto(paymentStub.createPayment(request));
-
     }
 
     private EnrollmentServiceOuterClass.CourseRegistrationResponse registerCourse(long userId, long courseId, long paymentId) {
@@ -114,5 +119,17 @@ public class EnrollmentService {
 
         EnrollmentServiceOuterClass.PaymentsByIdResponse response = paymentStub.getPaymentsByPaymentId(request);
         return Payment.fromProto(response.getPayment());
+    }
+
+    public java.util.Map<Long, Payment> findPaymentsByIds(List<Long> paymentIds) {
+        if (paymentIds == null || paymentIds.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
+
+        return paymentIds.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        id -> id,
+                        id -> findPaymentById(id)
+                ));
     }
 }

@@ -8,7 +8,7 @@ import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexus.common.exception.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -175,7 +175,7 @@ class CourseRatingServiceEnhancedTest {
     }
 
     @Test
-    void getAllRatingsByCourseId_WhenMultipleRatingsExist_ShouldReturnAllRatings() {
+    void getAllRatingsByCourseId_WhenMultipleRatingsExist_ShouldReturnAllRatings() throws Exception {
         // given
         List<CourseRating> ratings = List.of(
                 createMockRating(1L, 5),
@@ -211,7 +211,7 @@ class CourseRatingServiceEnhancedTest {
     //region Kafka Producer Failure Tests
 
     @Test
-    void addRatingToCourse_WhenProducerServiceFails_ShouldStillSaveToDatabase() {
+    void addRatingToCourse_WhenProducerServiceFails_ShouldStillSaveToDatabase() throws Exception {
         // given
         CourseRating courseRating = new CourseRating();
         Course course = new Course();
@@ -299,7 +299,7 @@ class CourseRatingServiceEnhancedTest {
     //region Transaction Boundary Tests
 
     @Test
-    void addRatingToCourse_WhenCourseSaveFails_ShouldNotFireKafkaEvent() {
+    void addRatingToCourse_WhenCourseSaveFails_ShouldNotFireKafkaEvent() throws Exception {
         // given
         CourseRating courseRating = new CourseRating();
         Course course = new Course();

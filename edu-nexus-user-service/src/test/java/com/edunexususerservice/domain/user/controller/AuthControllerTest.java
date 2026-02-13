@@ -201,10 +201,11 @@ class AuthControllerTest {
     void verifyToken_WhenInvalidToken_ShouldReturnFalseWith200Status() {
         // given
         when(jwtService.validateToken("invalid.token")).thenReturn(false);
+        TokenRequest invalidTokenRequest = new TokenRequest();
+        invalidTokenRequest.setToken("invalid.token");
 
         // when
-        ResponseEntity<Map<String, Boolean>> response = authController.verifyToken(
-                new TokenRequest("invalid.token"));
+        ResponseEntity<Map<String, Boolean>> response = authController.verifyToken(invalidTokenRequest);
 
         // then
         assertEquals(200, response.getStatusCodeValue());

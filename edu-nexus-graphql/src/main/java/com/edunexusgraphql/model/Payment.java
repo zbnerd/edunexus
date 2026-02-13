@@ -20,6 +20,7 @@ public class Payment {
     private Float amount;
     private String paymentMethod;
     private String paymentDate;
+    private String status; // PENDING, CONFIRMED, FAILED
 
     public static Payment fromProto(EnrollmentServiceOuterClass.PaymentResponse proto) {
         Payment payment = new Payment();

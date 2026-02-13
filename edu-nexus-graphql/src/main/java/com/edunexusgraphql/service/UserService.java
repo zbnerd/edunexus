@@ -55,4 +55,28 @@ public class UserService {
         restTemplate.postForLocation(url, passwordChangeDTO);
     }
 
+    public java.util.Map<Long, User> findUsersByIds(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
+
+        // Build URL with query parameters for batch request
+        String ids = userIds.stream()
+                .map(String::valueOf)
+                .collect(java.util.stream.Collectors.joining(","));
+        String url = UriComponentsBuilder.fromHttpUrl(BASE_URL)
+                .path("/batch")
+                .queryParam("ids", ids)
+                .build()
+                .toUriString();
+
+        User[] users = restTemplate.getForObject(url, User[].class);
+        if (users == null) {
+            return java.util.Collections.emptyMap();
+        }
+
+        return java.util.Arrays.stream(users)
+                .collect(java.util.stream.Collectors.toMap(User::getId, user -> user));
+    }
+
 }

@@ -6,8 +6,8 @@ import com.edunexuscourseservice.adapter.in.web.response.CourseResponse;
 import com.edunexuscourseservice.domain.course.dto.CourseInfoDto;
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.condition.CourseSearchCondition;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.application.service.CourseService;
+import com.edunexus.common.exception.NotFoundException;
+import com.edunexuscourseservice.port.in.CourseUseCase;
 import com.edunexuscourseservice.domain.course.util.RoundUtils;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
 import lombok.Getter;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseService courseService;
+    private final CourseUseCase courseUseCase;
     private final CourseRatingUseCase courseRatingService;
 
     // 강의 생성
@@ -37,7 +37,7 @@ public class CourseController {
         Course course = new Course();
         course.setCourseInfo(courseInfoDto);
 
-        Course savedCourse = courseService.saveCourse(course);
+        Course savedCourse = courseUseCase.saveCourse(course);
         CourseResponse response = CourseResponse.from(savedCourse);
 
         return ResponseEntity.created(URI.create("/courses/" + savedCourse.getId())).body(response);
@@ -47,13 +47,13 @@ public class CourseController {
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long courseId,
                                                        @RequestBody CourseUpdateRequest request) {
-        Course course = courseService.getCourseById(courseId)
+        Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
         CourseInfoDto courseInfoDto = request.toCourseInfoDto(course.getInstructorId());
 
         Course newCourse = new Course();
         newCourse.setCourseInfo(courseInfoDto);
-        Course updatedCourse = courseService.updateCourse(course.getId(), newCourse);
+        Course updatedCourse = courseUseCase.updateCourse(course.getId(), newCourse);
 
         return ResponseEntity.ok(CourseResponse.from(updatedCourse));
     }
@@ -61,7 +61,7 @@ public class CourseController {
     // 특정 강의 정보 조회
     @GetMapping("/{courseId}")
     public ResponseEntity<CourseInfoResponse> getCourse(@PathVariable Long courseId) {
-        Course course = courseService.getCourseById(courseId)
+        Course course = courseUseCase.getCourseById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
 
         Double courseRatingAvg = courseRatingService.getAverageRatingByCourseId(courseId);
@@ -86,7 +86,7 @@ public class CourseController {
             @ModelAttribute CourseSearchCondition condition,
             Pageable pageable
     ) {
-        List<Course> courses = courseService.getAllCourses(condition, pageable);
+        List<Course> courses = courseUseCase.getAllCourses(condition, pageable);
 
         // Batch fetch all course ratings at once to avoid N+1 query
         List<Long> courseIds = courses.stream()
@@ -114,7 +114,7 @@ public class CourseController {
         }
 
         // Batch fetch all courses efficiently using findAllById
-        List<Course> courses = courseService.getCoursesByIds(courseIds);
+        List<Course> courses = courseUseCase.getCoursesByIds(courseIds);
 
         // Batch fetch all ratings at once
         Map<Long, Double> averageRatings = courseRatingService.getAverageRatingsByCourseIds(courseIds);

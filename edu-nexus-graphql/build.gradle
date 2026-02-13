@@ -39,6 +39,14 @@ dependencies {
 	testImplementation 'org.springframework.graphql:spring-graphql-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// JWT dependencies for secure authentication
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// Kafka for Saga pattern
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	// Common observability module
 	implementation project(':edu-nexus-observability')
 

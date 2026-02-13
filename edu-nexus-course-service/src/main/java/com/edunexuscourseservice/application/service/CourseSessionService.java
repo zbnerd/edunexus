@@ -2,7 +2,7 @@ package com.edunexuscourseservice.application.service;
 
 import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseSession;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexus.common.exception.NotFoundException;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
 import com.edunexuscourseservice.adapter.out.persistence.repository.CourseSessionRepository;
 import com.edunexuscourseservice.port.in.CourseSessionUseCase;

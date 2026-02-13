@@ -6,33 +6,41 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.Charset;
-
+/**
+ * GraphQL directive for authentication.
+ * Verifies that the request has been authenticated by UserInterceptor.
+ * The UserInterceptor validates JWT and sets user context, this directive checks it.
+ */
 @Component
 public class AuthenticationDirective implements SchemaDirectiveWiring {
+
     @Override
     public GraphQLFieldDefinition onField(SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> environment) {
         GraphQLFieldDefinition fieldDefinition = environment.getFieldDefinition();
         GraphQLObjectType parentType = (GraphQLObjectType) environment.getFieldsContainer();
 
-        // 원래의 DataFetcher를 가져옵니다.
-        DataFetcher<?> originalDataFetcher = environment.getCodeRegistry().getDataFetcher(parentType, fieldDefinition);
+        // Get the original DataFetcher
+        DataFetcher<?> originalDataFetcher = environment.getCodeRegistry()
+                .getDataFetcher(parentType, fieldDefinition);
 
-        // 인증 검사를 수행하는 새로운 DataFetcher를 생성합니다.
+        // Create a new DataFetcher that performs authentication check
         DataFetcher<?> authDataFetcher = (DataFetchingEnvironment dataFetchingEnvironment) -> {
             String userId = dataFetchingEnvironment.getGraphQlContext().get("X-USER-ID");
+
+            // UserInterceptor should have set this from validated JWT
             if (userId == null || userId.trim().isEmpty() || userId.equals("-1")) {
-                throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Unauthorized: Missing X-USER-ID header");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        "Authentication required. Please provide a valid JWT token.");
             }
+
             return originalDataFetcher.get(dataFetchingEnvironment);
         };
 
-        // 변경된 DataFetcher를 등록합니다.
+        // Register the modified DataFetcher
         environment.getCodeRegistry().dataFetcher(parentType, fieldDefinition, authDataFetcher);
 
         return fieldDefinition;

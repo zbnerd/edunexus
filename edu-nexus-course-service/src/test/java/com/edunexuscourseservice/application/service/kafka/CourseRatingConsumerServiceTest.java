@@ -67,10 +67,10 @@ class CourseRatingConsumerServiceTest {
     }
 
     @Test
-    void courseRatingAdd_WhenJsonFailsToParse_ShouldThrowRuntimeException() {
+    void courseRatingAdd_WhenJsonFailsToParse_ShouldThrowRuntimeException() throws JsonProcessingException {
         // given
         when(objectMapper.readValue(validAddEventJson, CourseRatingAddEvent.class))
-                .thenThrow(new JsonProcessingException("Invalid JSON format"));
+                .thenThrow(new com.fasterxml.jackson.core.JsonParseException(null, "Invalid JSON format"));
 
         // when & then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -145,10 +145,10 @@ class CourseRatingConsumerServiceTest {
     }
 
     @Test
-    void courseRatingUpdate_WhenJsonFailsToParse_ShouldThrowRuntimeException() {
+    void courseRatingUpdate_WhenJsonFailsToParse_ShouldThrowRuntimeException() throws JsonProcessingException {
         // given
         when(objectMapper.readValue(validUpdateEventJson, CourseRatingUpdateEvent.class))
-                .thenThrow(new JsonProcessingException("Invalid JSON format"));
+                .thenThrow(new com.fasterxml.jackson.core.JsonParseException(null, "Invalid JSON format"));
 
         // when & then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -223,10 +223,10 @@ class CourseRatingConsumerServiceTest {
     }
 
     @Test
-    void courseRatingDelete_WhenJsonFailsToParse_ShouldThrowRuntimeException() {
+    void courseRatingDelete_WhenJsonFailsToParse_ShouldThrowRuntimeException() throws JsonProcessingException {
         // given
         when(objectMapper.readValue(validDeleteEventJson, CourseRatingDeleteEvent.class))
-                .thenThrow(new JsonProcessingException("Invalid JSON format"));
+                .thenThrow(new com.fasterxml.jackson.core.JsonParseException(null, "Invalid JSON format"));
 
         // when & then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -261,14 +261,14 @@ class CourseRatingConsumerServiceTest {
 
     //region Edge Cases and Error Scenarios
     @Test
-    void courseRatingAdd_WhenJsonIsNullOrEmpty_ShouldFailGracefully() {
+    void courseRatingAdd_WhenJsonIsNullOrEmpty_ShouldFailGracefully() throws JsonProcessingException {
         // when & then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             courseRatingConsumerService.courseRatingAdd(null);
         });
 
         assertTrue(exception.getMessage().contains("Failed to parse Kafka message"));
-        verify(objectMapper, never()).readValue(any(), any());
+        verify(objectMapper, never()).readValue(any(String.class), any(Class.class));
     }
 
     @Test

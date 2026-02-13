@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -193,7 +194,10 @@ class UserControllerTest {
     void changePassword_WhenPasswordChangeDtoIsEmpty_ShouldThrowException() {
         // when & then
         assertThrows(Exception.class, () -> {
-            userController.changePassword(1L, new PasswordChangeDto());
+            userController.changePassword(1L, PasswordChangeDto.builder()
+                    .oldPassword("")
+                    .newPassword("")
+                    .build());
         });
 
         verify(userService, never()).updatePassword(any(), any());

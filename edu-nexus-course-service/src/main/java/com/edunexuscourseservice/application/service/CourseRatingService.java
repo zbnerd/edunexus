@@ -1,25 +1,27 @@
 package com.edunexuscourseservice.application.service;
 
-import com.edunexuscourseservice.adapter.out.persistence.entity.Course;
 import com.edunexuscourseservice.adapter.out.persistence.entity.CourseRating;
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRedisRepository;
-import com.edunexuscourseservice.application.service.kafka.CourseRatingProducerService;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRatingRepository;
-import com.edunexuscourseservice.adapter.out.persistence.repository.CourseRepository;
+import com.edunexus.common.exception.NotFoundException;
 import com.edunexuscourseservice.port.in.CourseRatingUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Course Rating Service
+ * Course Rating Service Facade
+ *
+ * Implements CourseRatingUseCase by delegating to specialized services:
+ * - CourseRatingCrudService: Database operations
+ * - CourseRatingCacheOrchestrator: Kafka event coordination
+ * - CourseRatingQueryService: Read operations
+ *
+ * This facade maintains the existing public interface while separating concerns internally.
+ * No client code changes required.
  *
  * Implements Cache-Aside pattern per ADR-000:
  * - DB is source of truth
@@ -33,99 +35,78 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class CourseRatingService implements CourseRatingUseCase {
 
-    private final CourseRatingRepository courseRatingRepository;
-    private final CourseRepository courseRepository;
-    private final CourseRatingRedisRepository courseRatingRedisRepository;
-    private final CourseRatingProducerService courseRatingProducerService;
+    private final CourseRatingCrudService crudService;
+    private final CourseRatingCacheOrchestrator cacheOrchestrator;
+    private final CourseRatingQueryService queryService;
 
     @Transactional
+    @Override
     public CourseRating addRatingToCourse(Long courseId, CourseRating courseRating) {
-
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new NotFoundException("Course not found with id = " + courseId));
-
-        courseRating.setCourse(course);
-        CourseRating savedCourseRating = courseRatingRepository.save(courseRating);
+        CourseRating savedRating = crudService.save(courseId, courseRating);
 
         // Fire-and-forget cache update (async via Kafka)
-        courseRatingProducerService.sendRatingAddedEvent(courseId, courseRating.getRating(), savedCourseRating.getId());
-        return savedCourseRating;
+        cacheOrchestrator.onRatingAdded(courseId, courseRating.getRating(), savedRating.getId());
+
+        return savedRating;
     }
 
     @Transactional
+    @Override
     public CourseRating updateRating(Long ratingId, CourseRating newCourseRating) {
-        CourseRating courseRating = getRating(ratingId)
-                .orElseThrow(() -> new NotFoundException("CourseRating not found with id = " + ratingId));
+        // Get old rating before update
+        Optional<CourseRating> beforeUpdate = crudService.findById(ratingId);
+        int oldRating = beforeUpdate.map(CourseRating::getRating).orElse(0);
 
-        int oldCourseRating = courseRating.getRating();
-
-        courseRating.updateCourseRating(newCourseRating);
-        int newCourseRatings = courseRating.getRating();
+        // Update in database
+        CourseRating updatedRating = crudService.update(ratingId, newCourseRating);
 
         // Fire-and-forget cache update (async via Kafka)
-        courseRatingProducerService.sendRatingUpdatedEvent(courseRating.getCourse().getId(), oldCourseRating, newCourseRatings, courseRating.getComment());
-        return courseRating;
+        cacheOrchestrator.onRatingUpdated(
+                updatedRating.getCourse().getId(),
+                oldRating,
+                updatedRating.getRating(),
+                updatedRating.getComment()
+        );
+
+        return updatedRating;
     }
 
+    @Override
     public Optional<CourseRating> getRating(Long ratingId) {
-        return courseRatingRepository.findById(ratingId);
+        return crudService.findById(ratingId);
     }
 
     @Transactional
+    @Override
     public void deleteRating(Long ratingId) {
-        CourseRating courseRating = getRating(ratingId)
-                .orElseThrow(() -> new NotFoundException("CourseRating not found with id = " + ratingId));
+        // Get rating before delete for cache update
+        Optional<CourseRating> beforeDelete = crudService.findById(ratingId);
+        if (beforeDelete.isEmpty()) {
+            throw new NotFoundException(
+                    "CourseRating not found with id = " + ratingId);
+        }
+
+        CourseRating rating = beforeDelete.get();
 
         // Fire-and-forget cache update (async via Kafka)
-        courseRatingProducerService.sendRatingDeletedEvent(courseRating.getCourse().getId(), courseRating.getRating());
-        courseRatingRepository.deleteById(ratingId);
+        cacheOrchestrator.onRatingDeleted(rating.getCourse().getId(), rating.getRating());
+
+        // Delete from database
+        crudService.delete(ratingId);
     }
 
+    @Override
     public List<CourseRating> getAllRatingsByCourseId(Long courseId) {
-        return courseRatingRepository.findByCourseId(courseId);
+        return queryService.getRatingsByCourseId(courseId);
     }
 
-    /**
-     * Get average rating with Cache-Aside pattern
-     *
-     * If cache miss, returns 0.0. Cache will be populated asynchronously via Kafka events.
-     * For initial cache population, data flows from DB -> Kafka -> Redis on first write.
-     *
-     * @param courseId Course ID
-     * @return Average rating from cache, or 0.0 if not cached yet
-     */
+    @Override
     public Double getAverageRatingByCourseId(Long courseId) {
-        try {
-            return courseRatingRedisRepository.getAverageReviewRating(courseId);
-        } catch (Exception e) {
-            log.warn("Failed to get average rating from cache for course {}, returning 0.0. Error: {}",
-                    courseId, e.getMessage());
-            return 0.0;
-        }
+        return queryService.getAverageRating(courseId);
     }
 
-    /**
-     * Batch fetch average ratings for multiple courses to avoid N+1 queries.
-     * Returns a map of courseId to average rating (0.0 if not found in cache).
-     *
-     * @param courseIds List of course IDs
-     * @return Map of courseId to average rating
-     */
+    @Override
     public Map<Long, Double> getAverageRatingsByCourseIds(List<Long> courseIds) {
-        Map<Long, Double> ratings = new HashMap<>();
-
-        for (Long courseId : courseIds) {
-            try {
-                Double avgRating = courseRatingRedisRepository.getAverageReviewRating(courseId);
-                ratings.put(courseId, avgRating);
-            } catch (Exception e) {
-                log.warn("Failed to get average rating from cache for course {}, returning 0.0. Error: {}",
-                        courseId, e.getMessage());
-                ratings.put(courseId, 0.0);
-            }
-        }
-
-        return ratings;
+        return queryService.getAverageRatings(courseIds);
     }
-
 }

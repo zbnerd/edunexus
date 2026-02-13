@@ -1,7 +1,7 @@
 package com.edunexuscourseservice.exceptionhandler;
 
-import com.edunexuscourseservice.domain.course.exception.BaseException;
-import com.edunexuscourseservice.domain.course.exception.NotFoundException;
+import com.edunexus.common.exception.BaseException;
+import com.edunexus.common.exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -47,12 +47,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         Map<String, Object> detailMap = null;
-        if (ex.getDetails() != null) {
-            detailMap = Map.of("info", ex.getDetails());
-        }
 
         ErrorResponse errorResponse = buildErrorResponse(
-                ex.getErrorCode().getHttpStatus(),
+                HttpStatus.INTERNAL_SERVER_ERROR,
                 ex.getErrorCode().getCode(),
                 ex.getMessage(),
                 request.getRequestURI(),
@@ -60,12 +57,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         return ResponseEntity
-                .status(ex.getErrorCode().getHttpStatus())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(errorResponse);
     }
 
     /**
-     * Handle legacy NotFoundException (for backward compatibility)
+     * Handle NotFoundException
      */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(
@@ -80,7 +77,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         ErrorResponse errorResponse = buildErrorResponse(
                 HttpStatus.NOT_FOUND,
-                ex.getErrorCode() != null ? ex.getErrorCode().getCode() : "CS_NOT_000",
+                "E003", // COURSE_NOT_FOUND from common ErrorCode
                 ex.getMessage(),
                 request.getRequestURI(),
                 null
