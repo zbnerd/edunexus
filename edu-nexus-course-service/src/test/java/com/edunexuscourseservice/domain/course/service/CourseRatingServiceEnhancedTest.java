@@ -75,7 +75,7 @@ class CourseRatingServiceEnhancedTest {
         });
 
         verify(crudService).save(999L, courseRating);
-        verify(cacheOrchestrator, never()).onRatingAdded(any(), anyInt(), any());
+        verify(cacheOrchestrator, never()).onRatingAdded(anyLong(), anyInt(), anyLong());
     }
 
     @Test
@@ -83,16 +83,18 @@ class CourseRatingServiceEnhancedTest {
         // given
         CourseRating newCourseRating = new CourseRating();
         // crudService.update calls findById internally, so need to mock that too
-        when(crudService.update(999L, newCourseRating))
+        when(crudService.findById(999L)).thenReturn(Optional.empty());
+        when(crudService.update(eq(999L), any(CourseRating.class)))
                 .thenThrow(new NotFoundException("CourseRating not found with id = 999"));
 
         // when & then
-        assertThrows(NotFoundException.class, () -> {
+        Exception exception = assertThrows(NotFoundException.class, () -> {
             courseRatingService.updateRating(999L, newCourseRating);
         });
 
+        assertTrue(exception.getMessage().contains("CourseRating not found"));
         verify(crudService).findById(999L);
-        verify(cacheOrchestrator, never()).onRatingUpdated(any(), anyInt(), any(), anyString());
+        verify(cacheOrchestrator, never()).onRatingUpdated(anyLong(), anyInt(), anyInt(), anyString());
     }
 
     @Test
@@ -106,8 +108,8 @@ class CourseRatingServiceEnhancedTest {
         });
 
         verify(crudService).findById(999L);
-        verify(crudService, never()).delete(any());
-        verify(cacheOrchestrator, never()).onRatingDeleted(any(), anyInt());
+        verify(crudService, never()).delete(anyLong());
+        verify(cacheOrchestrator, never()).onRatingDeleted(anyLong(), anyInt());
     }
 
     @Test
@@ -160,8 +162,6 @@ class CourseRatingServiceEnhancedTest {
     void getAverageRatingByCourseId_WhenRedisReturnsValidValue_ShouldReturnCorrectValue() {
         // given
         when(queryService.getAverageRating(123L)).thenReturn(4.5);
-        Timer.Sample sample = mock(Timer.Sample.class);
-        when(courseMetrics.startCourseRetrieval()).thenReturn(sample);
 
         // when
         Double result = courseRatingService.getAverageRatingByCourseId(123L);
@@ -234,12 +234,9 @@ class CourseRatingServiceEnhancedTest {
         courseRating.setCourse(course);
         courseRating.setRating(5);
 
-        Timer.Sample sample = mock(Timer.Sample.class);
-        when(courseMetrics.startCourseRetrieval()).thenReturn(sample);
-
         when(crudService.save(1L, courseRating)).thenReturn(courseRating);
         doThrow(new RuntimeException("Kafka failed"))
-                .when(cacheOrchestrator).onRatingAdded(any(), anyInt(), any());
+                .when(cacheOrchestrator).onRatingAdded(anyLong(), anyInt(), anyLong());
 
         // when & then
         assertThrows(RuntimeException.class, () -> {
@@ -267,10 +264,16 @@ class CourseRatingServiceEnhancedTest {
         updateRating.setRating(5);
         updateRating.setComment("Updated comment");
 
+        CourseRating updatedRating = new CourseRating();
+        setId(updatedRating, 1L);
+        updatedRating.setCourse(course);
+        updatedRating.setRating(5);
+        updatedRating.setComment("Updated comment");
+
         when(crudService.findById(1L)).thenReturn(Optional.of(existingRating));
-        when(crudService.update(1L, updateRating)).thenReturn(existingRating);
+        when(crudService.update(1L, updateRating)).thenReturn(updatedRating);
         doThrow(new RuntimeException("Kafka failed"))
-                .when(cacheOrchestrator).onRatingUpdated(any(), any(), any(), any());
+                .when(cacheOrchestrator).onRatingUpdated(anyLong(), anyInt(), anyInt(), anyString());
 
         // when & then
         assertThrows(RuntimeException.class, () -> {
@@ -296,7 +299,7 @@ class CourseRatingServiceEnhancedTest {
 
         when(crudService.findById(1L)).thenReturn(Optional.of(existingRating));
         doThrow(new RuntimeException("Kafka failed"))
-                .when(cacheOrchestrator).onRatingDeleted(any(), any());
+                .when(cacheOrchestrator).onRatingDeleted(anyLong(), anyInt());
 
         // when & then
         assertThrows(RuntimeException.class, () -> {
@@ -320,9 +323,6 @@ class CourseRatingServiceEnhancedTest {
         courseRating.setCourse(course);
         courseRating.setRating(5);
 
-        Timer.Sample sample = mock(Timer.Sample.class);
-        when(courseMetrics.startCourseRetrieval()).thenReturn(sample);
-
         when(crudService.save(1L, courseRating))
                 .thenThrow(new RuntimeException("Database save failed"));
 
@@ -332,7 +332,7 @@ class CourseRatingServiceEnhancedTest {
         });
 
         verify(crudService).save(1L, courseRating);
-        verify(cacheOrchestrator, never()).onRatingAdded(any(), anyInt(), any());
+        verify(cacheOrchestrator, never()).onRatingAdded(anyLong(), anyInt(), anyLong());
     }
 
     @Test
@@ -362,7 +362,7 @@ class CourseRatingServiceEnhancedTest {
         });
 
         verify(crudService).update(1L, updateRating);
-        verify(cacheOrchestrator, never()).onRatingUpdated(any(), anyInt(), any(), anyString());
+        verify(cacheOrchestrator, never()).onRatingUpdated(anyLong(), anyInt(), anyInt(), anyString());
     }
 
     @Test
