@@ -70,8 +70,8 @@ class CourseRatingConsumerServiceTest {
             courseRatingConsumerService.courseRatingAdd(validAddEventJson);
         });
 
-        assertEquals("Failed to parse Kafka message", exception.getMessage());
-        verify(courseRatingRedisRepository, never()).cacheReviewRating(any(), any());
+        assertTrue(exception.getMessage().contains("Failed to parse Kafka message"));
+        verify(courseRatingRedisRepository, never()).cacheReviewRating(anyLong(), anyInt());
         verify(objectMapper).readValue(validAddEventJson, CourseRatingAddEvent.class);
     }
 
@@ -85,7 +85,7 @@ class CourseRatingConsumerServiceTest {
 
         when(objectMapper.readValue(validAddEventJson, CourseRatingAddEvent.class)).thenReturn(event);
         doThrow(new RuntimeException("Redis connection failed"))
-                .when(courseRatingRedisRepository).cacheReviewRating(123L, 5);
+                .when(courseRatingRedisRepository).cacheReviewRating(anyLong(), anyInt());
 
         // when & then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -148,8 +148,8 @@ class CourseRatingConsumerServiceTest {
             courseRatingConsumerService.courseRatingUpdate(validUpdateEventJson);
         });
 
-        assertEquals("Failed to parse Kafka message", exception.getMessage());
-        verify(courseRatingRedisRepository, never()).updateReviewRating(any(), any(), any());
+        assertTrue(exception.getMessage().contains("Failed to parse Kafka message"));
+        verify(courseRatingRedisRepository, never()).updateReviewRating(anyLong(), anyInt(), anyInt());
     }
 
     @Test

@@ -82,7 +82,9 @@ class CourseRatingServiceEnhancedTest {
     void updateRating_WhenRatingNotFound_ShouldThrowNotFoundException() {
         // given
         CourseRating newCourseRating = new CourseRating();
-        when(crudService.findById(999L)).thenReturn(Optional.empty());
+        // crudService.update calls findById internally, so need to mock that too
+        when(crudService.update(999L, newCourseRating))
+                .thenThrow(new NotFoundException("CourseRating not found with id = 999"));
 
         // when & then
         assertThrows(NotFoundException.class, () -> {
