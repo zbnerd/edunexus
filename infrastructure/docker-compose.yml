@@ -48,7 +48,7 @@ services:
       - ./.data/zookeeper/logs:/bitnami/zookeeper/logs
 
   kafka1:
-    image: 'bitnami/kafka:3.6.0'
+    image: 'soldevelo/kafka:3.6.2'
     container_name: kafka1
     hostname: kafka1
     ports:
@@ -70,7 +70,7 @@ services:
       - edu-nexus-network
 
   kafka2:
-    image: 'bitnami/kafka:3.6.0'
+    image: 'soldevelo/kafka:3.6.2'
     container_name: kafka2
     ports:
       - 19092
@@ -91,7 +91,7 @@ services:
       - edu-nexus-network
 
   kafka3:
-    image: 'bitnami/kafka:3.6.0'
+    image: 'soldevelo/kafka:3.6.2'
     container_name: kafka3
     ports:
       - 19092
